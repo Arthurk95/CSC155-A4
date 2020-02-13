@@ -22,12 +22,44 @@ public class Utility {
 
 	public static int createShaderProgram(String vS, String fS) {
 		GL4 gl = (GL4) GLContext.getCurrentGL();
-		int vShader  = prepareShader(GL_VERTEX_SHADER, vS);
-		int fShader  = prepareShader(GL_FRAGMENT_SHADER, fS);
+		int[] vertCompiled = new int[1];
+		int[] fragCompiled = new int[1];
+
+		String[] vShaderSource = prepareShader(GL_VERTEX_SHADER, vS);
+		String[] fShaderSource = prepareShader(GL_FRAGMENT_SHADER, fS);
+
+		int vShader = gl.glCreateShader(GL_VERTEX_SHADER);
+		gl.glShaderSource(vShader, vShaderSource.length, vShaderSource, null, 0);
+		gl.glCompileShader(vShader);
+
+		checkOpenGLError();
+
+		gl.glGetShaderiv(vShader, GL_COMPILE_STATUS, vertCompiled, 0);
+		if (vertCompiled[0] != 1) {
+			System.out.println("vertex shader compilation failed");
+			printShaderLog(vShader);
+		}
+
+		int fShader = gl.glCreateShader(GL_FRAGMENT_SHADER);
+		gl.glShaderSource(fShader, fShaderSource.length, fShaderSource, null, 0);
+		gl.glCompileShader(fShader);
+
+		checkOpenGLError();  // can use returned boolean if desired
+		gl.glGetShaderiv(fShader, GL_COMPILE_STATUS, fragCompiled, 0);
+		if (fragCompiled[0] != 1) {
+			System.out.println("fragment shader compilation failed");
+			printShaderLog(fShader);
+		}
+
+
 		int vfprogram = gl.glCreateProgram();
 		gl.glAttachShader(vfprogram, vShader);
 		gl.glAttachShader(vfprogram, fShader);
 		finalizeProgram(vfprogram);
+
+		gl.glDeleteShader(vShader);
+		gl.glDeleteShader(fShader);
+
 		return vfprogram;
 	}
 
@@ -37,14 +69,14 @@ public class Utility {
 		gl.glLinkProgram(sprogram);
 		checkOpenGLError();
 		gl.glGetProgramiv(sprogram, GL_LINK_STATUS, linked, 0);
-		if (linked[0] != 1)
-		{	System.out.println("linking failed");
+		if (linked[0] != 1) {
+			System.out.println("linking failed");
 			printProgramLog(sprogram);
 		}
 		return sprogram;
 	}
-	
-	private static int prepareShader(int shaderTYPE, String shader) {
+
+	private static String[] prepareShader(int shaderTYPE, String shader) {
 		GL4 gl = (GL4) GLContext.getCurrentGL();
 		int[] shaderCompiled = new int[1];
 		String shaderSource[] = readShaderSource(shader);
@@ -62,9 +94,9 @@ public class Utility {
 			System.out.println("shader compilation error.");
 			printShaderLog(shaderRef);
 		}
-		return shaderRef;
+		return shaderSource;
 	}
-	
+
 	private static String[] readShaderSource(String filename) {
 		Vector<String> lines = new Vector<String>();
 		Scanner sc;

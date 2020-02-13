@@ -2,7 +2,8 @@
 
 uniform float increment;
 uniform float theta;
-uniform
+uniform float color;
+uniform float scale;
 
 float x, y;
 
@@ -19,15 +20,21 @@ void main(void){
     }
 
     if (gl_VertexID == 0){ // bottom right corner
-        gl_Position = vec4((0.25 + x), (-0.25 + y), 0.0, 1.0);
-        vertColor = vec4(1.0, 0.0, 0.0, 0.0);
+        gl_Position = vec4(((scale*0.25) + x), ((scale*-0.25) + y), 0.0, 1.0);
+        if(color == 0.0)
+            vertColor = vec4(0.0, 0.0, 1.0, 0.0);
+        else vertColor = vec4(1.0, 0.0, 0.0, 0.0);
     }
     else if (gl_VertexID == 1){ // bottom left corner
-        gl_Position = vec4( (-0.25 + x), (-0.25 + y), 0.0, 1.0);
-        vertColor = vec4(0.0, 1.0, 0.0, 0.0);
+        gl_Position = vec4(((scale*-0.25) + x), ((scale*-0.25) + y), 0.0, 1.0);
+        if(color == 0.0)
+            vertColor = vec4(0.0, 0.0, 1.0, 0.0);
+        else vertColor = vec4(0.0, 1.0, 0.0, 0.0);
     }
     else { // top
-        gl_Position = vec4((0 + x), (0.25 + y), 0.0, 1.0);
+        gl_Position = vec4((0 + x), ((scale*0.25) + y), 0.0, 1.0);
+        if(color == 0.0)
+            vertColor = vec4(0.0, 0.0, 1.0, 0.0);
         vertColor = vec4(0.0, 0.0, 1.0, 0.0);
     }
 }

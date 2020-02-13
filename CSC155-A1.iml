@@ -10,7 +10,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://C:/Program Files/Java/jogamp-all-platforms/jar/jogl-all.jar!/" />
+          <root url="jar://$MODULE_DIR$/../lib/jogamp-all-platforms/jar/gluegen-rt.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -19,7 +19,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://C:/Program Files/Java/jogamp-all-platforms/jar/gluegen-rt.jar!/" />
+          <root url="jar://$MODULE_DIR$/../lib/jogamp-all-platforms/jar/jogl-all.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -28,7 +28,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://C:/Program Files/Java/JOML/joml-1.9.11.jar!/" />
+          <root url="jar://$MODULE_DIR$/../lib/joml/joml-1.9.20.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
