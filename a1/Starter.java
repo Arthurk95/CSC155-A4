@@ -45,6 +45,8 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		myCanvas = new GLCanvas();
 		myCanvas.addGLEventListener(this);
 
+		this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+
 		// BorderLayout with center being GLCanvas, south being buttons
 		this.setLayout(new BorderLayout());
 		this.add(myCanvas, BorderLayout.CENTER);
