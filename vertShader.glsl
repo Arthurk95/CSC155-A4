@@ -21,6 +21,8 @@ void main(void){
 
     if (gl_VertexID == 0){ // bottom right corner
         gl_Position = vec4(((scale*0.25) + x), ((scale*-0.25) + y), 0.0, 1.0);
+
+        // either a solid color or a gradient
         if(color == 0.0)
             vertColor = vec4(0.0, 0.0, 1.0, 0.0);
         else vertColor = vec4(1.0, 0.0, 0.0, 0.0);

@@ -5,6 +5,7 @@ import a1.Starter;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
+// Action that changes the color of the GL shader
 public class ColorAction extends AbstractAction {
     public static Starter program;
 

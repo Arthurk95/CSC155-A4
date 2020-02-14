@@ -5,6 +5,7 @@ import a1.Starter;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
+// Action that sets the draw mode to circle for the GL Object
 public class CircleAction extends AbstractAction {
     public static Starter program;
 

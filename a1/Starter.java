@@ -2,7 +2,7 @@
  * CSC155 - Assignment 1
  * Some code used from provided resources
  *
- *
+ * 	Tested in RVR 5029 on machine PACMAN
  * */
 
 package a1;
@@ -25,14 +25,14 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	private GLCanvas myCanvas;
 	private int renderingProgram;
 	private int vao[] = new int[1];
-	private float gradient = 0.0f;
+	private float gradient = 0.0f; // 0 means solid color; 1 means gradient
 	private float scale = 1.0f;
 
 	private GL4 gl;
 
 	private float verticalIncrement = 0.0f;
 	private float inc = 0.01f;
-	private float theta = 1.0f;
+	private float theta = 1.0f; // bigger number = faster circle
 	private float thetaTotal = 0.0f;
 	private int drawMode = 0; // 0 line, 1 circle
 
@@ -45,6 +45,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		myCanvas = new GLCanvas();
 		myCanvas.addGLEventListener(this);
 
+		// BorderLayout with center being GLCanvas, south being buttons
 		this.setLayout(new BorderLayout());
 		this.add(myCanvas, BorderLayout.CENTER);
 		setKeyCommand('g', new a1.actions.ColorAction(this));
@@ -54,14 +55,18 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		animator.start();
 	}
 
+	// Display method for the GLSL canvas
 	public void display(GLAutoDrawable drawable) {
 		gl = (GL4) GLContext.getCurrentGL();
 		gl.glClear(GL_COLOR_BUFFER_BIT);
 		gl.glClear(GL_DEPTH_BUFFER_BIT);
 		gl.glUseProgram(renderingProgram);
 
+		// Update color value in vertShader.glsl
 		int shaderColor = gl.glGetUniformLocation(renderingProgram, "color");
 		gl.glProgramUniform1f(renderingProgram, shaderColor, gradient);
+
+		// Update scale value in vertShader.glsl
 		int shaderScale = gl.glGetUniformLocation(renderingProgram, "scale");
 		gl.glProgramUniform1f(renderingProgram, shaderScale, scale);
 
@@ -78,7 +83,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		System.out.println("JOGL Version: " + Package.getPackage("com.jogamp.opengl").getImplementationVersion());
 		System.out.println("Java Version: " + System.getProperty("java.version"));
 
-		renderingProgram = Utility.createShaderProgram("vertShader.glsl", "fragShader.glsl");
+		renderingProgram = ShaderTools.createShaderProgram("vertShader.glsl", "fragShader.glsl");
 
 		int shaderColor = gl.glGetUniformLocation(renderingProgram, "color");
 		gl.glProgramUniform1f(renderingProgram, shaderColor, gradient);
@@ -97,6 +102,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		if(thetaTotal > 360.0f) // prevent future overflow?
 			thetaTotal = thetaTotal - 360.0f;
 
+		// Update theta value in vertShader.glsl
 		int shaderTheta = gl.glGetUniformLocation(renderingProgram, "theta");
 		gl.glProgramUniform1f(renderingProgram, shaderTheta, thetaTotal);
 
@@ -109,9 +115,12 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		verticalIncrement += inc;
 		if (verticalIncrement > 1.0f) inc = -0.01f;
 		if (verticalIncrement < -1.0f) inc = 0.01f;
-		int offsetInc = gl.glGetUniformLocation(renderingProgram, "increment");
-		gl.glProgramUniform1f(renderingProgram, offsetInc, verticalIncrement);
 
+		// Update increment value in vertShader.glsl
+		int shaderIncrement = gl.glGetUniformLocation(renderingProgram, "increment");
+		gl.glProgramUniform1f(renderingProgram, shaderIncrement, verticalIncrement);
+
+		// Update theta value in vertShader.glsl
 		int shaderTheta = gl.glGetUniformLocation(renderingProgram, "theta");
 		gl.glProgramUniform1f(renderingProgram, shaderTheta, 0);
 
