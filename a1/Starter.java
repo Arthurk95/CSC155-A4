@@ -35,7 +35,10 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	private GLCanvas myCanvas;
 	private int renderingProgram;
 	private int vao[] = new int[1];
-	private int vbo[] = new int[4];
+	private int vboPyramid[] = new int[2];
+	private int vboCube[] = new int[2];
+	private int vboSphere[] = new int[3]; // VBO for the sphere object
+	private int vboLengths = vboPyramid.length + vboCube.length + vboSphere.length;
 	private float gradient = 0.0f; // 0 means solid color; 1 means gradient
 	private float scale = 1.0f;
 	private FloatBuffer vals = Buffers.newDirectFloatBuffer(16);
@@ -112,7 +115,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		mvStack.pushMatrix();
 		mvStack.translate((float)Math.sin(tf/5)*8.0f, 0.0f, (float)Math.cos(tf/5)*8.0f);
 		mvStack.pushMatrix();
-		mvStack.rotate((float)tf, 0.0f, 1.0f, 0.0f);
+		mvStack.rotate((float)tf, 0.0f, 1.0f, 0.3f);
 
 		drawCube();
 
@@ -120,12 +123,13 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 		//-----------------------  smaller cube == moon
 		mvStack.pushMatrix();
-		mvStack.translate(0.0f, (float)Math.sin(tf)*2.0f, (float)Math.cos(tf)*2.0f);
+		mvStack.translate((float)Math.sin(tf), (float)Math.sin(tf)*2.0f, (float)Math.cos(tf)*2.0f);
 		mvStack.rotate((float)tf, 0.0f, 0.0f, 1.0f);
 		mvStack.scale(0.25f, 0.25f, 0.25f);
 		drawSphere();
 		popMultipleTimes(3);
 
+		//-------- Another sphere planet
 		mvStack.pushMatrix();
 		mvStack.scale(1.0f,1.0f,1.0f);
 		mvStack.translate(-(float)Math.sin(tf/5)*6.0f, 0.0f, -(float)Math.cos(tf/5)*6.0f);
@@ -191,13 +195,14 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 		gl.glGenVertexArrays(vao.length, vao, 0);
 		gl.glBindVertexArray(vao[0]);
-		gl.glGenBuffers(vbo.length, vbo, 0);
+		gl.glGenBuffers(vboCube.length, vboCube, 0);
 
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vboCube[0]);
 		FloatBuffer cubeBuf = Buffers.newDirectFloatBuffer(cubePositions);
 		gl.glBufferData(GL_ARRAY_BUFFER, cubeBuf.limit()*4, cubeBuf, GL_STATIC_DRAW);
 
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+		gl.glGenBuffers(vboPyramid.length, vboPyramid, 0);
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vboPyramid[0]);
 		FloatBuffer diamondBuffer = Buffers.newDirectFloatBuffer(diamondPositions);
 		gl.glBufferData(GL_ARRAY_BUFFER, diamondBuffer.limit()*4, diamondBuffer, GL_STATIC_DRAW);
 
@@ -229,12 +234,13 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 			nvalues[i*3+2]=(float) (norm[indices[i]]).z;
 		}
 
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
+		gl.glGenBuffers(vboSphere.length, vboSphere, 0);
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vboSphere[0]);
 		FloatBuffer vertBuf = Buffers.newDirectFloatBuffer(pvalues);
 		gl.glBufferData(GL_ARRAY_BUFFER, vertBuf.limit()*4, vertBuf, GL_STATIC_DRAW);
 
 
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[3]);
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vboSphere[1]);
 		FloatBuffer norBuf = Buffers.newDirectFloatBuffer(nvalues);
 		gl.glBufferData(GL_ARRAY_BUFFER, norBuf.limit()*4,norBuf, GL_STATIC_DRAW);
 	}
@@ -259,11 +265,11 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 	private void drawSphere(){
 		gl.glUniformMatrix4fv(mvLoc, 1, false, mvStack.get(vals));
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vboSphere[0]);
 		gl.glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
 		gl.glEnableVertexAttribArray(0);
 
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[3]);
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vboSphere[1]);
 		gl.glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0);
 		gl.glEnableVertexAttribArray(1);
 		gl.glDrawArrays(GL_TRIANGLES, 0, numSphereVerts);
@@ -271,7 +277,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 	private void drawCube(){
 		gl.glUniformMatrix4fv(mvLoc, 1, false, mvStack.get(vals));
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vboCube[0]);
 		gl.glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
 		gl.glEnableVertexAttribArray(0);
 		gl.glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -279,7 +285,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 	private void drawDiamond(){
 		gl.glUniformMatrix4fv(mvLoc, 1, false, mvStack.get(vals));
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vboPyramid[0]);
 		gl.glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
 		gl.glEnableVertexAttribArray(0);
 		gl.glEnable(GL_DEPTH_TEST);
