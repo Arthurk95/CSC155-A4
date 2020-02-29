@@ -1,61 +1,18 @@
 #version 430
 
-uniform float increment;
-uniform float theta;
 uniform float color;
-uniform float scale;
-layout (location=0) in vec3 position;
+layout (location = 0) in vec3 position;
+layout (location = 1) in vec2 tex_coord;
 
 uniform mat4 mv_matrix;
 uniform mat4 proj_matrix;
 
-out vec4 varyingColor;
-float x, y;
+layout (binding=0) uniform sampler2D s;
 
-out vec4 vertColor;
-
-void calcNextPosCircle();
-void calcNextPosLine();
+out vec2 tc;
+out float tex;
 
 void main(void){
     gl_Position = proj_matrix * mv_matrix * vec4(position,1.0);
-    varyingColor = vec4(position,1.0)*0.5 + vec4(0.5, 0.5, 0.5, 0.5);
-    /*
-    if (theta == 0)
-        calcNextPosLine();
-    else {
-        calcNextPosCircle();
-    }
-
-    if (gl_VertexID == 0){ // bottom right corner
-        gl_Position = vec4(((scale*0.25) + x), ((scale*-0.25) + y), 0.0, 1.0);
-
-        // either a solid color or a gradient
-        if(color == 0.0)
-            vertColor = vec4(0.0, 0.0, 1.0, 0.0);
-        else vertColor = vec4(1.0, 0.0, 0.0, 0.0);
-    }
-    else if (gl_VertexID == 1){ // bottom left corner
-        gl_Position = vec4(((scale*-0.25) + x), ((scale*-0.25) + y), 0.0, 1.0);
-        if(color == 0.0)
-            vertColor = vec4(0.0, 0.0, 1.0, 0.0);
-        else vertColor = vec4(0.0, 1.0, 0.0, 0.0);
-    }
-    else { // top
-        gl_Position = vec4((0 + x), ((scale*0.25) + y), 0.0, 1.0);
-        if(color == 0.0)
-            vertColor = vec4(0.0, 0.0, 1.0, 0.0);
-        vertColor = vec4(0.0, 0.0, 1.0, 0.0);
-    }
-    */
-}
-
-void calcNextPosCircle(){
-    x = (0.5*cos(radians(90 + theta)));
-    y = (0.5*sin(radians(90 + theta)));
-}
-
-void calcNextPosLine(){
-  x = 0;
-  y = increment;
+    tc = tex_coord;
 }

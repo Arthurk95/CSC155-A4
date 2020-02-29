@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1f0ac45b-1513-4a63-8cb0-e37a5c2d0247" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/a1/models/Sphere.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" />
+    <list default="true" id="1f0ac45b-1513-4a63-8cb0-e37a5c2d0247" name="Default Changelist" comment="added axis lines">
+      <change afterPath="$PROJECT_DIR$/a1/Camera.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/a1/models/Cube.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/a1/models/Diamond.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a1/ShaderTools.java" beforeDir="false" afterPath="$PROJECT_DIR$/a1/ShaderTools.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/a1/Starter.java" beforeDir="false" afterPath="$PROJECT_DIR$/a1/Starter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a1/models/Sphere.java" beforeDir="false" afterPath="$PROJECT_DIR$/a1/models/Sphere.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/fragShader.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/fragShader.glsl" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/vertShader.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/vertShader.glsl" afterDir="false" />
     </list>
@@ -85,7 +89,28 @@
       <option name="project" value="LOCAL" />
       <updated>1581721667084</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="preparing for next part of assignment. created beginning of solar system">
+      <created>1582592704514</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1582592704514</updated>
+    </task>
+    <task id="LOCAL-00005" summary="separated vbo arrays for each shape">
+      <created>1582761941315</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1582761941315</updated>
+    </task>
+    <task id="LOCAL-00006" summary="added axis lines">
+      <created>1582765687999</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1582765687999</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -105,6 +130,25 @@
     <MESSAGE value="finished all requirements" />
     <MESSAGE value="added comments, reorganized code a bit" />
     <MESSAGE value="exit on jframe close" />
-    <option name="LAST_COMMIT_MESSAGE" value="exit on jframe close" />
+    <MESSAGE value="preparing for next part of assignment. created beginning of solar system" />
+    <MESSAGE value="separated vbo arrays for each shape" />
+    <MESSAGE value="added axis lines" />
+    <option name="LAST_COMMIT_MESSAGE" value="added axis lines" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/a1/Starter.java</url>
+          <line>112</line>
+          <option name="timeStamp" value="8" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/a1/Starter.java</url>
+          <line>131</line>
+          <option name="timeStamp" value="9" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

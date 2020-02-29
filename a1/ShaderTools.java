@@ -9,6 +9,8 @@ import java.util.Vector;
 import static a1.ErrorHandling.*;
 import static com.jogamp.opengl.GL4.*;
 import com.jogamp.opengl.*;
+import com.jogamp.opengl.util.texture.Texture;
+import com.jogamp.opengl.util.texture.TextureIO;
 
 // ShaderTools is a class that will contain all useful functions to use for Shader files (.glsl).
 // This includes reading shader files, linking, etc.
@@ -118,5 +120,27 @@ public class ShaderTools {
 			return null;
 		}
 		return program;
+	}
+
+	public static int loadTexture(String textureFileName)
+	{	GL4 gl = (GL4) GLContext.getCurrentGL();
+		int finalTextureRef;
+		Texture tex = null;
+		String tmp = new File("").getAbsolutePath();
+		textureFileName = tmp + textureFileName;
+		try { tex = TextureIO.newTexture(new File(textureFileName), false); }
+		catch (Exception e) { e.printStackTrace(); }
+		finalTextureRef = tex.getTextureObject();
+
+		// building a mipmap and use anisotropic filtering
+		gl.glBindTexture(GL_TEXTURE_2D, finalTextureRef);
+		gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		gl.glGenerateMipmap(GL.GL_TEXTURE_2D);
+		if (gl.isExtensionAvailable("GL_EXT_texture_filter_anisotropic"))
+		{	float anisoset[] = new float[1];
+			gl.glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, anisoset, 0);
+			gl.glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisoset[0]);
+		}
+		return finalTextureRef;
 	}
 }

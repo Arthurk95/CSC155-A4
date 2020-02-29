@@ -7,9 +7,12 @@
 
 package a1;
 
+import javax.rmi.CORBA.Util;
 import javax.swing.*;
 import static com.jogamp.opengl.GL4.*;
 
+import a1.models.Cube;
+import a1.models.Diamond;
 import a1.models.Sphere;
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.*;
@@ -26,6 +29,11 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.nio.FloatBuffer;
 
+/* All planet textures from https://www.solarsystemscope.com/textures/,
+ * Stated at the bottom that their textures are distributed under
+ * Attribution 4.0 International license
+ *
+ * */
 public class Starter extends JFrame implements GLEventListener, MouseWheelListener {
 	public static final float MAX_SCALE = 2.0f;
 	public static final float MIN_SCALE = 0.1f;
@@ -35,7 +43,6 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	private GLCanvas myCanvas;
 	private int renderingProgram;
 	private int[] vao = new int[1];
-	private int[] vboLine = new int[1];
 	private int[] vboDiamond = new int[2];
 	private int[] vboCube = new int[2];
 	private int[] vboSphere = new int[3]; // VBO for the sphere object
@@ -47,8 +54,9 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	private int mvLoc, projLoc;
 	private float aspect;
 	private double tf;
+	private int earthTexture, moonTexture, marsTexture, venusTexture, lineTexture, sunTexture, jupiterTexture;
 
-	private Sphere sun;
+	private Sphere sphere;
 	private int numSphereVerts;
 	private GL4 gl;
 
@@ -102,57 +110,53 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 		tf = elapsedTime/1000.0;  // time factor
 
+		drawAxisLines();
+
+		drawSun();
+
+		//------- venus
 		mvStack.pushMatrix();
-		mvStack.translate(25.0f, 0.0f, 0.0f);
-		mvStack.scale(50.0f, 0.04f, 0.04f);
-		drawCube();
+		mvStack.scale(0.4f, 0.4f, 0.4f);
+		mvStack.translate((float)Math.sin(tf)*6.0f, 0.0f, (float)Math.cos(tf)*6.0f);
+		mvStack.rotate(-(float)tf/8, 0.0f, 1.0f, 0.2f);
+		drawSphere(venusTexture);
 		mvStack.popMatrix();
 
+		//----------------------- Draw earth
 		mvStack.pushMatrix();
-		mvStack.translate(0.0f, 25.0f, 0.0f);
-		mvStack.scale(0.04f, 50.0f, 0.04f);
-		drawCube();
-		mvStack.popMatrix();
+		mvStack.translate((float)Math.sin(tf/4)*6.0f, 0.0f, (float)Math.cos(tf/4)*6.0f);
+		mvStack.pushMatrix();
+		mvStack.scale(0.6f, 0.6f, 0.6f);
+		mvStack.rotate((float)tf/2, 0.0f, 1.0f, 0.3f);
 
-		mvStack.pushMatrix();
-		mvStack.translate(0.0f, 0.0f, 25.0f);
-		mvStack.scale(0.04f, 0.04f, 50.0f);
-		drawCube();
-		mvStack.popMatrix();
-
-		// ----------------------  pyramid == sun
-		mvStack.pushMatrix();
-		mvStack.translate(0.0f, 0.0f, 0.0f);
-		mvStack.pushMatrix();
-		mvStack.rotate((float)tf, 0.0f, 1.0f, 0.0f);
-		drawDiamond();
+		drawSphere(earthTexture);
 
 		mvStack.popMatrix();
 
-		//-----------------------  cube == planet
-		mvStack.pushMatrix();
-		mvStack.translate((float)Math.sin(tf/5)*8.0f, 0.0f, (float)Math.cos(tf/5)*8.0f);
-		mvStack.pushMatrix();
-		mvStack.rotate((float)tf, 0.0f, 1.0f, 0.3f);
-
-		drawCube();
-
-		mvStack.popMatrix();
-
-		//-----------------------  smaller cube == moon
+		//----------------------- earth's moon
 		mvStack.pushMatrix();
 		mvStack.translate((float)Math.sin(tf), (float)Math.sin(tf)*2.0f, (float)Math.cos(tf)*2.0f);
 		mvStack.rotate((float)tf, 0.0f, 0.0f, 1.0f);
 		mvStack.scale(0.25f, 0.25f, 0.25f);
-		drawSphere();
+		drawSphere(moonTexture);
 		popMultipleTimes(3);
 
-		//-------- Another sphere planet
+		//-------- mars
 		mvStack.pushMatrix();
-		mvStack.scale(1.0f,1.0f,1.0f);
-		mvStack.translate(-(float)Math.sin(tf/5)*6.0f, 0.0f, -(float)Math.cos(tf/5)*6.0f);
-		mvStack.rotate(0.2f, 1.0f, 0.0f, 0.0f);
-		drawSphere();
+		mvStack.scale(0.5f, 0.5f, 0.5f);
+		mvStack.translate((float)Math.sin(tf/5)*20.0f, 0.0f, (float)Math.cos(tf/5)*20.0f);
+		mvStack.rotate((float)tf/2, 0.0f, 1.0f, 0.2f);
+		drawSphere(marsTexture);
+		mvStack.popMatrix();
+
+		//------- jupiter
+		mvStack.pushMatrix();
+		mvStack.scale(1.0f, 1.0f, 1.0f);
+		mvStack.translate((float)Math.sin(tf/8)*30.0f, 0.0f, (float)Math.cos(tf/8)*30.0f);
+		mvStack.rotate(-(float)tf/5, 0.0f, 1.0f, 0.1f);
+		drawSphere(jupiterTexture);
+
+
 		popMultipleTimes(2);
 	}
 
@@ -169,72 +173,72 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 		int shaderColor = gl.glGetUniformLocation(renderingProgram, "color");
 		gl.glProgramUniform1f(renderingProgram, shaderColor, gradient);
-		gl.glGenVertexArrays(vao.length, vao, 0);
-		gl.glBindVertexArray(vao[0]);
 
 		setupVertices();
 
 		cameraX = 0.0f; cameraY = 2.0f; cameraZ = 20.0f;
 
+		earthTexture = ShaderTools.loadTexture("\\a1\\textures\\earth.jpg");
+		moonTexture = ShaderTools.loadTexture("\\a1\\textures\\moon.jpg");
+		venusTexture = ShaderTools.loadTexture("\\a1\\textures\\venus.jpg");
+		lineTexture = ShaderTools.loadTexture("\\a1\\textures\\lines.jpg");
+		marsTexture = ShaderTools.loadTexture("\\a1\\textures\\mars.jpg");
+		moonTexture = ShaderTools.loadTexture("\\a1\\textures\\moon.jpg");
+		sunTexture = ShaderTools.loadTexture("\\a1\\textures\\sun.jpg");
+		jupiterTexture = ShaderTools.loadTexture("\\a1\\textures\\jupiter.jpg");
+
 	}
 
 	private void setupVertices()
 	{	gl = (GL4) GLContext.getCurrentGL();
-		float[] cubePositions =
-				{	-1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f,
-						1.0f, -1.0f, -1.0f, 1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f,
-						1.0f, -1.0f, -1.0f, 1.0f, -1.0f,  1.0f, 1.0f,  1.0f, -1.0f,
-						1.0f, -1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f, -1.0f,
-						1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, 1.0f,  1.0f,  1.0f,
-						-1.0f, -1.0f,  1.0f, -1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f,
-						-1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f,  1.0f,
-						-1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f,  1.0f,
-						-1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f, -1.0f, -1.0f,
-						1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f,
-						-1.0f,  1.0f, -1.0f, 1.0f,  1.0f, -1.0f, 1.0f,  1.0f,  1.0f,
-						1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f, -1.0f
-				};
 
-		float[] diamondPositions =
-				{	-1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 2.0f, 0.0f,    //front
-						1.0f, 0.0f, 1.0f, 1.0f, 0.0f, -1.0f, 0.0f, 2.0f, 0.0f,    //right
-						1.0f, 0.0f, -1.0f, -1.0f, 0.0f, -1.0f, 0.0f, 2.0f, 0.0f,  //back
-						-1.0f, 0.0f, -1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 2.0f, 0.0f,  //left
-						-1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, -2.0f, 0.0f,    //front
-						1.0f, 0.0f, 1.0f, 1.0f, 0.0f, -1.0f, 0.0f, -2.0f, 0.0f,    //right
-						1.0f, 0.0f, -1.0f, -1.0f, 0.0f, -1.0f, 0.0f, -2.0f, 0.0f,  //back
-						-1.0f, 0.0f, -1.0f, -1.0f, 0.0f, 1.0f, 0.0f, -2.0f, 0.0f,  //left
-				};
-
-		for (int i = 0; i < cubePositions.length; i++){
-			cubePositions[i] = cubePositions[i] * 0.5f;
-		}
 
 		gl.glGenVertexArrays(vao.length, vao, 0);
 		gl.glBindVertexArray(vao[0]);
-		gl.glGenBuffers(vboCube.length, vboCube, 0);
 
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vboCube[0]);
-		FloatBuffer cubeBuf = Buffers.newDirectFloatBuffer(cubePositions);
-		gl.glBufferData(GL_ARRAY_BUFFER, cubeBuf.limit()*4, cubeBuf, GL_STATIC_DRAW);
+		setupCube();
 
-		gl.glGenBuffers(vboDiamond.length, vboDiamond, 0);
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vboDiamond[0]);
-		FloatBuffer diamondBuffer = Buffers.newDirectFloatBuffer(diamondPositions);
-		gl.glBufferData(GL_ARRAY_BUFFER, diamondBuffer.limit()*4, diamondBuffer, GL_STATIC_DRAW);
-
+		setupDiamond();
 		setupSphere();
 
 	}
 
-	private void setupSphere(){
-		sun = new Sphere(96);
-		numSphereVerts = sun.getIndices().length;
+	private void setupCube(){
+		Cube cube = new Cube();
 
-		int[] indices = sun.getIndices();
-		Vector3f[] vert = sun.getVertices();
-		Vector2f[] tex  = sun.getTexCoords();
-		Vector3f[] norm = sun.getNormals();
+		gl.glGenBuffers(vboCube.length, vboCube, 0);
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vboCube[0]);
+		FloatBuffer vertBuf = Buffers.newDirectFloatBuffer(cube.getPositions());
+		gl.glBufferData(GL_ARRAY_BUFFER, vertBuf.limit()*4, vertBuf, GL_STATIC_DRAW);
+
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vboCube[1]);
+		FloatBuffer texBuf = Buffers.newDirectFloatBuffer(cube.getTextCoords());
+		gl.glBufferData(GL_ARRAY_BUFFER, texBuf.limit()*4, texBuf, GL_STATIC_DRAW);
+
+	}
+
+	private void setupDiamond(){
+		Diamond diamond = new Diamond();
+
+		gl.glGenBuffers(vboDiamond.length, vboDiamond, 0);
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vboDiamond[0]);
+		FloatBuffer vertBuf = Buffers.newDirectFloatBuffer(diamond.getPositions());
+		gl.glBufferData(GL_ARRAY_BUFFER, vertBuf.limit()*4, vertBuf, GL_STATIC_DRAW);
+
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vboDiamond[1]);
+		FloatBuffer texBuf = Buffers.newDirectFloatBuffer(diamond.getTextureCoords());
+		gl.glBufferData(GL_ARRAY_BUFFER, texBuf.limit()*4, texBuf, GL_STATIC_DRAW);
+
+	}
+
+	private void setupSphere(){
+		sphere = new Sphere(96);
+		numSphereVerts = sphere.getIndices().length;
+
+		int[] indices = sphere.getIndices();
+		Vector3f[] vert = sphere.getVertices();
+		Vector2f[] tex  = sphere.getTexCoords();
+		Vector3f[] norm = sphere.getNormals();
 
 		float[] pvalues = new float[indices.length*3];
 		float[] tvalues = new float[indices.length*2];
@@ -256,10 +260,15 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		FloatBuffer vertBuf = Buffers.newDirectFloatBuffer(pvalues);
 		gl.glBufferData(GL_ARRAY_BUFFER, vertBuf.limit()*4, vertBuf, GL_STATIC_DRAW);
 
-
 		gl.glBindBuffer(GL_ARRAY_BUFFER, vboSphere[1]);
+		FloatBuffer texBuf = Buffers.newDirectFloatBuffer(tvalues);
+		gl.glBufferData(GL_ARRAY_BUFFER, texBuf.limit()*4, texBuf, GL_STATIC_DRAW);
+
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vboSphere[2]);
 		FloatBuffer norBuf = Buffers.newDirectFloatBuffer(nvalues);
 		gl.glBufferData(GL_ARRAY_BUFFER, norBuf.limit()*4,norBuf, GL_STATIC_DRAW);
+
+
 	}
 
 	public static void main(String[] args) { new Starter(); }
@@ -280,7 +289,96 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		gl.glDrawArrays(GL_TRIANGLES,0,3);
 	}
 
-	private void drawSphere(){
+	private void drawSun(){
+		mvStack.pushMatrix();
+		mvStack.translate(0.0f, 1.25f, 0.0f);
+		mvStack.pushMatrix();
+		mvStack.scale(2.5f, 2.5f, 2.5f);
+		mvStack.rotate((float)tf/3, 0.0f, 1.0f, 0.0f);
+		drawDiamond(sunTexture);
+		mvStack.popMatrix();
+	}
+
+	// Re-uses the cube model to draw very thin lines along the xyz axes
+	private void drawAxisLines(){
+		// x-axis
+		mvStack.pushMatrix();
+		mvStack.translate(25.0f, 0.0f, 0.0f);
+		mvStack.scale(50.0f, 0.04f, 0.04f);
+		drawCube(lineTexture);
+		mvStack.popMatrix();
+
+
+		mvStack.pushMatrix();
+		mvStack.translate(0.0f, 25.0f, 0.0f);
+		mvStack.scale(0.04f, 50.0f, 0.04f);
+		drawCube(lineTexture);
+		mvStack.popMatrix();
+
+		mvStack.pushMatrix();
+		mvStack.translate(0.0f, 0.0f, 25.0f);
+		mvStack.scale(0.04f, 0.04f, 50.0f);
+		drawCube(lineTexture);
+		mvStack.popMatrix();
+	}
+
+	private void drawSphere(int tex){
+		gl.glUniformMatrix4fv(mvLoc, 1, false, mvStack.get(vals));
+		gl.glUniformMatrix4fv(projLoc, 1, false, pMat.get(vals));
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vboSphere[0]);
+		gl.glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
+		gl.glEnableVertexAttribArray(0);
+
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vboSphere[1]);
+		gl.glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0);
+		gl.glEnableVertexAttribArray(1);
+
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vboSphere[2]);
+		gl.glVertexAttribPointer(2, 2, GL_FLOAT, false, 0, 0);
+		gl.glEnableVertexAttribArray(2);
+
+		bindTexture(tex);
+
+		gl.glDrawArrays(GL_TRIANGLES, 0, numSphereVerts);
+	}
+
+	private void drawCube(int tex){
+		gl.glUniformMatrix4fv(mvLoc, 1, false, mvStack.get(vals));
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vboCube[0]);
+		gl.glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
+		gl.glEnableVertexAttribArray(0);
+
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vboCube[1]);
+		gl.glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0);
+		gl.glEnableVertexAttribArray(1);
+
+		bindTexture(tex);
+
+		gl.glDrawArrays(GL_TRIANGLES, 0, 36);
+	}
+
+	private void drawDiamond(int tex){
+		gl.glUniformMatrix4fv(mvLoc, 1, false, mvStack.get(vals));
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vboDiamond[0]);
+		gl.glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
+		gl.glEnableVertexAttribArray(0);
+
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vboDiamond[1]);
+		gl.glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0);
+		gl.glEnableVertexAttribArray(1);
+		gl.glEnable(GL_DEPTH_TEST);
+
+		bindTexture(tex);
+		gl.glDrawArrays(GL_TRIANGLES, 0, 24);
+	}
+
+	private void drawAsteroidBelt(int tex){
+		float ranNum = (float)Math.random()*360;
+		mvStack.pushMatrix();
+		mvStack.translate((float)Math.sin(ranNum)*5.0f, 0.0f, (float)Math.cos(ranNum)*5.0f);
+		mvStack.scale(0.3f, 0.3f, 0.3f);
+		mvStack.rotate((float)tf/2, 0.0f, 1.0f, 0.3f);
+
 		gl.glUniformMatrix4fv(mvLoc, 1, false, mvStack.get(vals));
 		gl.glBindBuffer(GL_ARRAY_BUFFER, vboSphere[0]);
 		gl.glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
@@ -289,33 +387,22 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		gl.glBindBuffer(GL_ARRAY_BUFFER, vboSphere[1]);
 		gl.glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0);
 		gl.glEnableVertexAttribArray(1);
-		gl.glDrawArrays(GL_TRIANGLES, 0, numSphereVerts);
-	}
-
-	private void drawCube(){
-		gl.glUniformMatrix4fv(mvLoc, 1, false, mvStack.get(vals));
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vboCube[0]);
-		gl.glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
-		gl.glEnableVertexAttribArray(0);
-		gl.glDrawArrays(GL_TRIANGLES, 0, 36);
-	}
-
-	private void drawDiamond(){
-		gl.glUniformMatrix4fv(mvLoc, 1, false, mvStack.get(vals));
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vboDiamond[0]);
-		gl.glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
-		gl.glEnableVertexAttribArray(0);
 		gl.glEnable(GL_DEPTH_TEST);
-		gl.glDrawArrays(GL_TRIANGLES, 0, 24);
+		bindTexture(tex);
+		gl.glDrawArrays(GL_TRIANGLES, 0, numSphereVerts);
+		mvStack.popMatrix();
+
+
+
 	}
 
-	private void drawLine(){
-		gl.glUniformMatrix4fv(mvLoc, 1, false, mvStack.get(vals));
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vboLine[0]);
-		gl.glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
-		gl.glEnableVertexAttribArray(0);
-		gl.glDrawArrays(GL_TRIANGLES, 0, 3);
+	private void bindTexture(int tex){
+		gl.glActiveTexture(GL_TEXTURE0);
+		gl.glBindTexture(GL_TEXTURE_2D, tex);
+		gl.glEnable(GL_CULL_FACE);
+		gl.glFrontFace(GL_CCW);
 	}
+
 	// Increments a verticalIncrement variable up to 1.0f/-1.0f and passes it to the vertical shader
 	private void animateLine(){
 		verticalIncrement += inc;
