@@ -7,10 +7,8 @@ layout (location = 1) in vec2 tex_coord;
 uniform mat4 mv_matrix;
 uniform mat4 proj_matrix;
 
-layout (binding=0) uniform sampler2D s;
 
 out vec2 tc;
-out float tex;
 
 void main(void){
     gl_Position = proj_matrix * mv_matrix * vec4(position,1.0);
