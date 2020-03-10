@@ -7,7 +7,6 @@ layout (location = 1) in vec2 tex_coord;
 uniform mat4 mv_matrix;
 uniform mat4 proj_matrix;
 
-
 out vec2 tc;
 
 void main(void){

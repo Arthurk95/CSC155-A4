@@ -11,6 +11,7 @@ import javax.rmi.CORBA.Util;
 import javax.swing.*;
 import static com.jogamp.opengl.GL4.*;
 
+import a1.actions.camera.*;
 import a1.models.Cube;
 import a1.models.Diamond;
 import a1.models.Sphere;
@@ -19,14 +20,13 @@ import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.GLContext;
 import com.jogamp.opengl.util.*;
-import org.joml.Matrix4f;
-import org.joml.Matrix4fStack;
-import org.joml.Vector2f;
-import org.joml.Vector3f;
+import org.joml.*;
 
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.lang.Math;
 import java.nio.FloatBuffer;
 
 /* All planet textures from https://www.solarsystemscope.com/textures/,
@@ -39,7 +39,6 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	public static final float MIN_SCALE = 0.1f;
 	private double startTime = 0.0;
 	private double elapsedTime;
-	private float cameraX, cameraY, cameraZ;
 	private GLCanvas myCanvas;
 	private int renderingProgram;
 	private int[] vao = new int[1];
@@ -56,6 +55,8 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	private double tf;
 	private int earthTexture, moonTexture, marsTexture, venusTexture, lineTexture, sunTexture, jupiterTexture;
 
+	private Camera camera;
+
 	private Sphere sphere;
 	private int numSphereVerts;
 	private GL4 gl;
@@ -69,7 +70,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	public Starter() {
 		setTitle("CSC 155 - a2");
 		setSize(800, 800);
-
+		camera = new Camera(0.0f, -2.0f, -20.0f);
 		this.addMouseWheelListener(this);
 
 		myCanvas = new GLCanvas();
@@ -77,10 +78,23 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 		this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
+
 		// BorderLayout with center being GLCanvas, south being buttons
 		this.setLayout(new BorderLayout());
 		this.add(myCanvas, BorderLayout.CENTER);
-		setKeyCommand('g', new a1.actions.ColorAction(this));
+		setupKeyBindings();
+		/*
+		setKeyCommand(KeyEvent.VK_W, new MoveForward(camera));
+		setKeyCommand(KeyEvent.VK_A, new MoveLeft(camera));
+		setKeyCommand(KeyEvent.VK_S, new MoveBackward(camera));
+		setKeyCommand(KeyEvent.VK_D, new MoveRight(camera));
+		setKeyCommand(KeyEvent.VK_Q, new MoveUp(camera));
+		setKeyCommand(KeyEvent.VK_E, new MoveDown(camera));
+		//setKeyCommand((char)KeyEvent.VK_LEFT, new a1.actions.camera.PanLeft(camera));
+		//setKeyCommand((char)KeyEvent.VK_RIGHT, new a1.actions.camera.PanRight(camera));
+		//setKeyCommand((char)KeyEvent.VK_UP, new a1.actions.camera.PitchUp(camera));
+		//setKeyCommand((char)KeyEvent.VK_DOWN, new a1.actions.camera.PitchDown(camera));
+		*/
 		this.add(makeBottomBar(), BorderLayout.SOUTH);
 		this.setVisible(true);
 		Animator animator = new Animator(myCanvas);
@@ -103,10 +117,10 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		pMat.identity().setPerspective((float) Math.toRadians(60.0f), aspect, 0.1f, 1000.0f);
 		gl.glUniformMatrix4fv(projLoc, 1, false, pMat.get(vals));
 
+		Vector4f pc = camera.getLoc();
 		// push view matrix onto the stack
 		mvStack.pushMatrix();
-		mvStack.translate(-cameraX, -cameraY, -cameraZ);
-		mvStack.rotate(0.1f, 1.0f, 0.0f, 0.0f);
+		mvStack.translate(pc.x, pc.y, pc.z);
 
 		tf = elapsedTime/1000.0;  // time factor
 
@@ -176,7 +190,6 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 		setupVertices();
 
-		cameraX = 0.0f; cameraY = 2.0f; cameraZ = 20.0f;
 
 		earthTexture = ShaderTools.loadTexture("\\a1\\textures\\earth.jpg");
 		moonTexture = ShaderTools.loadTexture("\\a1\\textures\\moon.jpg");
@@ -291,8 +304,9 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 	private void drawSun(){
 		mvStack.pushMatrix();
-		mvStack.translate(0.0f, 1.25f, 0.0f);
+		mvStack.translate(0.0f, 0.0f, 0.0f);
 		mvStack.pushMatrix();
+		mvStack.translate(0.0f, 1.25f, 0.0f);
 		mvStack.scale(2.5f, 2.5f, 2.5f);
 		mvStack.rotate((float)tf/3, 0.0f, 1.0f, 0.0f);
 		drawDiamond(sunTexture);
@@ -446,17 +460,54 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	}
 
 	// Binds a key to a command
-	private void setKeyCommand(char key, AbstractAction action){
+	private void setKeyCommand(int key, AbstractAction action){
 		JComponent window = (JComponent) this.getContentPane(); // entire JFrame window
 		int mapName = JComponent.WHEN_IN_FOCUSED_WINDOW; // window is selected
 		InputMap inputMap = window.getInputMap(mapName);
 
-		KeyStroke gKey = KeyStroke.getKeyStroke(key); // KeyStroke represents the key
+		KeyStroke gKey = KeyStroke.getKeyStroke(key, 0); // KeyStroke represents the key
 
-		inputMap.put(gKey, "color");
+		inputMap.put(gKey, key);
 		ActionMap actionMap = window.getActionMap(); // get the action map for the window
 
-		actionMap.put("color", action);
+		actionMap.put(gKey, action);
+	}
+
+
+	private void setupKeyBindings(){
+		JComponent window = (JComponent) this.getContentPane(); // entire JFrame window
+		InputMap imap = window.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+		ActionMap amap = window.getActionMap();
+
+		imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0), KeyEvent.VK_W);
+		amap.put(KeyEvent.VK_W, new MoveForward(camera));
+
+		imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0), KeyEvent.VK_S);
+		amap.put(KeyEvent.VK_S, new MoveBackward(camera));
+
+		imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0), KeyEvent.VK_A);
+		amap.put(KeyEvent.VK_A, new MoveLeft(camera));
+
+		imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0), KeyEvent.VK_D);
+		amap.put(KeyEvent.VK_D, new MoveRight(camera));
+
+		imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_E, 0), KeyEvent.VK_E);
+		amap.put(KeyEvent.VK_E, new MoveDown(camera));
+
+		imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_Q, 0), KeyEvent.VK_Q);
+		amap.put(KeyEvent.VK_Q, new MoveUp(camera));
+
+		imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), KeyEvent.VK_LEFT);
+		amap.put(KeyEvent.VK_LEFT, new PanLeft(camera));
+
+		imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), KeyEvent.VK_RIGHT);
+		amap.put(KeyEvent.VK_RIGHT, new PanRight(camera));
+
+		imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), KeyEvent.VK_UP);
+		amap.put(KeyEvent.VK_UP, new PitchUp(camera));
+
+		imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), KeyEvent.VK_DOWN);
+		amap.put(KeyEvent.VK_DOWN, new PitchDown(camera));
 	}
 
 	// 0.0f is normal, 1.0f is gradient

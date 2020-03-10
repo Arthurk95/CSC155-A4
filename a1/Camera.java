@@ -1,20 +1,82 @@
 package a1;
 
-import org.joml.Vector3f;
+import org.joml.Matrix4f;
+import org.joml.Vector4f;
 
 public class Camera {
-    private Vector3f location = new Vector3f(0.0f, 0.0f, 8.0f);
-    private Vector3f uVector = new Vector3f(1.0f, 0.0f, 0.0f);
-    private Vector3f vVector = new Vector3f(0.0f, 1.0f, 0.0f);
-    private Vector3f nVector = new Vector3f(0.0f, 0.0f, 1.0f);
+    private Vector4f cVector;
 
-    private void moveForward(){ location.add(nVector); }
-    private void moveBackward(){ location.sub(nVector); }
+    private Vector4f pc = new Vector4f();
+    private final float MOVE_INTERVAL = 1.0f;
 
-    private void moveLeft(){ location.sub(uVector); }
-    private void moveRight(){ location.add(uVector); }
+    private Vector4f uVector = new Vector4f(MOVE_INTERVAL, 0.0f, 0.0f, 0.0f);
+    private Vector4f vVector = new Vector4f(0.0f, MOVE_INTERVAL, 0.0f, 0.0f);
+    private Vector4f nVector = new Vector4f(0.0f, 0.0f, MOVE_INTERVAL, 0.0f);
 
-    private void moveUp(){ location.add(vVector); }
-    private void moveDown(){ location.sub(vVector); }
+    private Matrix4f viewMatrix;
 
+    public Camera(float x, float y, float z){
+        cVector = new Vector4f(x, y, z, 1.0f);
+        viewMatrix = new Matrix4f();
+        updateView();
+    }
+
+
+
+    public void updateView() {
+        uVector.normalize();
+        vVector.normalize();
+        nVector.normalize();
+        Matrix4f rMat = new Matrix4f(
+                uVector.x, uVector.y, uVector.z, 0.0f,
+                vVector.x, vVector.y, vVector.z, 0.0f,
+                nVector.x, nVector.y, nVector.z, 0.0f,
+                0.0f, 0.0f, 0.0f, 1.0f
+        );
+
+        Matrix4f tMat = new Matrix4f(
+          1.0f, 0.0f, 0.0f, -cVector.x,
+          0.0f, 1.0f, 0.0f, -cVector.y,
+          0.0f, 0.0f, 1.0f, -cVector.z,
+          0.0f, 0.0f, 0.0f, 1.0f
+        );
+        rMat.mul(tMat, viewMatrix);
+        cVector.mul(viewMatrix, pc);
+        System.out.println(pc.y + " " + cVector.y);
+    }
+
+    public void moveForward(){ cVector.add(nVector); updateView();}
+    public void moveBackward(){ cVector.sub(nVector); updateView();}
+
+    public void moveLeft(){ cVector.add(uVector); updateView();}
+    public void moveRight(){ cVector.sub(uVector); updateView(); }
+
+    public void moveUp(){  cVector.add(vVector); updateView();}
+    public void moveDown(){ cVector.sub(vVector); updateView();}
+
+    public void pitchDown(){
+        nVector.rotateAbout(0.01f, -(uVector.x), -(uVector.y), -(uVector.z));
+        vVector.rotateAbout(0.01f, -(uVector.x), -(uVector.y), -(uVector.z));
+        updateView();
+    }
+
+    public void pitchUp(){
+        nVector.rotateAbout(0.01f, uVector.x, uVector.y, uVector.z);
+        vVector.rotateAbout(0.01f, uVector.x, uVector.y, uVector.z);
+        updateView();
+    }
+
+    public void panLeft(){
+        nVector.rotateAbout(0.01f, vVector.x, vVector.y, vVector.z);
+        uVector.rotateAbout(0.01f, vVector.x, vVector.y, vVector.z);
+        updateView();
+    }
+    public void panRight(){
+        nVector.rotateAbout(0.01f, -(vVector.x), -(vVector.y), -(vVector.z));
+        uVector.rotateAbout(0.01f, -(vVector.x), -(vVector.y), -(vVector.z));
+        updateView();
+    }
+
+    public Vector4f getLoc(){ return pc;}
+    public Matrix4f getView(){ return viewMatrix;}
 }
