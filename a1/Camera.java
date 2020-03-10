@@ -9,9 +9,9 @@ public class Camera {
     private Vector4f pc = new Vector4f();
     private final float MOVE_INTERVAL = 1.0f;
 
-    private Vector4f uVector = new Vector4f(MOVE_INTERVAL, 0.0f, 0.0f, 0.0f);
-    private Vector4f vVector = new Vector4f(0.0f, MOVE_INTERVAL, 0.0f, 0.0f);
-    private Vector4f nVector = new Vector4f(0.0f, 0.0f, MOVE_INTERVAL, 0.0f);
+    private Vector4f uVector = new Vector4f(MOVE_INTERVAL, 0.0f, 0.0f, 1.0f);
+    private Vector4f vVector = new Vector4f(0.0f, MOVE_INTERVAL, 0.0f, 1.0f);
+    private Vector4f nVector = new Vector4f(0.0f, 0.0f, MOVE_INTERVAL, 1.0f);
 
     private Matrix4f viewMatrix;
 
@@ -40,13 +40,15 @@ public class Camera {
           0.0f, 0.0f, 1.0f, -cVector.z,
           0.0f, 0.0f, 0.0f, 1.0f
         );
-        rMat.mul(tMat, viewMatrix);
-        cVector.mul(viewMatrix, pc);
+        rMat.mul(tMat, viewMatrix); // store rMat * tMat in viewMatrix
+        cVector.mul(viewMatrix, pc); // store cVector * viewMatrix in pc
         System.out.println(pc.y + " " + cVector.y);
     }
 
-    public void moveForward(){ cVector.add(nVector); updateView();}
-    public void moveBackward(){ cVector.sub(nVector); updateView();}
+    public void moveForward(){
+        cVector.add(nVector); updateView();}
+    public void moveBackward(){
+        cVector.sub(nVector); updateView();}
 
     public void moveLeft(){ cVector.add(uVector); updateView();}
     public void moveRight(){ cVector.sub(uVector); updateView(); }
