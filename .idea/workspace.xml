@@ -1,15 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1f0ac45b-1513-4a63-8cb0-e37a5c2d0247" name="Default Changelist" comment="removed">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a1/Camera.java" beforeDir="false" afterPath="$PROJECT_DIR$/a1/Camera.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a1/ObjectReader.java" beforeDir="false" afterPath="$PROJECT_DIR$/a1/ObjectReader.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a1/Starter.java" beforeDir="false" afterPath="$PROJECT_DIR$/a1/Starter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a1/actions/CircleAction.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/a1/actions/ColorAction.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/a1/actions/LineAction.java" beforeDir="false" />
-    </list>
+    <list default="true" id="1f0ac45b-1513-4a63-8cb0-e37a5c2d0247" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -154,7 +146,14 @@
       <option name="project" value="LOCAL" />
       <updated>1584063508882</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="removed old functions and files. added axis and resetCamera commands">
+      <created>1584065030869</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1584065030869</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -195,7 +194,8 @@
     <MESSAGE value="tweaking" />
     <MESSAGE value="added obj reader file" />
     <MESSAGE value="finished" />
-    <option name="LAST_COMMIT_MESSAGE" value="finished" />
+    <MESSAGE value="removed old functions and files. added axis and resetCamera commands" />
+    <option name="LAST_COMMIT_MESSAGE" value="removed old functions and files. added axis and resetCamera commands" />
   </component>
   <component name="masterDetails">
     <states>

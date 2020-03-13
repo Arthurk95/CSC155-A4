@@ -58,7 +58,6 @@ public class ObjectReader {
         public void parseOBJ(String filename) throws IOException {
             String filePath = new File("").getAbsolutePath() + "\\" + filename;
             BufferedReader br = new BufferedReader(new FileReader(filePath));
-            System.out.println(filePath);
             String line;
             while ((line = br.readLine()) != null) {
                 if(line.startsWith("v ")){			// vertex position ("v" case)

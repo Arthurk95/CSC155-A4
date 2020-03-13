@@ -224,18 +224,18 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		setupVertices();
 
 
-		earthTexture = ShaderTools.loadTexture("\\a1\\textures\\earth.jpg");
-		moonTexture = ShaderTools.loadTexture("\\a1\\textures\\moon.jpg");
-		venusTexture = ShaderTools.loadTexture("\\a1\\textures\\venus.jpg");
-		marsTexture = ShaderTools.loadTexture("\\a1\\textures\\mars.jpg");
-		moonTexture = ShaderTools.loadTexture("\\a1\\textures\\moon.jpg");
-		sunTexture = ShaderTools.loadTexture("\\a1\\textures\\sun.jpg");
-		jupiterTexture = ShaderTools.loadTexture("\\a1\\textures\\jupiter.jpg");
-		shipTexture = ShaderTools.loadTexture("\\a1\\textures\\spstob_1.jpg");
-		ceresTexture = ShaderTools.loadTexture("\\a1\\textures\\ceres.jpg");
-		redTexture = ShaderTools.loadTexture("\\a1\\textures\\red.jpg");
-		greenTexture = ShaderTools.loadTexture("\\a1\\textures\\green.jpg");
-		blueTexture = ShaderTools.loadTexture("\\a1\\textures\\blue.jpg");
+		earthTexture = ShaderTools.loadTexture("\\textures\\earth.jpg");
+		moonTexture = ShaderTools.loadTexture("\\textures\\moon.jpg");
+		venusTexture = ShaderTools.loadTexture("\\textures\\venus.jpg");
+		marsTexture = ShaderTools.loadTexture("\\textures\\mars.jpg");
+		moonTexture = ShaderTools.loadTexture("\\textures\\moon.jpg");
+		sunTexture = ShaderTools.loadTexture("\\textures\\sun.jpg");
+		jupiterTexture = ShaderTools.loadTexture("\\textures\\jupiter.jpg");
+		shipTexture = ShaderTools.loadTexture("\\textures\\spstob_1.jpg");
+		ceresTexture = ShaderTools.loadTexture("\\textures\\ceres.jpg");
+		redTexture = ShaderTools.loadTexture("\\textures\\red.jpg");
+		greenTexture = ShaderTools.loadTexture("\\textures\\green.jpg");
+		blueTexture = ShaderTools.loadTexture("\\textures\\blue.jpg");
 
 	}
 
