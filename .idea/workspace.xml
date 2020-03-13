@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1f0ac45b-1513-4a63-8cb0-e37a5c2d0247" name="Default Changelist" comment="" />
+    <list default="true" id="1f0ac45b-1513-4a63-8cb0-e37a5c2d0247" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,8 +49,8 @@
     </option>
   </component>
   <component name="RunManager">
-    <configuration name="Unnamed" type="Application" factoryName="Application" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="a1.Starter" />
+    <configuration name="Starter" type="Application" factoryName="Application" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="a2.Starter" />
       <module name="CSC155-A1" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -153,7 +155,14 @@
       <option name="project" value="LOCAL" />
       <updated>1584065030869</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="moved textures folder">
+      <created>1584067040605</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1584067040605</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -195,7 +204,8 @@
     <MESSAGE value="added obj reader file" />
     <MESSAGE value="finished" />
     <MESSAGE value="removed old functions and files. added axis and resetCamera commands" />
-    <option name="LAST_COMMIT_MESSAGE" value="removed old functions and files. added axis and resetCamera commands" />
+    <MESSAGE value="moved textures folder" />
+    <option name="LAST_COMMIT_MESSAGE" value="moved textures folder" />
   </component>
   <component name="masterDetails">
     <states>

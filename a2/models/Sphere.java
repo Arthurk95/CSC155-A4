@@ -1,4 +1,4 @@
-package a1.models;
+package a2.models;
 
 import org.joml.*;
 import static java.lang.Math.*;

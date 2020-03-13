@@ -1,4 +1,4 @@
-package a1;
+package a2;
 
 import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.GLContext;

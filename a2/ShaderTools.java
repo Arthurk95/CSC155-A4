@@ -1,4 +1,4 @@
-package a1;
+package a2;
 
 
 import java.io.File;
@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.Scanner;
 import java.util.Vector;
 
-import static a1.ErrorHandling.*;
+import static a2.ErrorHandling.*;
 import static com.jogamp.opengl.GL4.*;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.util.texture.Texture;

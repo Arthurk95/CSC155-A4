@@ -5,16 +5,16 @@
  * 	Tested in RVR 5029 on machine PACMAN
  * */
 
-package a1;
+package a2;
 
 import javax.swing.*;
 import static com.jogamp.opengl.GL4.*;
 
-import a1.actions.ToggleAxes;
-import a1.actions.camera.*;
-import a1.models.Cube;
-import a1.models.Diamond;
-import a1.models.Sphere;
+import a2.actions.ToggleAxes;
+import a2.actions.camera.*;
+import a2.models.Cube;
+import a2.models.Diamond;
+import a2.models.Sphere;
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLCanvas;

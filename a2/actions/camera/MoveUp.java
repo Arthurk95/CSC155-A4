@@ -1,19 +1,19 @@
-package a1.actions.camera;
+package a2.actions.camera;
 
-import a1.Camera;
+import a2.Camera;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
-public class PitchUp extends AbstractAction {
+public class MoveUp extends AbstractAction {
     Camera camera;
 
-    public PitchUp(Camera c){
+    public MoveUp(Camera c){
         camera = c;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        camera.pitchUp();
+        camera.moveUp();
     }
 }
