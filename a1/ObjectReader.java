@@ -4,6 +4,8 @@ import java.io.*;
 import java.util.ArrayList;
 import org.joml.*;
 
+// This file was obtained from the companion disk that came with the text.
+// It reads a .obj file and deals with its data (vertices and texture coords)
 public class ObjectReader {
     private Vector3f[] vertices;
     private Vector2f[] texCoords;

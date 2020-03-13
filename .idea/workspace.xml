@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1f0ac45b-1513-4a63-8cb0-e37a5c2d0247" name="Default Changelist" comment="added axis lines">
+    <list default="true" id="1f0ac45b-1513-4a63-8cb0-e37a5c2d0247" name="Default Changelist" comment="removed">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/a1/Camera.java" beforeDir="false" afterPath="$PROJECT_DIR$/a1/Camera.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/a1/ObjectReader.java" beforeDir="false" afterPath="$PROJECT_DIR$/a1/ObjectReader.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/a1/Starter.java" beforeDir="false" afterPath="$PROJECT_DIR$/a1/Starter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a1/actions/CircleAction.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/a1/actions/ColorAction.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/a1/actions/LineAction.java" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -19,11 +22,6 @@
         <option value="Class" />
       </list>
     </option>
-  </component>
-  <component name="FindInProjectRecents">
-    <findStrings>
-      <find>update</find>
-    </findStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -149,7 +147,14 @@
       <option name="project" value="LOCAL" />
       <updated>1583810232270</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="finished">
+      <created>1584063508882</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1584063508882</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -189,7 +194,8 @@
     <MESSAGE value="Added camera that is mostly working" />
     <MESSAGE value="tweaking" />
     <MESSAGE value="added obj reader file" />
-    <option name="LAST_COMMIT_MESSAGE" value="added obj reader file" />
+    <MESSAGE value="finished" />
+    <option name="LAST_COMMIT_MESSAGE" value="finished" />
   </component>
   <component name="masterDetails">
     <states>

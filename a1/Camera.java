@@ -46,11 +46,11 @@ public class Camera {
     public void moveBackward(){
         cVector.z += -0.4f; updateView();}
 
-    public void moveLeft(){ cVector.x += -0.4f; updateView();}
-    public void moveRight(){ cVector.x += 0.4f; updateView(); }
+    public void moveLeft(){ cVector.x += 0.4f; updateView();}
+    public void moveRight(){ cVector.x += -0.4f; updateView(); }
 
-    public void moveUp(){ cVector.y += 0.4f; updateView();}
-    public void moveDown(){ cVector.y += -0.4f; updateView();}
+    public void moveUp(){ cVector.y += -0.4f; updateView();}
+    public void moveDown(){ cVector.y += 0.4f; updateView();}
 
     public void pitchUp(){
         nVector.rotateAbout(0.01f, -(uVector.x), -(uVector.y), -(uVector.z));
@@ -64,15 +64,23 @@ public class Camera {
         updateView();
     }
 
-    public void panLeft(){
+    public void panRight(){
         nVector.rotateAbout(0.01f, vVector.x, vVector.y, vVector.z);
         uVector.rotateAbout(0.01f, vVector.x, vVector.y, vVector.z);
         updateView();
     }
-    public void panRight(){
+    public void panLeft(){
         nVector.rotateAbout(0.01f, -(vVector.x), -(vVector.y), -(vVector.z));
         uVector.rotateAbout(0.01f, -(vVector.x), -(vVector.y), -(vVector.z));
         updateView();
+    }
+
+    public void resetCamera(){
+        cVector = new Vector4f(0.0f, -2.0f, -20.0f, 1.0f);
+        pc = cVector;
+        uVector = new Vector4f(MOVE_INTERVAL, 0.0f, 0.0f, 1.0f);
+        vVector = new Vector4f(0.0f, MOVE_INTERVAL, 0.0f, 1.0f);
+        nVector = new Vector4f(0.0f, 0.0f, MOVE_INTERVAL, 1.0f);
     }
 
     public Vector4f getLoc(){ return pc;}

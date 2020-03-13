@@ -10,6 +10,7 @@ package a1;
 import javax.swing.*;
 import static com.jogamp.opengl.GL4.*;
 
+import a1.actions.ToggleAxes;
 import a1.actions.camera.*;
 import a1.models.Cube;
 import a1.models.Diamond;
@@ -100,7 +101,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		//setKeyCommand((char)KeyEvent.VK_UP, new a1.actions.camera.PitchUp(camera));
 		//setKeyCommand((char)KeyEvent.VK_DOWN, new a1.actions.camera.PitchDown(camera));
 		*/
-		this.add(makeBottomBar(), BorderLayout.SOUTH);
+		//this.add(makeBottomBar(), BorderLayout.SOUTH);
 		this.setVisible(true);
 		Animator animator = new Animator(myCanvas);
 		animator.start();
@@ -112,8 +113,6 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		gl.glClear(GL_COLOR_BUFFER_BIT);
 		gl.glClear(GL_DEPTH_BUFFER_BIT);
 		elapsedTime = System.currentTimeMillis() - startTime;
-
-
 
 		gl.glUseProgram(renderingProgram);
 
@@ -174,7 +173,6 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		mvStack.rotate(-(float)tf*2, 1.0f, 0.0f, 0.0f);
 		drawShip(shipTexture);
 
-
 		popMultipleTimes(4);
 
 		//-------- mars
@@ -212,7 +210,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		popMultipleTimes(3);
 	}
 
-	// Outputs versions, creates and links shaders
+	// Outputs versions, creates and links shaders and textures
 	public void init(GLAutoDrawable drawable) {
 		gl = (GL4) GLContext.getCurrentGL();
 		startTime = System.currentTimeMillis();
@@ -379,6 +377,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		gl.glDrawArrays(GL_TRIANGLES,0,3);
 	}
 
+	// draws a life-like pyramid sun. it's a very realistic* depiction of how our sun looks.
 	private void drawSun(){
 		mvStack.pushMatrix();
 		mvStack.translate(0.0f, 0.0f, 0.0f);
@@ -389,6 +388,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		drawDiamond(sunTexture);
 		mvStack.popMatrix();
 	}
+	// *it's not
 
 	// Re-uses the cube model to draw very thin lines along the xyz axes
 	private void drawAxisLines(){
@@ -482,71 +482,11 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		gl.glDrawArrays(GL_TRIANGLES, 0, spaceShip.getNumVertices());
 	}
 
-	private void drawAsteroidBelt(int tex){
-		float ranNum = (float)Math.random()*360;
-		mvStack.pushMatrix();
-		mvStack.translate((float)Math.sin(ranNum)*5.0f, 0.0f, (float)Math.cos(ranNum)*5.0f);
-		mvStack.scale(0.3f, 0.3f, 0.3f);
-		mvStack.rotate((float)tf/2, 0.0f, 1.0f, 0.3f);
-
-		gl.glUniformMatrix4fv(mvLoc, 1, false, mvStack.get(vals));
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vboSphere[0]);
-		gl.glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
-		gl.glEnableVertexAttribArray(0);
-
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vboSphere[1]);
-		gl.glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0);
-		gl.glEnableVertexAttribArray(1);
-		gl.glEnable(GL_DEPTH_TEST);
-		bindTexture(tex);
-		gl.glDrawArrays(GL_TRIANGLES, 0, numSphereVerts);
-		mvStack.popMatrix();
-
-
-
-	}
-
 	private void bindTexture(int tex){
 		gl.glActiveTexture(GL_TEXTURE0);
 		gl.glBindTexture(GL_TEXTURE_2D, tex);
 		gl.glEnable(GL_CULL_FACE);
 		gl.glFrontFace(GL_CCW);
-	}
-
-	// Increments a verticalIncrement variable up to 1.0f/-1.0f and passes it to the vertical shader
-	private void animateLine(){
-		verticalIncrement += inc;
-		if (verticalIncrement > 1.0f) inc = -0.01f;
-		if (verticalIncrement < -1.0f) inc = 0.01f;
-
-		// Update increment value in vertShader.glsl
-		int shaderIncrement = gl.glGetUniformLocation(renderingProgram, "increment");
-		gl.glProgramUniform1f(renderingProgram, shaderIncrement, verticalIncrement);
-
-		// Update theta value in vertShader.glsl
-		int shaderTheta = gl.glGetUniformLocation(renderingProgram, "theta");
-		gl.glProgramUniform1f(renderingProgram, shaderTheta, 0);
-
-		gl.glDrawArraysInstanced(GL_TRIANGLES,0,3, 4);
-	}
-
-	// creates a FlowLayout bottom bar with the two Action buttons
-	private Container makeBottomBar(){
-		Container layout = new Container();
-		layout.setLayout(new FlowLayout());
-
-		a1.actions.CircleAction circleAction = new a1.actions.CircleAction(this);
-		a1.actions.LineAction lineAction = new a1.actions.LineAction(this);
-
-		JButton circleButton = new JButton("Animate Circle");
-		JButton lineButton = new JButton("Animate Line");
-
-		circleButton.addActionListener(circleAction);
-		lineButton.addActionListener(lineAction);
-
-		layout.add(circleButton);
-		layout.add(lineButton);
-		return layout;
 	}
 
 	private void popMultipleTimes(int count){
@@ -604,13 +544,16 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 		imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), KeyEvent.VK_DOWN);
 		amap.put(KeyEvent.VK_DOWN, new PitchDown(camera));
+
+		imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_R, 0), KeyEvent.VK_R);
+		amap.put(KeyEvent.VK_R, new ResetCamera(camera));
+
+		imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), KeyEvent.VK_SPACE);
+		amap.put(KeyEvent.VK_SPACE, new ToggleAxes(this));
 	}
 
-	// 0.0f is normal, 1.0f is gradient
-	public void toggleColorMode(){
-		if(gradient == 0.0f)
-			gradient = 1.0f;
-		else gradient = 0.0f;
+	public void toggleAxes(){
+		drawAxes = !drawAxes;
 	}
 
 	@Override
@@ -619,7 +562,4 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		if (e.getWheelRotation() > 0 && scale < MAX_SCALE){ scale += 0.1f; }
 		else if(e.getWheelRotation() < 0 && scale > MIN_SCALE){ scale += -0.1f; }
 	}
-
-	public void setDrawMode(int d){ drawMode = d; }
-
 }
