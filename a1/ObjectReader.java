@@ -1,9 +1,6 @@
 package a1;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.ArrayList;
 import org.joml.*;
 
@@ -57,8 +54,9 @@ public class ObjectReader {
         private ArrayList<Float> normVals = new ArrayList<Float>();
 
         public void parseOBJ(String filename) throws IOException {
-            InputStream input = ModelImporter.class.getResourceAsStream(filename);
-            BufferedReader br = new BufferedReader(new InputStreamReader(input));
+            String filePath = new File("").getAbsolutePath() + "\\" + filename;
+            BufferedReader br = new BufferedReader(new FileReader(filePath));
+            System.out.println(filePath);
             String line;
             while ((line = br.readLine()) != null) {
                 if(line.startsWith("v ")){			// vertex position ("v" case)
@@ -95,7 +93,6 @@ public class ObjectReader {
                 normals.add(normVals.get(normRef+1));
                 normals.add(normVals.get(normRef+2));
             }	}	}
-            input.close();
         }
 
         public int getNumVertices() { return (triangleVerts.size()/3); }

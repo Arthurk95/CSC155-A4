@@ -3,12 +3,14 @@ package a1;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 
+import java.text.DecimalFormat;
+
 public class Camera {
     private Vector4f cVector;
 
-    private Vector4f pc = new Vector4f();
+    private Vector4f pc = new Vector4f(0.0f, 0.0f, 0.0f, 0.0f);
     private final float MOVE_INTERVAL = 1.0f;
-
+    private DecimalFormat format = new DecimalFormat("###,###.##");
     private Vector4f uVector = new Vector4f(MOVE_INTERVAL, 0.0f, 0.0f, 1.0f);
     private Vector4f vVector = new Vector4f(0.0f, MOVE_INTERVAL, 0.0f, 1.0f);
     private Vector4f nVector = new Vector4f(0.0f, 0.0f, MOVE_INTERVAL, 1.0f);
@@ -21,12 +23,7 @@ public class Camera {
         updateView();
     }
 
-
-
     public void updateView() {
-        uVector.normalize();
-        vVector.normalize();
-        nVector.normalize();
         Matrix4f rMat = new Matrix4f(
                 uVector.x, uVector.y, uVector.z, 0.0f,
                 vVector.x, vVector.y, vVector.z, 0.0f,
@@ -35,34 +32,33 @@ public class Camera {
         );
 
         Matrix4f tMat = new Matrix4f(
-          1.0f, 0.0f, 0.0f, -cVector.x,
-          0.0f, 1.0f, 0.0f, -cVector.y,
-          0.0f, 0.0f, 1.0f, -cVector.z,
+          1.0f, 0.0f, 0.0f, (-cVector.x),
+          0.0f, 1.0f, 0.0f, (-cVector.y),
+          0.0f, 0.0f, 1.0f, (-cVector.z),
           0.0f, 0.0f, 0.0f, 1.0f
         );
         rMat.mul(tMat, viewMatrix); // store rMat * tMat in viewMatrix
         cVector.mul(viewMatrix, pc); // store cVector * viewMatrix in pc
-        System.out.println(pc.y + " " + cVector.y);
     }
 
     public void moveForward(){
-        cVector.add(nVector); updateView();}
+        cVector.z += 0.4f; updateView();}
     public void moveBackward(){
-        cVector.sub(nVector); updateView();}
+        cVector.z += -0.4f; updateView();}
 
-    public void moveLeft(){ cVector.add(uVector); updateView();}
-    public void moveRight(){ cVector.sub(uVector); updateView(); }
+    public void moveLeft(){ cVector.x += -0.4f; updateView();}
+    public void moveRight(){ cVector.x += 0.4f; updateView(); }
 
-    public void moveUp(){  cVector.add(vVector); updateView();}
-    public void moveDown(){ cVector.sub(vVector); updateView();}
+    public void moveUp(){ cVector.y += 0.4f; updateView();}
+    public void moveDown(){ cVector.y += -0.4f; updateView();}
 
-    public void pitchDown(){
+    public void pitchUp(){
         nVector.rotateAbout(0.01f, -(uVector.x), -(uVector.y), -(uVector.z));
         vVector.rotateAbout(0.01f, -(uVector.x), -(uVector.y), -(uVector.z));
         updateView();
     }
 
-    public void pitchUp(){
+    public void pitchDown(){
         nVector.rotateAbout(0.01f, uVector.x, uVector.y, uVector.z);
         vVector.rotateAbout(0.01f, uVector.x, uVector.y, uVector.z);
         updateView();

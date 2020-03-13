@@ -7,7 +7,6 @@
 
 package a1;
 
-import javax.rmi.CORBA.Util;
 import javax.swing.*;
 import static com.jogamp.opengl.GL4.*;
 
@@ -45,15 +44,21 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	private int[] vboDiamond = new int[2];
 	private int[] vboCube = new int[2];
 	private int[] vboSphere = new int[3]; // VBO for the sphere object
+	private int[] vboShip = new int[3]; // vbo for shuttle.obj file
 	private float gradient = 0.0f; // 0 means solid color; 1 means gradient
 	private float scale = 1.0f;
 	private FloatBuffer vals = Buffers.newDirectFloatBuffer(16);
-	private Matrix4fStack mvStack = new Matrix4fStack(6);
+	private Matrix4fStack mvStack = new Matrix4fStack(15);
 	private Matrix4f pMat = new Matrix4f();
 	private int mvLoc, projLoc;
 	private float aspect;
 	private double tf;
-	private int earthTexture, moonTexture, marsTexture, venusTexture, lineTexture, sunTexture, jupiterTexture;
+	private int earthTexture, moonTexture, marsTexture, venusTexture,
+			sunTexture, jupiterTexture, shipTexture, ceresTexture;
+
+	private int redTexture, greenTexture, blueTexture;
+	private ObjectReader spaceShip;
+	private boolean drawAxes = true;
 
 	private Camera camera;
 
@@ -108,6 +113,8 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		gl.glClear(GL_DEPTH_BUFFER_BIT);
 		elapsedTime = System.currentTimeMillis() - startTime;
 
+
+
 		gl.glUseProgram(renderingProgram);
 
 		mvLoc = gl.glGetUniformLocation(renderingProgram, "mv_matrix");
@@ -118,13 +125,16 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		gl.glUniformMatrix4fv(projLoc, 1, false, pMat.get(vals));
 
 		Vector4f pc = camera.getLoc();
+
 		// push view matrix onto the stack
 		mvStack.pushMatrix();
 		mvStack.translate(pc.x, pc.y, pc.z);
 
 		tf = elapsedTime/1000.0;  // time factor
 
-		drawAxisLines();
+		if(drawAxes){
+			drawAxisLines();
+		}
 
 		drawSun();
 
@@ -147,13 +157,25 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 		mvStack.popMatrix();
 
-		//----------------------- earth's moon
+		//----------------------- earth's moon and spaceship
 		mvStack.pushMatrix();
 		mvStack.translate((float)Math.sin(tf), (float)Math.sin(tf)*2.0f, (float)Math.cos(tf)*2.0f);
+		mvStack.pushMatrix();
 		mvStack.rotate((float)tf, 0.0f, 0.0f, 1.0f);
 		mvStack.scale(0.25f, 0.25f, 0.25f);
 		drawSphere(moonTexture);
-		popMultipleTimes(3);
+		mvStack.popMatrix();
+
+		// ship orbiting moon
+		mvStack.pushMatrix();
+		mvStack.scale(0.5f, 0.5f, 0.5f);
+		mvStack.translate(0.0f, (float)Math.sin(tf*2), (float)Math.cos(tf*2));
+		mvStack.rotate(1.5f, 1.0f, 0.0f, 0.0f);
+		mvStack.rotate(-(float)tf*2, 1.0f, 0.0f, 0.0f);
+		drawShip(shipTexture);
+
+
+		popMultipleTimes(4);
 
 		//-------- mars
 		mvStack.pushMatrix();
@@ -163,15 +185,31 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		drawSphere(marsTexture);
 		mvStack.popMatrix();
 
-		//------- jupiter
+		//------- jupiter and its moons
 		mvStack.pushMatrix();
-		mvStack.scale(1.0f, 1.0f, 1.0f);
 		mvStack.translate((float)Math.sin(tf/8)*30.0f, 0.0f, (float)Math.cos(tf/8)*30.0f);
+		mvStack.pushMatrix();
+		mvStack.scale(1.2f, 1.2f, 1.2f);
 		mvStack.rotate(-(float)tf/5, 0.0f, 1.0f, 0.1f);
 		drawSphere(jupiterTexture);
+		mvStack.popMatrix();
 
+		// Jupiter Moon 1
+		mvStack.pushMatrix();
+		mvStack.translate((float)Math.sin(tf)*3.0f, (float)Math.sin(tf)*2.0f, (float)Math.cos(tf/3));
+		mvStack.rotate((float)tf, 0.0f, 0.0f, 1.0f);
+		mvStack.scale(0.2f, 0.2f, 0.2f);
+		drawCube(moonTexture);
+		mvStack.popMatrix();
 
-		popMultipleTimes(2);
+		// Jupiter Moon 2
+		mvStack.pushMatrix();
+		mvStack.translate((float)Math.sin(tf), (float)Math.sin(tf/2)*4.0f, (float)Math.cos(tf)*2.0f);
+		mvStack.rotate((float)tf, 0.0f, 0.0f, 1.0f);
+		mvStack.scale(0.3f, 0.3f, 0.3f);
+		drawSphere(ceresTexture);
+
+		popMultipleTimes(3);
 	}
 
 	// Outputs versions, creates and links shaders
@@ -185,20 +223,21 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 		renderingProgram = ShaderTools.createShaderProgram("vertShader.glsl", "fragShader.glsl");
 
-		int shaderColor = gl.glGetUniformLocation(renderingProgram, "color");
-		gl.glProgramUniform1f(renderingProgram, shaderColor, gradient);
-
 		setupVertices();
 
 
 		earthTexture = ShaderTools.loadTexture("\\a1\\textures\\earth.jpg");
 		moonTexture = ShaderTools.loadTexture("\\a1\\textures\\moon.jpg");
 		venusTexture = ShaderTools.loadTexture("\\a1\\textures\\venus.jpg");
-		lineTexture = ShaderTools.loadTexture("\\a1\\textures\\lines.jpg");
 		marsTexture = ShaderTools.loadTexture("\\a1\\textures\\mars.jpg");
 		moonTexture = ShaderTools.loadTexture("\\a1\\textures\\moon.jpg");
 		sunTexture = ShaderTools.loadTexture("\\a1\\textures\\sun.jpg");
 		jupiterTexture = ShaderTools.loadTexture("\\a1\\textures\\jupiter.jpg");
+		shipTexture = ShaderTools.loadTexture("\\a1\\textures\\spstob_1.jpg");
+		ceresTexture = ShaderTools.loadTexture("\\a1\\textures\\ceres.jpg");
+		redTexture = ShaderTools.loadTexture("\\a1\\textures\\red.jpg");
+		greenTexture = ShaderTools.loadTexture("\\a1\\textures\\green.jpg");
+		blueTexture = ShaderTools.loadTexture("\\a1\\textures\\blue.jpg");
 
 	}
 
@@ -213,7 +252,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 		setupDiamond();
 		setupSphere();
-
+		setupSpaceship();
 	}
 
 	private void setupCube(){
@@ -284,6 +323,44 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 	}
 
+	// Shuttle.obj file obtained from the Companion CD that came with the text
+	private void setupSpaceship(){
+		spaceShip = new ObjectReader("shuttle.obj");
+		int spaceshipVertices = spaceShip.getNumVertices();
+		Vector3f[] vertices = spaceShip.getVertices();
+		Vector2f[] texCoords = spaceShip.getTexCoords();
+		Vector3f[] normals = spaceShip.getNormals();
+
+		float[] pvalues = new float[spaceshipVertices*3];
+		float[] tvalues = new float[spaceshipVertices*2];
+		float[] nvalues = new float[spaceshipVertices*3];
+
+		for (int i=0; i<spaceshipVertices; i++)
+		{	pvalues[i*3]   = (float) (vertices[i]).x();
+			pvalues[i*3+1] = (float) (vertices[i]).y();
+			pvalues[i*3+2] = (float) (vertices[i]).z();
+			tvalues[i*2]   = (float) (texCoords[i]).x();
+			tvalues[i*2+1] = (float) (texCoords[i]).y();
+			nvalues[i*3]   = (float) (normals[i]).x();
+			nvalues[i*3+1] = (float) (normals[i]).y();
+			nvalues[i*3+2] = (float) (normals[i]).z();
+		}
+
+		gl.glGenBuffers(vboShip.length, vboShip, 0);
+
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vboShip[0]);
+		FloatBuffer vertBuf = Buffers.newDirectFloatBuffer(pvalues);
+		gl.glBufferData(GL_ARRAY_BUFFER, vertBuf.limit()*4, vertBuf, GL_STATIC_DRAW);
+
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vboShip[1]);
+		FloatBuffer texBuf = Buffers.newDirectFloatBuffer(tvalues);
+		gl.glBufferData(GL_ARRAY_BUFFER, texBuf.limit()*4, texBuf, GL_STATIC_DRAW);
+
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vboShip[2]);
+		FloatBuffer norBuf = Buffers.newDirectFloatBuffer(nvalues);
+		gl.glBufferData(GL_ARRAY_BUFFER, norBuf.limit()*4,norBuf, GL_STATIC_DRAW);
+	}
+
 	public static void main(String[] args) { new Starter(); }
 	public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {}
 	public void dispose(GLAutoDrawable drawable) {}
@@ -319,20 +396,19 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		mvStack.pushMatrix();
 		mvStack.translate(25.0f, 0.0f, 0.0f);
 		mvStack.scale(50.0f, 0.04f, 0.04f);
-		drawCube(lineTexture);
+		drawCube(redTexture);
 		mvStack.popMatrix();
-
 
 		mvStack.pushMatrix();
 		mvStack.translate(0.0f, 25.0f, 0.0f);
 		mvStack.scale(0.04f, 50.0f, 0.04f);
-		drawCube(lineTexture);
+		drawCube(greenTexture);
 		mvStack.popMatrix();
 
 		mvStack.pushMatrix();
 		mvStack.translate(0.0f, 0.0f, 25.0f);
 		mvStack.scale(0.04f, 0.04f, 50.0f);
-		drawCube(lineTexture);
+		drawCube(blueTexture);
 		mvStack.popMatrix();
 	}
 
@@ -384,6 +460,26 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 		bindTexture(tex);
 		gl.glDrawArrays(GL_TRIANGLES, 0, 24);
+	}
+
+	private void drawShip(int tex){
+		gl.glUniformMatrix4fv(mvLoc, 1, false, mvStack.get(vals));
+		gl.glUniformMatrix4fv(projLoc, 1, false, pMat.get(vals));
+
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vboShip[0]);
+		gl.glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
+		gl.glEnableVertexAttribArray(0);
+
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vboShip[1]);
+		gl.glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0);
+		gl.glEnableVertexAttribArray(1);
+
+		gl.glActiveTexture(GL_TEXTURE0);
+		gl.glBindTexture(GL_TEXTURE_2D, tex);
+
+		gl.glEnable(GL_DEPTH_TEST);
+		gl.glFrontFace(GL_LEQUAL);
+		gl.glDrawArrays(GL_TRIANGLES, 0, spaceShip.getNumVertices());
 	}
 
 	private void drawAsteroidBelt(int tex){
