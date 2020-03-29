@@ -50,10 +50,17 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	private FloatBuffer vals = Buffers.newDirectFloatBuffer(16);
 	private Matrix4fStack mvStack = new Matrix4fStack(6);
 	private Matrix4f pMat = new Matrix4f();
+	private Matrix4f mvMat = new Matrix4f();
+	private Matrix4f mMat = new Matrix4f();
+	private Matrix4f vMat = new Matrix4f();
 	private int mvLoc, projLoc;
 	private float aspect;
 	private double tf;
 	private int earthTexture, moonTexture, marsTexture, venusTexture, lineTexture, sunTexture, jupiterTexture;
+	private float[] mustangPos = {0.0f, 0.0f, 0.0f};
+	private int[] vboMustang = new int[3];
+	private ObjectReader mustang;
+
 
 	private Camera camera;
 
@@ -70,7 +77,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	public Starter() {
 		setTitle("CSC 155 - a2");
 		setSize(800, 800);
-		camera = new Camera(0.0f, -2.0f, -20.0f);
+		camera = new Camera(0.0f, 0.0f, 10.0f);
 		this.addMouseWheelListener(this);
 
 		myCanvas = new GLCanvas();
@@ -112,11 +119,25 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 		mvLoc = gl.glGetUniformLocation(renderingProgram, "mv_matrix");
 		projLoc = gl.glGetUniformLocation(renderingProgram, "proj_matrix");
-
 		aspect = (float) myCanvas.getWidth() / (float) myCanvas.getHeight();
-		pMat.identity().setPerspective((float) Math.toRadians(60.0f), aspect, 0.1f, 1000.0f);
-		gl.glUniformMatrix4fv(projLoc, 1, false, pMat.get(vals));
+		pMat.setPerspective((float) Math.toRadians(60.0f), aspect, 0.1f, 1000.0f);
 
+		vMat = camera.getView();
+
+
+
+		mMat.translation(0.0f, 0.0f, 0.0f);
+		mvMat.identity();
+		mvMat.mul(vMat);
+		mvMat.mul(mMat);
+
+		drawSphere(earthTexture);
+		mMat.translation(0.0f, 0.0f, 0.0f);
+		mvMat.identity();
+		mvMat.mul(vMat);
+		mvMat.mul(mMat);
+		drawAxisLines();
+		/*
 		Vector4f pc = camera.getLoc();
 		// push view matrix onto the stack
 		mvStack.pushMatrix();
@@ -124,7 +145,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 		tf = elapsedTime/1000.0;  // time factor
 
-		drawAxisLines();
+
 
 		drawSun();
 
@@ -172,6 +193,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 
 		popMultipleTimes(2);
+		*/
 	}
 
 	// Outputs versions, creates and links shaders
@@ -185,11 +207,12 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 		renderingProgram = ShaderTools.createShaderProgram("vertShader.glsl", "fragShader.glsl");
 
+		//mustang = new ObjectReader("\\mustang_GT.obj");
+
 		int shaderColor = gl.glGetUniformLocation(renderingProgram, "color");
 		gl.glProgramUniform1f(renderingProgram, shaderColor, gradient);
 
 		setupVertices();
-
 
 		earthTexture = ShaderTools.loadTexture("\\a1\\textures\\earth.jpg");
 		moonTexture = ShaderTools.loadTexture("\\a1\\textures\\moon.jpg");
@@ -204,17 +227,47 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 	private void setupVertices()
 	{	gl = (GL4) GLContext.getCurrentGL();
-
-
 		gl.glGenVertexArrays(vao.length, vao, 0);
 		gl.glBindVertexArray(vao[0]);
 
+		//setup3DModel(mustang);
+
 		setupCube();
 
-		setupDiamond();
+		//setupDiamond();
 		setupSphere();
 
 	}
+
+	private void setup3DModel(ObjectReader model){
+		int numObjVertices = model.getNumVertices();
+		Vector3f[] vertices = model.getVertices();
+		Vector2f[] texCoords = model.getTexCoords();
+		Vector3f[] normals = model.getNormals();
+
+		float[] pvalues = new float[numObjVertices*3];
+		float[] tvalues = new float[numObjVertices*2];
+		float[] nvalues = new float[numObjVertices*3];
+
+		for (int i=0; i<numObjVertices; i++)
+		{	pvalues[i*3]   = (float) (vertices[i]).x();
+			pvalues[i*3+1] = (float) (vertices[i]).y();
+			pvalues[i*3+2] = (float) (vertices[i]).z();
+			tvalues[i*2]   = (float) (texCoords[i]).x();
+			tvalues[i*2+1] = (float) (texCoords[i]).y();
+			nvalues[i*3]   = (float) (normals[i]).x();
+			nvalues[i*3+1] = (float) (normals[i]).y();
+			nvalues[i*3+2] = (float) (normals[i]).z();
+		}
+
+		gl.glGenBuffers(vboMustang.length, vboMustang, 0);
+
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vboMustang[0]);
+		FloatBuffer vertBuf = Buffers.newDirectFloatBuffer(pvalues);
+		gl.glBufferData(GL_ARRAY_BUFFER, vertBuf.limit()*4, vertBuf, GL_STATIC_DRAW);
+
+	}
+
 
 	private void setupCube(){
 		Cube cube = new Cube();
@@ -337,7 +390,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	}
 
 	private void drawSphere(int tex){
-		gl.glUniformMatrix4fv(mvLoc, 1, false, mvStack.get(vals));
+		gl.glUniformMatrix4fv(mvLoc, 1, false, mvMat.get(vals));
 		gl.glUniformMatrix4fv(projLoc, 1, false, pMat.get(vals));
 		gl.glBindBuffer(GL_ARRAY_BUFFER, vboSphere[0]);
 		gl.glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
