@@ -1,19 +1,19 @@
-package a1.actions.camera;
+package a3.actions.camera;
 
-import a1.Camera;
+import a3.Camera;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
-public class MoveDown extends AbstractAction {
+public class PanLeft extends AbstractAction {
     Camera camera;
 
-    public MoveDown(Camera c){
+    public PanLeft(Camera c){
         camera = c;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        camera.moveDown();
+        camera.panLeft();
     }
 }

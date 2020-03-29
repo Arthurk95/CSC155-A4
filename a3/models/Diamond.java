@@ -1,4 +1,4 @@
-package a1.models;
+package a3.models;
 
 public class Diamond {
     float[] diamondPositions =
