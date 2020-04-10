@@ -9,7 +9,7 @@ public class Camera {
     private Vector4f cVector;
 
     private Vector4f pc = new Vector4f();
-    private final float MOVE_INTERVAL = 1.0f;
+    private final float MOVE_INTERVAL = 0.5f;
     private DecimalFormat format = new DecimalFormat("###,###.##");
     private Vector4f uVector = new Vector4f(MOVE_INTERVAL, 0.0f, 0.0f, 1.0f);
     private Vector4f vVector = new Vector4f(0.0f, MOVE_INTERVAL, 0.0f, 1.0f);
@@ -39,7 +39,7 @@ public class Camera {
           0.0f, 0.0f, 1.0f, 0.0f,
                 -cVector.x, -cVector.y, -cVector.z, 1.0f
         );
-        rMat.mul(tMat, viewMatrix); // store rMat * tMat in viewMatrix
+        tMat.mul(rMat, viewMatrix); // store rMat * tMat in viewMatrix
         cVector.mul(viewMatrix, pc); // store cVector * viewMatrix in pc
         System.out.println(viewMatrix.toString(format));
     }
@@ -57,13 +57,13 @@ public class Camera {
 
     public void pitchUp(){
         nVector.rotateAbout(0.01f, -uVector.x, -uVector.y, -uVector.z);
-        vVector.rotateAbout(0.01f, -uVector.x, -uVector.y, -uVector.z);
+        vVector.rotateAbout(0.01f, uVector.x, uVector.y, -uVector.z);
         updateView();
     }
 
     public void pitchDown(){
         nVector.rotateAbout(0.01f, uVector.x, uVector.y, uVector.z);
-        vVector.rotateAbout(0.01f, uVector.x, uVector.y, uVector.z);
+        vVector.rotateAbout(0.01f, -uVector.x, -uVector.y, -uVector.z);
         updateView();
     }
 
@@ -80,10 +80,10 @@ public class Camera {
 
     public void resetCamera(){
         cVector = new Vector4f(0.0f, 0.0f, 10.0f, 0.0f);
-        pc = cVector;
         uVector = new Vector4f(MOVE_INTERVAL, 0.0f, 0.0f, 1.0f);
         vVector = new Vector4f(0.0f, MOVE_INTERVAL, 0.0f, 1.0f);
         nVector = new Vector4f(0.0f, 0.0f, MOVE_INTERVAL, 1.0f);
+        viewMatrix = new Matrix4f();
         updateView();
     }
 

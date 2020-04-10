@@ -59,6 +59,8 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	private int earthTexture, moonTexture, marsTexture, venusTexture,
 			sunTexture, jupiterTexture, shipTexture, ceresTexture;
 
+
+
 	private int redTexture, greenTexture, blueTexture;
 	private ObjectReader spaceShip;
 	private boolean drawAxes = true;
@@ -290,33 +292,6 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {}
 	public void dispose(GLAutoDrawable drawable) {}
 
-	// Increments a theta value to animate the triangle in a circular motion
-	private void animateCircle(){
-		thetaTotal += theta;
-		if(thetaTotal > 360.0f) // prevent future overflow?
-			thetaTotal = thetaTotal - 360.0f;
-
-		// Update theta value in vertShader.glsl
-		int shaderTheta = gl.glGetUniformLocation(renderingProgram, "theta");
-		gl.glProgramUniform1f(renderingProgram, shaderTheta, thetaTotal);
-
-
-		gl.glDrawArrays(GL_TRIANGLES,0,3);
-	}
-
-	// draws a life-like pyramid sun. it's a very realistic* depiction of how our sun looks.
-	private void drawSun(){
-		mvStack.pushMatrix();
-		mvStack.translate(0.0f, 0.0f, 0.0f);
-		mvStack.pushMatrix();
-		mvStack.translate(0.0f, 1.25f, 0.0f);
-		mvStack.scale(2.5f, 2.5f, 2.5f);
-		mvStack.rotate((float)tf/3, 0.0f, 1.0f, 0.0f);
-		drawDiamond(sunTexture);
-		mvStack.popMatrix();
-	}
-	// *it's not
-
 	// Re-uses the cube model to draw very thin lines along the xyz axes
 	private void drawAxisLines(){
 		// x-axis
@@ -377,41 +352,6 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		gl.glDrawArrays(GL_TRIANGLES, 0, 36);
 	}
 
-	private void drawDiamond(int tex){
-		gl.glUniformMatrix4fv(mvLoc, 1, false, mvStack.get(vals));
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vboDiamond[0]);
-		gl.glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
-		gl.glEnableVertexAttribArray(0);
-
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vboDiamond[1]);
-		gl.glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0);
-		gl.glEnableVertexAttribArray(1);
-		gl.glEnable(GL_DEPTH_TEST);
-
-		bindTexture(tex);
-		gl.glDrawArrays(GL_TRIANGLES, 0, 24);
-	}
-
-	private void drawShip(int tex){
-		gl.glUniformMatrix4fv(mvLoc, 1, false, mvStack.get(vals));
-		gl.glUniformMatrix4fv(projLoc, 1, false, pMat.get(vals));
-
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vboShip[0]);
-		gl.glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
-		gl.glEnableVertexAttribArray(0);
-
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vboShip[1]);
-		gl.glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0);
-		gl.glEnableVertexAttribArray(1);
-
-		gl.glActiveTexture(GL_TEXTURE0);
-		gl.glBindTexture(GL_TEXTURE_2D, tex);
-
-		gl.glEnable(GL_DEPTH_TEST);
-		gl.glFrontFace(GL_LEQUAL);
-		gl.glDrawArrays(GL_TRIANGLES, 0, spaceShip.getNumVertices());
-	}
-
 	private void bindTexture(int tex){
 		gl.glActiveTexture(GL_TEXTURE0);
 		gl.glBindTexture(GL_TEXTURE_2D, tex);
@@ -425,19 +365,6 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		}
 	}
 
-	// Binds a key to a command
-	private void setKeyCommand(int key, AbstractAction action){
-		JComponent window = (JComponent) this.getContentPane(); // entire JFrame window
-		int mapName = JComponent.WHEN_IN_FOCUSED_WINDOW; // window is selected
-		InputMap inputMap = window.getInputMap(mapName);
-
-		KeyStroke gKey = KeyStroke.getKeyStroke(key, 0); // KeyStroke represents the key
-
-		inputMap.put(gKey, key);
-		ActionMap actionMap = window.getActionMap(); // get the action map for the window
-
-		actionMap.put(gKey, action);
-	}
 
 
 	private void setupKeyBindings(){
