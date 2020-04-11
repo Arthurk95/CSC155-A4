@@ -2,6 +2,7 @@ package a3.sceneobject;
 
 import a3.ImportedObject;
 import a3.ShaderTools;
+import a3.models.Sphere;
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.GLContext;
@@ -9,12 +10,13 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 
 import static com.jogamp.opengl.GL.*;
 
 public class SceneObject {
 
-    ImportedObject model;
+    Sphere sphere;
 
     // SceneObjects default to silver material
     private float[] matAmb = ShaderTools.silverAmbient();
@@ -28,12 +30,14 @@ public class SceneObject {
     private int renderingProgram;
     private Vector3f position;
 
-    private int[] vbo = new int[3];
+    private int numIndices;
+
+    private int[] vbo = new int[4];
 
     public SceneObject(){}
-    public SceneObject(int r, ImportedObject m, Vector3f pos){
+    public SceneObject(int r, Sphere s, Vector3f pos){
         renderingProgram = r;
-        model = m;
+        sphere = s;
         position = pos;
     }
 
@@ -53,15 +57,15 @@ public class SceneObject {
         gl.glProgramUniform1f(renderingProgram, mshiLoc, matShi);
     }
 
-    public int getNumVerts(){return model.getNumVertices(); }
+    public int getNumVerts(){return sphere.getNumVertices(); }
     public Vector3f getPosition(){return position;}
 
     public void setupVBO(){
         GL4 gl = (GL4) GLContext.getCurrentGL();
-        int sphereVertices = model.getNumVertices();
-        Vector3f[] vertices = model.getVertices();
-        Vector2f[] texCoords = model.getTexCoords();
-        Vector3f[] normals = model.getNormals();
+        int sphereVertices = sphere.getNumVertices();
+        Vector3f[] vertices = sphere.getVertices();
+        Vector2f[] texCoords = sphere.getTexCoords();
+        Vector3f[] normals = sphere.getNormals();
 
         System.out.println("Verticies: " + sphereVertices);
         float[] pvalues = new float[sphereVertices*3];
@@ -79,6 +83,8 @@ public class SceneObject {
             nvalues[i*3+2] = (float) (normals[i]).z();
         }
 
+        numIndices= sphere.getNumIndices();
+
         gl.glGenBuffers(vbo.length, vbo, 0);
 
         gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
@@ -93,8 +99,13 @@ public class SceneObject {
         FloatBuffer norBuf = Buffers.newDirectFloatBuffer(nvalues);
         gl.glBufferData(GL_ARRAY_BUFFER, norBuf.limit()*4,norBuf, GL_STATIC_DRAW);
 
+        gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[3]);
+        IntBuffer idxBuf = Buffers.newDirectIntBuffer(sphere.getIndices());
+        gl.glBufferData(GL_ELEMENT_ARRAY_BUFFER, idxBuf.limit()*4, idxBuf, GL_STATIC_DRAW);
+
         System.out.println(pvalues.length);
     }
 
     public int[] getVBO(){return vbo;}
+    public int getNumIndices() { return numIndices; }
 }

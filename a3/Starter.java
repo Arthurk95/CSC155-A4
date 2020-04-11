@@ -29,6 +29,7 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.lang.Math;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 
 /* All planet textures from https://www.solarsystemscope.com/textures/,
@@ -46,7 +47,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	private int[] vao = new int[1];
 	private int[] vboDiamond = new int[2];
 	private int[] vboCube = new int[2];
-	private int[] vboSphere = new int[3]; // VBO for the sphere object
+	private int[] vboSphere = new int[4]; // VBO for the sphere object
 	private int[] vboShip = new int[3]; // vbo for shuttle.obj file
 	private float scale = 1.0f;
 	private FloatBuffer vals = Buffers.newDirectFloatBuffer(16);
@@ -156,10 +157,11 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 		lights = new Lighting(renderingProgram);
 
-		sphereObj = new ImportedObject("earth.obj");
-		sceneObjects.add(new SceneObject(renderingProgram, sphereObj, new Vector3f(0.0f, 0.0f, 0.0f)));
 
 		setupVertices();
+
+		//sphereObj = new ImportedObject("earth.obj");
+		sceneObjects.add(new SceneObject(renderingProgram, sphere, new Vector3f(0.0f, 0.0f, 0.0f)));
 
 
 		earthTexture = ShaderTools.loadTexture("\\textures\\earth.jpg");
@@ -262,7 +264,9 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		FloatBuffer norBuf = Buffers.newDirectFloatBuffer(nvalues);
 		gl.glBufferData(GL_ARRAY_BUFFER, norBuf.limit()*4,norBuf, GL_STATIC_DRAW);
 
-
+		gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboSphere[3]);
+		IntBuffer idxBuf = Buffers.newDirectIntBuffer(indices);
+		gl.glBufferData(GL_ELEMENT_ARRAY_BUFFER, idxBuf.limit()*4, idxBuf, GL_STATIC_DRAW);
 	}
 
 	// Shuttle.obj file obtained from the Companion CD that came with the text
@@ -304,7 +308,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	}
 
 	private void drawSceneObject(SceneObject object){
-		//object.setLighting();
+		object.setLighting();
 
 		mMat.translation(object.getPosition());
 		mvMat.identity();
@@ -314,20 +318,20 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		mvMat.invert(invTrMat);
 		invTrMat.transpose(invTrMat);
 
-		int[] vbo = object.getVBO();
+		//int[] vbo = object.getVBO();
 
 		gl.glUniformMatrix4fv(mvLoc, 1, false, mvMat.get(vals));
 		gl.glUniformMatrix4fv(projLoc, 1, false, pMat.get(vals));
 		gl.glUniformMatrix4fv(nLoc, 1, false, invTrMat.get(vals));
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vboSphere[0]);
 		gl.glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
 		gl.glEnableVertexAttribArray(0);
 
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vboSphere[1]);
 		gl.glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0);
 		gl.glEnableVertexAttribArray(1);
 
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vboSphere[2]);
 		gl.glVertexAttribPointer(2, 2, GL_FLOAT, false, 0, 0);
 		gl.glEnableVertexAttribArray(2);
 
@@ -339,6 +343,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		// NEED TO ADD INDICIES TO OBJECT SOMEHOW?????
 		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboSphere[3]);
 		gl.glDrawArrays(GL_TRIANGLES, 0, object.getNumVerts());
 	}
 
