@@ -55,14 +55,14 @@ public class Camera {
     public void moveDown(){ cVector.y -= MOVE_INTERVAL; updateView();}
 
     public void pitchUp(){
-        nVector.rotateAbout(0.01f, -uVector.x, -uVector.y, -uVector.z);
-        vVector.rotateAbout(0.01f, uVector.x, uVector.y, -uVector.z);
+        nVector.rotateAbout(0.05f, -uVector.x, -uVector.y, -uVector.z);
+        vVector.rotateAbout(0.05f, -uVector.x, -uVector.y, -uVector.z);
         updateView();
     }
 
     public void pitchDown(){
-        nVector.rotateAbout(0.01f, uVector.x, uVector.y, uVector.z);
-        vVector.rotateAbout(0.01f, -uVector.x, -uVector.y, -uVector.z);
+        nVector.rotateAbout(0.05f, uVector.x, uVector.y, uVector.z);
+        vVector.rotateAbout(0.05f, uVector.x, uVector.y, uVector.z);
         updateView();
     }
 

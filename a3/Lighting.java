@@ -31,8 +31,8 @@ public class Lighting {
     public GL4 installLights(Matrix4f vMatrix, GL4 gl)
     {
         currentLightPos.set(initialLightLoc);
-        amt += 0.5f;
-        currentLightPos.rotateAxis((float)Math.toRadians(amt), 0.0f, 0.0f, 1.0f);
+        amt += 0.1f;
+        currentLightPos.rotateAxis((float)Math.toRadians(amt), 0.0f, 0.0f, 0.1f);
 
         currentLightPos.mulPosition(vMatrix);
         lightPos[0]=currentLightPos.x(); lightPos[1]=currentLightPos.y(); lightPos[2]=currentLightPos.z();

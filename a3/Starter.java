@@ -65,6 +65,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 	private Lighting lights;
 
+	private SceneObject testModel;
 
 	private int redTexture, greenTexture, blueTexture;
 	private ImportedObject sphereObj;
@@ -136,7 +137,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 		gl = lights.installLights(vMat, gl);
 
-		drawAxisLines();
+		//drawAxisLines();
 
 		for(int i = 0; i < sceneObjects.size(); i++){
 			drawSceneObject(sceneObjects.get(i));
@@ -157,12 +158,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 		lights = new Lighting(renderingProgram);
 
-
 		setupVertices();
-
-		//sphereObj = new ImportedObject("earth.obj");
-		sceneObjects.add(new SceneObject(renderingProgram, sphere, new Vector3f(0.0f, 0.0f, 0.0f)));
-
 
 		earthTexture = ShaderTools.loadTexture("\\textures\\earth.jpg");
 		moonTexture = ShaderTools.loadTexture("\\textures\\moon.jpg");
@@ -183,20 +179,64 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 	private void setupVertices()
 	{	gl = (GL4) GLContext.getCurrentGL();
-
-
 		gl.glGenVertexArrays(vao.length, vao, 0);
 		gl.glBindVertexArray(vao[0]);
+
+
+		sphereObj = new ImportedObject("palmtest.obj");
+		sceneObjects.add(new SceneObject(renderingProgram, sphereObj, new Vector3f(0.0f, 0.0f, 0.0f)));
 
 		for(int i = 0; i < sceneObjects.size(); i++){
 			sceneObjects.get(i).setupVBO();
 		}
 
-		setupCube();
 
-		setupDiamond();
-		setupSphere();
-		setupSphereObj();
+		//setupCube();
+
+		//setupDiamond();
+		//setupSphere();
+	}
+
+
+	private void drawSceneObject(SceneObject object){
+		object.setLighting();
+
+		mMat.translation(object.getPosition());
+		mvMat.identity();
+		mvMat.mul(vMat);
+		mvMat.mul(mMat);
+
+		mvMat.invert(invTrMat);
+		invTrMat.transpose(invTrMat);
+
+		int[] vbo = object.getVBO();
+
+
+
+		gl.glUniformMatrix4fv(mvLoc, 1, false, mvMat.get(vals));
+		gl.glUniformMatrix4fv(projLoc, 1, false, pMat.get(vals));
+		gl.glUniformMatrix4fv(nLoc, 1, false, invTrMat.get(vals));
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+		gl.glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
+		gl.glEnableVertexAttribArray(0);
+
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+		gl.glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0);
+		gl.glEnableVertexAttribArray(1);
+
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
+		gl.glVertexAttribPointer(2, 2, GL_FLOAT, false, 0, 0);
+		gl.glEnableVertexAttribArray(2);
+
+		//bindTexture(blueTexture);
+
+		gl.glEnable(GL_CULL_FACE);
+		gl.glFrontFace(GL_CCW);
+		gl.glEnable(GL_DEPTH_TEST);
+		gl.glDepthFunc(GL_LEQUAL);
+
+		//gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboSphere[3]);
+		gl.glDrawArrays(GL_TRIANGLES, 0, object.getNumVerts());
 	}
 
 	private void setupCube(){
@@ -228,30 +268,31 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	}
 
 	private void setupSphere(){
-		sphere = new Sphere(96);
-		numSphereVerts = sphere.getIndices().length;
+		int numVertices = testModel.getNumVerts();
+		Vector3f[] vertices = testModel.getVerts();
+		Vector2f[] texCoords = testModel.getTexCoords();
+		Vector3f[] normals = testModel.getNormals();
 
-		int[] indices = sphere.getIndices();
-		Vector3f[] vert = sphere.getVertices();
-		Vector2f[] tex  = sphere.getTexCoords();
-		Vector3f[] norm = sphere.getNormals();
+		int precision = numVertices;
 
-		float[] pvalues = new float[indices.length*3];
-		float[] tvalues = new float[indices.length*2];
-		float[] nvalues = new float[indices.length*3];
+		System.out.println("Verticies: " + numVertices);
+		float[] pvalues = new float[numVertices*3];
+		float[] tvalues = new float[numVertices*2];
+		float[] nvalues = new float[numVertices*3];
 
-		for (int i=0; i<indices.length; i++) {
-			pvalues[i*3] = (float) (vert[indices[i]]).x;
-			pvalues[i*3+1] = (float) (vert[indices[i]]).y;
-			pvalues[i*3+2] = (float) (vert[indices[i]]).z;
-			tvalues[i*2] = (float) (tex[indices[i]]).x;
-			tvalues[i*2+1] = (float) (tex[indices[i]]).y;
-			nvalues[i*3] = (float) (norm[indices[i]]).x;
-			nvalues[i*3+1]= (float)(norm[indices[i]]).y;
-			nvalues[i*3+2]=(float) (norm[indices[i]]).z;
+		for (int i=0; i<numVertices; i++)
+		{	pvalues[i*3]   = (float) (vertices[i]).x();
+			pvalues[i*3+1] = (float) (vertices[i]).y();
+			pvalues[i*3+2] = (float) (vertices[i]).z();
+			tvalues[i*2]   = (float) (texCoords[i]).x();
+			tvalues[i*2+1] = (float) (texCoords[i]).y();
+			nvalues[i*3]   = (float) (normals[i]).x();
+			nvalues[i*3+1] = (float) (normals[i]).y();
+			nvalues[i*3+2] = (float) (normals[i]).z();
 		}
 
 		gl.glGenBuffers(vboSphere.length, vboSphere, 0);
+
 		gl.glBindBuffer(GL_ARRAY_BUFFER, vboSphere[0]);
 		FloatBuffer vertBuf = Buffers.newDirectFloatBuffer(pvalues);
 		gl.glBufferData(GL_ARRAY_BUFFER, vertBuf.limit()*4, vertBuf, GL_STATIC_DRAW);
@@ -264,18 +305,9 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		FloatBuffer norBuf = Buffers.newDirectFloatBuffer(nvalues);
 		gl.glBufferData(GL_ARRAY_BUFFER, norBuf.limit()*4,norBuf, GL_STATIC_DRAW);
 
-		gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboSphere[3]);
-		IntBuffer idxBuf = Buffers.newDirectIntBuffer(indices);
-		gl.glBufferData(GL_ELEMENT_ARRAY_BUFFER, idxBuf.limit()*4, idxBuf, GL_STATIC_DRAW);
-	}
-
-	// Shuttle.obj file obtained from the Companion CD that came with the text
-	private void setupSphereObj(){
-
-
-
-
-
+		//gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[3]);
+		//IntBuffer idxBuf = Buffers.newDirectIntBuffer(model.getIndices());
+		//gl.glBufferData(GL_ELEMENT_ARRAY_BUFFER, idxBuf.limit()*4, idxBuf, GL_STATIC_DRAW);
 	}
 
 	public static void main(String[] args) { new Starter(); }
@@ -307,45 +339,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		drawCube(greenTexture);
 	}
 
-	private void drawSceneObject(SceneObject object){
-		object.setLighting();
 
-		mMat.translation(object.getPosition());
-		mvMat.identity();
-		mvMat.mul(vMat);
-		mvMat.mul(mMat);
-
-		mvMat.invert(invTrMat);
-		invTrMat.transpose(invTrMat);
-
-		//int[] vbo = object.getVBO();
-
-		gl.glUniformMatrix4fv(mvLoc, 1, false, mvMat.get(vals));
-		gl.glUniformMatrix4fv(projLoc, 1, false, pMat.get(vals));
-		gl.glUniformMatrix4fv(nLoc, 1, false, invTrMat.get(vals));
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vboSphere[0]);
-		gl.glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
-		gl.glEnableVertexAttribArray(0);
-
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vboSphere[1]);
-		gl.glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0);
-		gl.glEnableVertexAttribArray(1);
-
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vboSphere[2]);
-		gl.glVertexAttribPointer(2, 2, GL_FLOAT, false, 0, 0);
-		gl.glEnableVertexAttribArray(2);
-
-		gl.glEnable(GL_CULL_FACE);
-		gl.glFrontFace(GL_CCW);
-		gl.glEnable(GL_DEPTH_TEST);
-		gl.glDepthFunc(GL_LEQUAL);
-
-		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		// NEED TO ADD INDICIES TO OBJECT SOMEHOW?????
-		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboSphere[3]);
-		gl.glDrawArrays(GL_TRIANGLES, 0, object.getNumVerts());
-	}
 
 	private void drawCube(int tex){
 		gl.glUniformMatrix4fv(mvLoc, 1, false, mvMat.get(vals));
