@@ -45,15 +45,15 @@ public class Camera {
     }
 
     public void moveBackward(){
-        cVector.add(nVector); updateView();}
+        cVector.z += MOVE_INTERVAL; updateView();}
     public void moveForward(){
-        cVector.sub(nVector); updateView();}
+        cVector.z -= MOVE_INTERVAL; updateView();}
 
-    public void moveRight(){ cVector.add(uVector); updateView();}
-    public void moveLeft(){ cVector.sub(uVector); updateView(); }
+    public void moveRight(){ cVector.x += MOVE_INTERVAL; updateView();}
+    public void moveLeft(){ cVector.x -= MOVE_INTERVAL; updateView(); }
 
-    public void moveUp(){  cVector.add(vVector); updateView();}
-    public void moveDown(){ cVector.sub(vVector); updateView();}
+    public void moveUp(){  cVector.y += MOVE_INTERVAL; updateView();}
+    public void moveDown(){ cVector.y -= MOVE_INTERVAL; updateView();}
 
     public void pitchUp(){
         nVector.rotateAbout(0.01f, -uVector.x, -uVector.y, -uVector.z);
