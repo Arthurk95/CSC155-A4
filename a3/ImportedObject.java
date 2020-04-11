@@ -6,13 +6,13 @@ import org.joml.*;
 
 // This file was obtained from the companion disk that came with the text.
 // It reads a .obj file and deals with its data (vertices and texture coords)
-public class ObjectReader {
+public class ImportedObject {
     private Vector3f[] vertices;
     private Vector2f[] texCoords;
     private Vector3f[] normals;
     private int numVertices;
 
-    public ObjectReader(String filename) {
+    public ImportedObject(String filename) {
         ModelImporter modelImporter = new ModelImporter();
         try {
             modelImporter.parseOBJ(filename);
@@ -61,7 +61,7 @@ public class ObjectReader {
             String line;
             while ((line = br.readLine()) != null) {
                 if(line.startsWith("v ")){			// vertex position ("v" case)
-                for(String s : (line.substring(2)).split(" ")) {
+                for(String s : (line.substring(3)).split(" ")) {
                 vertVals.add(Float.valueOf(s));
             }
                 }

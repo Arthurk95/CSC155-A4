@@ -41,7 +41,6 @@ public class Camera {
         );
         tMat.mul(rMat, viewMatrix); // store rMat * tMat in viewMatrix
         cVector.mul(viewMatrix, pc); // store cVector * viewMatrix in pc
-        System.out.println(viewMatrix.toString(format));
     }
 
     public void moveBackward(){

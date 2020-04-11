@@ -12,8 +12,15 @@ public class Lighting {
     private float[] lightDiffuse = new float[] { 1.0f, 1.0f, 1.0f, 1.0f };
     private float[] lightSpecular = new float[] { 1.0f, 1.0f, 1.0f, 1.0f };
 
+    private float[] matAmb = ShaderTools.silverAmbient();
+    private float[] matDif = ShaderTools.silverDiffuse();
+    private float[] matSpe = ShaderTools.silverSpecular();
+    private float matShi = ShaderTools.silverShininess();
+
+    private Vector3f initialLightLoc = new Vector3f(1.0f, 5.0f, 0.0f);
     public static Vector3f currentLightPos = new Vector3f(5.0f, 2.0f, 2.0f);
 
+    private float amt = 0.0f;
     private int renderingProgram;
     private float[] lightPos = new float[3];
 
@@ -21,8 +28,11 @@ public class Lighting {
         renderingProgram = r;
     }
 
-    private void installLights(Matrix4f vMatrix)
-    {	GL4 gl = (GL4) GLContext.getCurrentGL();
+    public GL4 installLights(Matrix4f vMatrix, GL4 gl)
+    {
+        currentLightPos.set(initialLightLoc);
+        amt += 0.5f;
+        currentLightPos.rotateAxis((float)Math.toRadians(amt), 0.0f, 0.0f, 1.0f);
 
         currentLightPos.mulPosition(vMatrix);
         lightPos[0]=currentLightPos.x(); lightPos[1]=currentLightPos.y(); lightPos[2]=currentLightPos.z();
@@ -33,7 +43,10 @@ public class Lighting {
         int diffLoc = gl.glGetUniformLocation(renderingProgram, "light.diffuse");
         int specLoc = gl.glGetUniformLocation(renderingProgram, "light.specular");
         int posLoc = gl.glGetUniformLocation(renderingProgram, "light.position");
-
+        int mambLoc = gl.glGetUniformLocation(renderingProgram, "material.ambient");
+        int mdiffLoc = gl.glGetUniformLocation(renderingProgram, "material.diffuse");
+        int mspecLoc = gl.glGetUniformLocation(renderingProgram, "material.specular");
+        int mshiLoc = gl.glGetUniformLocation(renderingProgram, "material.shininess");
 
         //  set the uniform light and material values in the shader
         gl.glProgramUniform4fv(renderingProgram, globalAmbLoc, 1, globalAmbient, 0);
@@ -41,6 +54,11 @@ public class Lighting {
         gl.glProgramUniform4fv(renderingProgram, diffLoc, 1, lightDiffuse, 0);
         gl.glProgramUniform4fv(renderingProgram, specLoc, 1, lightSpecular, 0);
         gl.glProgramUniform3fv(renderingProgram, posLoc, 1, lightPos, 0);
+        gl.glProgramUniform4fv(renderingProgram, mambLoc, 1, matAmb, 0);
+        gl.glProgramUniform4fv(renderingProgram, mdiffLoc, 1, matDif, 0);
+        gl.glProgramUniform4fv(renderingProgram, mspecLoc, 1, matSpe, 0);
+        gl.glProgramUniform1f(renderingProgram, mshiLoc, matShi);
 
+        return gl;
     }
 }

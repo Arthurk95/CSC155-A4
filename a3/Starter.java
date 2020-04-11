@@ -15,6 +15,7 @@ import a3.actions.camera.*;
 import a3.models.Cube;
 import a3.models.Diamond;
 import a3.models.Sphere;
+import a3.sceneobject.SceneObject;
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLCanvas;
@@ -28,6 +29,7 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.lang.Math;
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
 
 /* All planet textures from https://www.solarsystemscope.com/textures/,
  * Stated at the bottom that their textures are distributed under
@@ -53,16 +55,18 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	private Matrix4f vMat = new Matrix4f();
 	private Matrix4f mMat = new Matrix4f();
 	private Matrix4f pMat = new Matrix4f();
-	private int mvLoc, projLoc;
+	private Matrix4f invTrMat = new Matrix4f(); // inverse-transpose
+	private int mvLoc, projLoc, nLoc;
 	private float aspect;
 	private double tf;
 	private int earthTexture, moonTexture, marsTexture, venusTexture,
 			sunTexture, jupiterTexture, shipTexture, ceresTexture;
 
+	private Lighting lights;
 
 
 	private int redTexture, greenTexture, blueTexture;
-	private ObjectReader spaceShip;
+	private ImportedObject sphereObj;
 	private boolean drawAxes = true;
 
 	private Camera camera;
@@ -73,6 +77,8 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 	private float theta = 1.0f; // bigger number = faster circle
 	private float thetaTotal = 0.0f;
+
+	private ArrayList<SceneObject> sceneObjects = new ArrayList<>();
 
 	public Starter() {
 		setTitle("CSC 155 - a2");
@@ -121,21 +127,19 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 		mvLoc = gl.glGetUniformLocation(renderingProgram, "mv_matrix");
 		projLoc = gl.glGetUniformLocation(renderingProgram, "proj_matrix");
+		nLoc = gl.glGetUniformLocation(renderingProgram, "norm_matrix");
 		aspect = (float) myCanvas.getWidth() / (float) myCanvas.getHeight();
 		pMat.setPerspective((float) Math.toRadians(60.0f), aspect, 0.1f, 1000.0f);
 
 		vMat = camera.getView();
 
+		gl = lights.installLights(vMat, gl);
 
 		drawAxisLines();
 
-
-		mMat.translation(0.0f, 0.0f, 0.0f);
-		mvMat.identity();
-		mvMat.mul(vMat);
-		mvMat.mul(mMat);
-
-		drawSphere(earthTexture);
+		for(int i = 0; i < sceneObjects.size(); i++){
+			drawSceneObject(sceneObjects.get(i));
+		}
 
 	}
 
@@ -149,6 +153,11 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		System.out.println("Java Version: " + System.getProperty("java.version"));
 
 		renderingProgram = ShaderTools.createShaderProgram("vertShader.glsl", "fragShader.glsl");
+
+		lights = new Lighting(renderingProgram);
+
+		sphereObj = new ImportedObject("earth.obj");
+		sceneObjects.add(new SceneObject(renderingProgram, sphereObj, new Vector3f(0.0f, 0.0f, 0.0f)));
 
 		setupVertices();
 
@@ -166,6 +175,8 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		greenTexture = ShaderTools.loadTexture("\\textures\\green.jpg");
 		blueTexture = ShaderTools.loadTexture("\\textures\\blue.jpg");
 
+
+
 	}
 
 	private void setupVertices()
@@ -175,11 +186,15 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		gl.glGenVertexArrays(vao.length, vao, 0);
 		gl.glBindVertexArray(vao[0]);
 
+		for(int i = 0; i < sceneObjects.size(); i++){
+			sceneObjects.get(i).setupVBO();
+		}
+
 		setupCube();
 
 		setupDiamond();
 		setupSphere();
-		setupSpaceship();
+		setupSphereObj();
 	}
 
 	private void setupCube(){
@@ -251,41 +266,12 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	}
 
 	// Shuttle.obj file obtained from the Companion CD that came with the text
-	private void setupSpaceship(){
-		spaceShip = new ObjectReader("shuttle.obj");
-		int spaceshipVertices = spaceShip.getNumVertices();
-		Vector3f[] vertices = spaceShip.getVertices();
-		Vector2f[] texCoords = spaceShip.getTexCoords();
-		Vector3f[] normals = spaceShip.getNormals();
+	private void setupSphereObj(){
 
-		float[] pvalues = new float[spaceshipVertices*3];
-		float[] tvalues = new float[spaceshipVertices*2];
-		float[] nvalues = new float[spaceshipVertices*3];
 
-		for (int i=0; i<spaceshipVertices; i++)
-		{	pvalues[i*3]   = (float) (vertices[i]).x();
-			pvalues[i*3+1] = (float) (vertices[i]).y();
-			pvalues[i*3+2] = (float) (vertices[i]).z();
-			tvalues[i*2]   = (float) (texCoords[i]).x();
-			tvalues[i*2+1] = (float) (texCoords[i]).y();
-			nvalues[i*3]   = (float) (normals[i]).x();
-			nvalues[i*3+1] = (float) (normals[i]).y();
-			nvalues[i*3+2] = (float) (normals[i]).z();
-		}
 
-		gl.glGenBuffers(vboShip.length, vboShip, 0);
 
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vboShip[0]);
-		FloatBuffer vertBuf = Buffers.newDirectFloatBuffer(pvalues);
-		gl.glBufferData(GL_ARRAY_BUFFER, vertBuf.limit()*4, vertBuf, GL_STATIC_DRAW);
 
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vboShip[1]);
-		FloatBuffer texBuf = Buffers.newDirectFloatBuffer(tvalues);
-		gl.glBufferData(GL_ARRAY_BUFFER, texBuf.limit()*4, texBuf, GL_STATIC_DRAW);
-
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vboShip[2]);
-		FloatBuffer norBuf = Buffers.newDirectFloatBuffer(nvalues);
-		gl.glBufferData(GL_ARRAY_BUFFER, norBuf.limit()*4,norBuf, GL_STATIC_DRAW);
 	}
 
 	public static void main(String[] args) { new Starter(); }
@@ -317,24 +303,43 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		drawCube(greenTexture);
 	}
 
-	private void drawSphere(int tex){
+	private void drawSceneObject(SceneObject object){
+		//object.setLighting();
+
+		mMat.translation(object.getPosition());
+		mvMat.identity();
+		mvMat.mul(vMat);
+		mvMat.mul(mMat);
+
+		mvMat.invert(invTrMat);
+		invTrMat.transpose(invTrMat);
+
+		int[] vbo = object.getVBO();
+
 		gl.glUniformMatrix4fv(mvLoc, 1, false, mvMat.get(vals));
 		gl.glUniformMatrix4fv(projLoc, 1, false, pMat.get(vals));
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vboSphere[0]);
+		gl.glUniformMatrix4fv(nLoc, 1, false, invTrMat.get(vals));
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
 		gl.glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
 		gl.glEnableVertexAttribArray(0);
 
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vboSphere[1]);
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
 		gl.glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0);
 		gl.glEnableVertexAttribArray(1);
 
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vboSphere[2]);
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
 		gl.glVertexAttribPointer(2, 2, GL_FLOAT, false, 0, 0);
 		gl.glEnableVertexAttribArray(2);
 
-		bindTexture(tex);
+		gl.glEnable(GL_CULL_FACE);
+		gl.glFrontFace(GL_CCW);
+		gl.glEnable(GL_DEPTH_TEST);
+		gl.glDepthFunc(GL_LEQUAL);
 
-		gl.glDrawArrays(GL_TRIANGLES, 0, numSphereVerts);
+		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		// NEED TO ADD INDICIES TO OBJECT SOMEHOW?????
+		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		gl.glDrawArrays(GL_TRIANGLES, 0, object.getNumVerts());
 	}
 
 	private void drawCube(int tex){
