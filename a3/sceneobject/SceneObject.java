@@ -11,12 +11,16 @@ import org.joml.Vector3f;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
 
 import static com.jogamp.opengl.GL.*;
 
 public class SceneObject {
 
     ImportedObject model;
+
+    int texture;
+    float scale = 1.0f;
 
     // SceneObjects default to silver material
     private float[] matAmb = ShaderTools.silverAmbient();
@@ -42,6 +46,13 @@ public class SceneObject {
         renderingProgram = r;
         model = o;
         position = pos;
+    }
+
+    public SceneObject(int r, ImportedObject o, int tex, Vector3f pos){
+        renderingProgram = r;
+        model = o;
+        position = pos;
+        texture = tex;
     }
 
     public SceneObject(int r){renderingProgram = r;}
@@ -112,4 +123,23 @@ public class SceneObject {
     public Vector2f[] getTexCoords(){return model.getTexCoords();}
     public Vector3f[] getNormals(){return model.getNormals();}
     public int[] getVBO(){return vbo;}
+
+    public void setPosition(float[] newPos){
+        position = new Vector3f(newPos[0], newPos[1], newPos[2]);
+    }
+
+    public void setPosition(Vector3f newPos){
+        position = newPos;
+    }
+
+    public int getTexture(){return texture;}
+
+    public void setScale(float s){scale = s;}
+    public float getScale(){return scale;}
+
+    public void setMats(ArrayList<float[]> mats){
+        matAmb = mats.get(0);
+        matDif = mats.get(1);
+        matSpe = mats.get(2);
+    }
 }

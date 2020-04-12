@@ -10,7 +10,6 @@ public class ImportedObject {
     private Vector3f[] vertices;
     private Vector2f[] texCoords;
     private Vector3f[] normals;
-    private int[] indices;
     private int numVertices;
 
     public ImportedObject(String filename) {
@@ -34,34 +33,15 @@ public class ImportedObject {
                 normals[i] = new Vector3f();
                 normals[i].set(norm[i*3], norm[i*3+1], norm[i*3+2]);
             }
-            //setupIndices();
         }
         catch (IOException e) {
             e.printStackTrace();
         }
     }
-
-    public void setupIndices(){
-        int precision = numVertices;
-        int numIndices = precision * 6;
-        indices = new int[numIndices];
-        for(int i=0; i<precision; i++) {
-            for(int j=0; j<precision; j++) {
-                indices[6*(i*precision+j)] = i*(precision+1)+j;
-                indices[6*(i*precision+j)+1] = i*(precision+1)+j+1;
-                indices[6*(i*precision+j)+2] = (i+1)*(precision+1)+j;
-                indices[6*(i*precision+j)+3] = i*(precision+1)+j+1;
-                indices[6*(i*precision+j)+4] = (i+1)*(precision+1)+j+1;
-                indices[6*(i*precision+j)+5] = (i+1)*(precision+1)+j;
-            }
-        }
-    }
-
     public int getNumVertices() { return numVertices; }
     public Vector3f[] getVertices() { return vertices; }
     public Vector2f[] getTexCoords() { return texCoords; }
     public Vector3f[] getNormals() { return normals; }
-    public int[] getIndices(){return indices;}
 
     private class ModelImporter {
         // values as read from OBJ file
@@ -80,7 +60,7 @@ public class ImportedObject {
             String line;
             while ((line = br.readLine()) != null) {
                 if(line.startsWith("v ")){			// vertex position ("v" case)
-                for(String s : (line.substring(3)).split(" ")) {
+                for(String s : (line.substring(2)).split(" ")) {
                 vertVals.add(Float.valueOf(s));
             }
                 }

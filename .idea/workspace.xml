@@ -8,18 +8,9 @@
       <change beforePath="$PROJECT_DIR$/a3/Lighting.java" beforeDir="false" afterPath="$PROJECT_DIR$/a3/Lighting.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/a3/Starter.java" beforeDir="false" afterPath="$PROJECT_DIR$/a3/Starter.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/a3/sceneobject/SceneObject.java" beforeDir="false" afterPath="$PROJECT_DIR$/a3/sceneobject/SceneObject.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fragShader.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/fragShader.glsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/a1/.idea/encodings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/a1/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/a1/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/a1/.idea/uiDesigner.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/a1/.idea/workspace.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/a1/a1.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/a1/a1/Starter.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/a1/a1/Utils.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/a1/fragShader.glsl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/a1/vertShader.glsl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vertShader.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/vertShader.glsl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/earth.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/palmtest.obj" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shuttle.obj" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -32,8 +23,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/a3/Starter.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="169">
-              <caret line="129" column="71" lean-forward="true" selection-start-line="129" selection-start-column="71" selection-end-line="129" selection-end-column="71" />
+            <state relative-caret-position="272">
+              <caret line="198" column="22" lean-forward="true" selection-start-line="198" selection-start-column="22" selection-end-line="198" selection-end-column="22" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#13868#13869#0" expanded="true" />
@@ -46,8 +37,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/a3/Camera.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="374">
-              <caret line="64" column="42" selection-start-line="64" selection-start-column="42" selection-end-line="64" selection-end-column="42" />
+            <state relative-caret-position="-648">
+              <caret line="12" column="40" selection-start-line="12" selection-start-column="40" selection-end-line="12" selection-end-column="40" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -56,19 +47,32 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/a3/ImportedObject.java">
+        <entry file="file://$PROJECT_DIR$/a3/actions/camera/ResetCamera.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="578">
-              <caret line="36" column="14" selection-start-line="36" selection-start-column="14" selection-end-line="36" selection-end-column="14" />
+            <state relative-caret-position="221">
+              <caret line="18" column="1" selection-start-line="18" selection-start-column="1" selection-end-line="18" selection-end-column="1" />
+              <folding>
+                <element signature="e#297#298#0" expanded="true" />
+                <element signature="e#333#334#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/a3/models/Sphere.java">
+        <entry file="file://$PROJECT_DIR$/a3/ImportedObject.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-36">
-              <caret line="31" column="16" selection-start-line="31" selection-start-column="8" selection-end-line="31" selection-end-column="16" />
+            <state relative-caret-position="2023">
+              <caret line="121" column="14" selection-start-line="121" selection-start-column="14" selection-end-line="121" selection-end-column="14" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/a3/ShaderTools.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="219">
+              <caret line="150" column="58" lean-forward="true" selection-start-line="150" selection-start-column="58" selection-end-line="150" selection-end-column="58" />
             </state>
           </provider>
         </entry>
@@ -77,25 +81,25 @@
         <entry file="file://$PROJECT_DIR$/vertShader.glsl">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="140">
-              <caret line="18" column="17" lean-forward="true" selection-start-line="18" selection-start-column="17" selection-end-line="18" selection-end-column="17" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/fragShader.glsl">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="463">
-              <caret line="53" column="34" selection-start-line="53" selection-start-column="34" selection-end-line="53" selection-end-column="34" />
+              <caret line="18" column="17" selection-start-line="18" selection-start-column="17" selection-end-line="18" selection-end-column="17" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/fragShader.glsl">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="884">
+              <caret line="52" column="36" selection-start-line="52" selection-start-column="36" selection-end-line="52" selection-end-column="36" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/a3/Lighting.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="289">
-              <caret line="34" column="81" lean-forward="true" selection-start-line="34" selection-start-column="81" selection-end-line="34" selection-end-column="81" />
+            <state relative-caret-position="136">
+              <caret line="12" column="74" selection-start-line="12" selection-start-column="36" selection-end-line="12" selection-end-column="74" />
             </state>
           </provider>
         </entry>
@@ -103,10 +107,14 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/a3/sceneobject/SceneObject.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="474">
-              <caret line="107" lean-forward="true" selection-start-line="107" selection-end-line="107" />
+            <state relative-caret-position="289">
+              <caret line="32" column="43" lean-forward="true" selection-start-line="32" selection-start-column="43" selection-end-line="32" selection-end-column="43" />
               <folding>
                 <element signature="imports" expanded="true" />
+                <element signature="e#4269#4270#0" expanded="true" />
+                <element signature="e#4340#4341#0" expanded="true" />
+                <element signature="e#4270#4271#0" expanded="true" />
+                <element signature="e#4300#4301#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -147,13 +155,15 @@
         <option value="$PROJECT_DIR$/a3/sceneobjects/SceneObject.java" />
         <option value="$PROJECT_DIR$/a3/sceneobjects/GoldSphere.java" />
         <option value="$PROJECT_DIR$/a3/ObjectReader.java" />
-        <option value="$PROJECT_DIR$/a3/Camera.java" />
-        <option value="$PROJECT_DIR$/a3/ImportedObject.java" />
-        <option value="$PROJECT_DIR$/a3/sceneobject/SceneObject.java" />
-        <option value="$PROJECT_DIR$/a3/Starter.java" />
-        <option value="$PROJECT_DIR$/a3/Lighting.java" />
         <option value="$PROJECT_DIR$/vertShader.glsl" />
         <option value="$PROJECT_DIR$/fragShader.glsl" />
+        <option value="$PROJECT_DIR$/a3/ImportedObject.java" />
+        <option value="$PROJECT_DIR$/a3/Camera.java" />
+        <option value="$PROJECT_DIR$/a3/actions/camera/ResetCamera.java" />
+        <option value="$PROJECT_DIR$/a3/Lighting.java" />
+        <option value="$PROJECT_DIR$/a3/sceneobject/SceneObject.java" />
+        <option value="$PROJECT_DIR$/a3/Starter.java" />
+        <option value="$PROJECT_DIR$/a3/ShaderTools.java" />
       </list>
     </option>
   </component>
@@ -357,7 +367,14 @@
       <option name="project" value="LOCAL" />
       <updated>1586569416903</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="working lighting with textures included">
+      <created>1586645792560</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1586645792561</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -439,7 +456,8 @@
     <MESSAGE value="added more to lighting. found free sphere object" />
     <MESSAGE value="axis lines are rendering yaaaay" />
     <MESSAGE value="switched back to Sphere class object instead of .obj file" />
-    <option name="LAST_COMMIT_MESSAGE" value="switched back to Sphere class object instead of .obj file" />
+    <MESSAGE value="working lighting with textures included" />
+    <option name="LAST_COMMIT_MESSAGE" value="working lighting with textures included" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -452,25 +470,25 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/a3/Starter.java</url>
-          <line>215</line>
+          <line>219</line>
           <properties />
           <option name="timeStamp" value="8" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/a3/sceneobject/SceneObject.java</url>
-          <line>74</line>
+          <line>85</line>
           <properties />
           <option name="timeStamp" value="14" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/a3/sceneobject/SceneObject.java</url>
-          <line>93</line>
+          <line>104</line>
           <properties />
           <option name="timeStamp" value="15" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/a3/Starter.java</url>
-          <line>293</line>
+          <line>295</line>
           <properties />
           <option name="timeStamp" value="16" />
         </line-breakpoint>
@@ -478,13 +496,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/a3/actions/camera/ResetCamera.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="68">
-          <caret line="7" column="13" selection-start-line="7" selection-start-column="13" selection-end-line="7" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/a3/actions/ToggleAxes.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="170">
@@ -517,27 +528,71 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/a3/ShaderTools.java">
+    <entry file="file://$PROJECT_DIR$/a3/models/Sphere.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-219">
-          <caret line="119" column="8" selection-start-line="119" selection-start-column="8" selection-end-line="119" selection-end-column="8" />
+        <state relative-caret-position="-36">
+          <caret line="31" column="16" selection-start-line="31" selection-start-column="8" selection-end-line="31" selection-end-column="16" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/a3/Camera.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="374">
-          <caret line="64" column="42" selection-start-line="64" selection-start-column="42" selection-end-line="64" selection-end-column="42" />
+        <state relative-caret-position="-648">
+          <caret line="12" column="40" selection-start-line="12" selection-start-column="40" selection-end-line="12" selection-end-column="40" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/a3/models/Sphere.java">
+    <entry file="file://$PROJECT_DIR$/a3/actions/camera/ResetCamera.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-36">
-          <caret line="31" column="16" selection-start-line="31" selection-start-column="8" selection-end-line="31" selection-end-column="16" />
+        <state relative-caret-position="221">
+          <caret line="18" column="1" selection-start-line="18" selection-start-column="1" selection-end-line="18" selection-end-column="1" />
+          <folding>
+            <element signature="e#297#298#0" expanded="true" />
+            <element signature="e#333#334#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vertShader.glsl">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="140">
+          <caret line="18" column="17" selection-start-line="18" selection-start-column="17" selection-end-line="18" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/fragShader.glsl">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="884">
+          <caret line="52" column="36" selection-start-line="52" selection-start-column="36" selection-end-line="52" selection-end-column="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/a3/ImportedObject.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2023">
+          <caret line="121" column="14" selection-start-line="121" selection-start-column="14" selection-end-line="121" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/a3/Starter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="272">
+          <caret line="198" column="22" lean-forward="true" selection-start-line="198" selection-start-column="22" selection-end-line="198" selection-end-column="22" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#13868#13869#0" expanded="true" />
+            <element signature="e#13895#13896#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/a3/ShaderTools.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="219">
+          <caret line="150" column="58" lean-forward="true" selection-start-line="150" selection-start-column="58" selection-end-line="150" selection-end-column="58" />
         </state>
       </provider>
     </entry>
@@ -548,53 +603,24 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/a3/ImportedObject.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="578">
-          <caret line="36" column="14" selection-start-line="36" selection-start-column="14" selection-end-line="36" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/a3/sceneobject/SceneObject.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="474">
-          <caret line="107" lean-forward="true" selection-start-line="107" selection-end-line="107" />
+        <state relative-caret-position="289">
+          <caret line="32" column="43" lean-forward="true" selection-start-line="32" selection-start-column="43" selection-end-line="32" selection-end-column="43" />
           <folding>
             <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/a3/Starter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="169">
-          <caret line="129" column="71" lean-forward="true" selection-start-line="129" selection-start-column="71" selection-end-line="129" selection-end-column="71" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#13868#13869#0" expanded="true" />
-            <element signature="e#13895#13896#0" expanded="true" />
+            <element signature="e#4269#4270#0" expanded="true" />
+            <element signature="e#4340#4341#0" expanded="true" />
+            <element signature="e#4270#4271#0" expanded="true" />
+            <element signature="e#4300#4301#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/a3/Lighting.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="289">
-          <caret line="34" column="81" lean-forward="true" selection-start-line="34" selection-start-column="81" selection-end-line="34" selection-end-column="81" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/vertShader.glsl">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="140">
-          <caret line="18" column="17" lean-forward="true" selection-start-line="18" selection-start-column="17" selection-end-line="18" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/fragShader.glsl">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="463">
-          <caret line="53" column="34" selection-start-line="53" selection-start-column="34" selection-end-line="53" selection-end-column="34" />
+        <state relative-caret-position="136">
+          <caret line="12" column="74" selection-start-line="12" selection-start-column="36" selection-end-line="12" selection-end-column="74" />
         </state>
       </provider>
     </entry>

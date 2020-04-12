@@ -135,7 +135,9 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 		vMat = camera.getView();
 
-		gl = lights.installLights(vMat, gl);
+		lights.installLights(vMat);
+
+		drawSceneObject(lights.getLightObject());
 
 		//drawAxisLines();
 
@@ -156,9 +158,9 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 		renderingProgram = ShaderTools.createShaderProgram("vertShader.glsl", "fragShader.glsl");
 
-		lights = new Lighting(renderingProgram);
 
 		setupVertices();
+
 
 		earthTexture = ShaderTools.loadTexture("\\textures\\earth.jpg");
 		moonTexture = ShaderTools.loadTexture("\\textures\\moon.jpg");
@@ -173,18 +175,21 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		greenTexture = ShaderTools.loadTexture("\\textures\\green.jpg");
 		blueTexture = ShaderTools.loadTexture("\\textures\\blue.jpg");
 
+		ImportedObject temp = new ImportedObject("\\OBJ_files\\sphere.obj");
+		lights = new Lighting(renderingProgram, new SceneObject(renderingProgram, temp, new Vector3f(0.0f, 0.0f, 0.0f)));
+
 
 
 	}
 
-	private void setupVertices()
-	{	gl = (GL4) GLContext.getCurrentGL();
+	private void setupVertices() {
+		gl = (GL4) GLContext.getCurrentGL();
 		gl.glGenVertexArrays(vao.length, vao, 0);
 		gl.glBindVertexArray(vao[0]);
 
 
-		sphereObj = new ImportedObject("palmtest.obj");
-		sceneObjects.add(new SceneObject(renderingProgram, sphereObj, new Vector3f(0.0f, 0.0f, 0.0f)));
+		ImportedObject tempObject = new ImportedObject("\\OBJ_Files\\birch_tree.obj");
+		sceneObjects.add(new SceneObject(renderingProgram, tempObject, new Vector3f(0.0f, 0.0f, 0.0f)));
 
 		for(int i = 0; i < sceneObjects.size(); i++){
 			sceneObjects.get(i).setupVBO();
@@ -211,8 +216,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 		int[] vbo = object.getVBO();
 
-
-
+		mvMat.scale(object.getScale(), object.getScale(), object.getScale());
 		gl.glUniformMatrix4fv(mvLoc, 1, false, mvMat.get(vals));
 		gl.glUniformMatrix4fv(projLoc, 1, false, pMat.get(vals));
 		gl.glUniformMatrix4fv(nLoc, 1, false, invTrMat.get(vals));
@@ -228,7 +232,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		gl.glVertexAttribPointer(2, 2, GL_FLOAT, false, 0, 0);
 		gl.glEnableVertexAttribArray(2);
 
-		//bindTexture(blueTexture);
+		bindTexture(object.getTexture());
 
 		gl.glEnable(GL_CULL_FACE);
 		gl.glFrontFace(GL_CCW);
@@ -268,14 +272,12 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	}
 
 	private void setupSphere(){
-		int numVertices = testModel.getNumVerts();
-		Vector3f[] vertices = testModel.getVerts();
-		Vector2f[] texCoords = testModel.getTexCoords();
-		Vector3f[] normals = testModel.getNormals();
+		int numVertices = sphere.getNumVertices();
+		Vector3f[] vertices = sphere.getVertices();
+		Vector2f[] texCoords = sphere.getTexCoords();
+		Vector3f[] normals = sphere.getNormals();
 
-		int precision = numVertices;
 
-		System.out.println("Verticies: " + numVertices);
 		float[] pvalues = new float[numVertices*3];
 		float[] tvalues = new float[numVertices*2];
 		float[] nvalues = new float[numVertices*3];
