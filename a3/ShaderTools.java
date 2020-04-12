@@ -1,8 +1,13 @@
 package a3;
 
 
+import java.awt.*;
+import java.awt.color.ColorSpace;
+import java.awt.geom.AffineTransform;
+import java.awt.image.*;
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Scanner;
 import java.util.Vector;
 
@@ -11,6 +16,8 @@ import static com.jogamp.opengl.GL4.*;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
+
+import javax.imageio.ImageIO;
 
 // ShaderTools is a class that will contain all useful functions to use for Shader files (.glsl).
 // This includes reading shader files, linking, etc.
@@ -143,6 +150,113 @@ public class ShaderTools {
 		}
 		return finalTextureRef;
 	}
+
+	public static int loadCubeMap(String dirName)
+	{	GL4 gl = (GL4) GLContext.getCurrentGL();
+
+		String topFile = dirName + File.separator + "yp.jpg";
+		String leftFile = dirName + File.separator + "xn.jpg";
+		String backFile = dirName + File.separator + "zn.jpg";
+		String rightFile = dirName + File.separator + "xp.jpg";
+		String frontFile = dirName + File.separator + "zp.jpg";
+		String bottomFile = dirName + File.separator + "yn.jpg";
+
+		BufferedImage topImage = getBufferedImage(topFile);
+		BufferedImage leftImage = getBufferedImage(leftFile);
+		BufferedImage frontImage = getBufferedImage(frontFile);
+		BufferedImage rightImage = getBufferedImage(rightFile);
+		BufferedImage backImage = getBufferedImage(backFile);
+		BufferedImage bottomImage = getBufferedImage(bottomFile);
+
+		byte[] topRGBA = getRGBAPixelData(topImage, false);
+		byte[] leftRGBA = getRGBAPixelData(leftImage, false);
+		byte[] frontRGBA = getRGBAPixelData(frontImage, false);
+		byte[] rightRGBA = getRGBAPixelData(rightImage, false);
+		byte[] backRGBA = getRGBAPixelData(backImage, false);
+		byte[] bottomRGBA = getRGBAPixelData(bottomImage, false);
+
+		ByteBuffer topWrappedRGBA = ByteBuffer.wrap(topRGBA);
+		ByteBuffer leftWrappedRGBA = ByteBuffer.wrap(leftRGBA);
+		ByteBuffer frontWrappedRGBA = ByteBuffer.wrap(frontRGBA);
+		ByteBuffer rightWrappedRGBA = ByteBuffer.wrap(rightRGBA);
+		ByteBuffer backWrappedRGBA = ByteBuffer.wrap(backRGBA);
+		ByteBuffer bottomWrappedRGBA = ByteBuffer.wrap(bottomRGBA);
+
+		int[] textureIDs = new int[1];
+		gl.glGenTextures(1, textureIDs, 0);
+		int textureID = textureIDs[0];
+
+		checkOpenGLError();
+
+		gl.glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+		gl.glTexStorage2D(GL_TEXTURE_CUBE_MAP, 1, GL_RGBA8, 1024, 1024);
+
+		// attach the image texture to each face of the currently active OpenGL texture ID
+		gl.glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, 0, 0, 1024, 1024,
+				GL_RGBA, GL.GL_UNSIGNED_BYTE, rightWrappedRGBA);
+		gl.glTexSubImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, 0, 0, 1024, 1024,
+				GL_RGBA, GL.GL_UNSIGNED_BYTE, leftWrappedRGBA);
+		gl.glTexSubImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, 0, 0, 1024, 1024,
+				GL_RGBA, GL.GL_UNSIGNED_BYTE, bottomWrappedRGBA);
+		gl.glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, 0, 0, 1024, 1024,
+				GL_RGBA, GL.GL_UNSIGNED_BYTE, topWrappedRGBA);
+		gl.glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, 0, 0, 1024, 1024,
+				GL_RGBA, GL.GL_UNSIGNED_BYTE, frontWrappedRGBA);
+		gl.glTexSubImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, 0, 0, 1024, 1024,
+				GL_RGBA, GL.GL_UNSIGNED_BYTE, backWrappedRGBA);
+
+		gl.glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		gl.glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		gl.glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+		checkOpenGLError();
+		return textureID;
+	}
+
+	private static BufferedImage getBufferedImage(String fileName)
+	{	BufferedImage img;
+		try {
+			img = ImageIO.read(new File(fileName));	// assumes GIF, JPG, PNG, BMP
+		} catch (IOException e) {
+			System.err.println("Error reading '" + fileName + '"');
+			throw new RuntimeException(e);
+		}
+		return img;
+	}
+
+	private static byte[] getRGBAPixelData(BufferedImage img, boolean flip)
+	{	int height = img.getHeight(null);
+		int width = img.getWidth(null);
+
+		// create an (empty) BufferedImage with a suitable Raster and ColorModel
+		WritableRaster raster = Raster.createInterleavedRaster(
+				DataBuffer.TYPE_BYTE, width, height, 4, null);
+
+		// convert to a color model that OpenGL understands
+		ComponentColorModel colorModel = new ComponentColorModel(
+				ColorSpace.getInstance(ColorSpace.CS_sRGB), new int[] { 8, 8, 8, 8 }, // bits
+				true,  // hasAlpha
+				false, // isAlphaPreMultiplied
+				ComponentColorModel.TRANSLUCENT,
+				DataBuffer.TYPE_BYTE);
+
+		BufferedImage newImage = new BufferedImage(colorModel, raster, false, null);
+		Graphics2D g = newImage.createGraphics();
+
+		if (flip)	// flip image vertically
+		{	AffineTransform gt = new AffineTransform();
+			gt.translate(0, height);
+			gt.scale(1, -1d);
+			g.transform(gt);
+		}
+		g.drawImage(img, null, null); // draw original image into new image
+		g.dispose();
+
+		// now retrieve the underlying byte array from the raster data buffer
+		DataBufferByte dataBuf = (DataBufferByte) raster.getDataBuffer();
+		return dataBuf.getData();
+	}
+
 
 	// GOLD material - ambient, diffuse, specular, and shininess
 	public static float[] goldAmbient()  { return (new float [] {0.2473f,  0.1995f, 0.0745f, 1} ); }

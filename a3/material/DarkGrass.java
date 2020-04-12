@@ -1,10 +1,9 @@
 package a3.material;
 
-
-public class PineLeaves extends Material{
-    private float[] matAmb = {0.24f, 0.32f, 0.22f, 1};
-    private float[] matDif = {0.32f, 0.45f, 0.16f, 1};
-    private float[] matSpe = {0.32f, 0.55f, 0.16f, 1};
+public class DarkGrass extends Material{
+    private float[] matAmb = {0.1f, 0.2f, 0.05f, 1};
+    private float[] matDif = {0.15f, 0.3f, 0.1f, 1};
+    private float[] matSpe = {0.15f, 0.3f, 0.1f, 1};
     private float matShi = 30.0f;
 
     public float[] getAmbient(){return matAmb;}

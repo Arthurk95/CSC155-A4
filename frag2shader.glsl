@@ -2,6 +2,7 @@
 
 in vec3 varyingNormal, varyingLightDir, varyingVertPos, varyingHalfVec;
 in vec4 shadow_coord;
+in vec2 tc;
 out vec4 fragColor;
 
 struct PositionalLight
@@ -22,6 +23,7 @@ uniform mat4 proj_matrix;
 uniform mat4 norm_matrix;
 uniform mat4 shadowMVP;
 layout (binding=0) uniform sampler2DShadow shadowTex;
+layout (binding=1) uniform sampler2D samp;
 
 float lookup(float x, float y)
 {  	float t = textureProj(shadowTex, shadow_coord + vec4(x * 0.001 * shadow_coord.w,
@@ -65,5 +67,7 @@ void main(void)
 	+ light.specular * material.specular
 	* pow(max(dot(H,N),0.0),material.shininess*3.0);
 
-	fragColor = vec4((shadowColor.xyz + shadowFactor*(lightedColor.xyz)),1.0);
+	vec4 tex = texture(samp, tc);
+
+	fragColor = vec4((shadowColor.xyz + shadowFactor*(lightedColor.xyz)) + tex.xyz,1.0);
 }

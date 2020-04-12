@@ -21,7 +21,7 @@ public class Lighting {
     private float[] matSpe = ShaderTools.silverSpecular();
     private float matShi = ShaderTools.silverShininess();
 
-    private Vector3f initialLightLoc = new Vector3f(20.0f, 8.0f, 0.0f);
+    private Vector3f initialLightLoc = new Vector3f(10.0f, 5.0f, 0.0f);
     private Vector3f currentLightPos = new Vector3f(0.0f, 0.0f, 0.0f);
 
     private float amt = 0.0f;
@@ -36,7 +36,7 @@ public class Lighting {
     public void installLights(int renderingProgram, Matrix4f vMatrix, Material objMat) {
         GL4 gl = (GL4) GLContext.getCurrentGL();
         currentLightPos.set(initialLightLoc);
-        amt += 0.1f;
+        amt += 0.01f;
         currentLightPos.rotateAxis((float)Math.toRadians(amt), 0.1f, 1.0f, 0.1f);
 
         //currentLightPos.mulPosition(vMatrix);

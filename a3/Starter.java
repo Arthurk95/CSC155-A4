@@ -12,6 +12,7 @@ import static com.jogamp.opengl.GL4.*;
 
 import a3.actions.ToggleAxes;
 import a3.actions.camera.*;
+import a3.material.DarkGrass;
 import a3.material.Material;
 import a3.material.PineLeaves;
 import a3.material.PineWood;
@@ -43,12 +44,11 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	public static final float MAX_SCALE = 2.0f;
 	public static final float MIN_SCALE = 0.1f;
 	private double startTime = 0.0;
-	private double elapsedTime;
 	private GLCanvas myCanvas;
-	private int shadowProgram, mainProgram;
+	private int shadowProgram, mainProgram, skyBoxProgram;
 	private int[] vao = new int[1];
 	private int[] vboDiamond = new int[2];
-	private int[] vboCube = new int[2];
+	private int[] vboSkyBox = new int[2];
 	private int[] vboSphere = new int[4]; // VBO for the sphere object
 	private int[] vboShip = new int[3]; // vbo for shuttle.obj file
 	private float scale = 1.0f;
@@ -63,6 +63,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	private Material pineLeavesMaterial = new PineLeaves();
 	private Material pineWoodMaterial = new PineWood();
 	private Material defaultMaterial = new Material();
+	private Material darkGrassMaterial = new DarkGrass();
 	// Shadow declarations
 	private int scSizeX, scSizeY;
 	private int [] shadowTex = new int[1];
@@ -75,28 +76,18 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	private Vector3f origin = new Vector3f(0.0f, 0.0f, 0.0f);
 	private Vector3f up = new Vector3f(0.0f, 1.0f, 0.0f);
 
-	private int mvLoc, projLoc, nLoc, sLoc;
+	private int mvLoc, projLoc, nLoc, sLoc, vLoc;
 	private float aspect;
-	private double tf;
-	private int earthTexture, moonTexture, marsTexture, venusTexture,
-			sunTexture, jupiterTexture, shipTexture, ceresTexture;
 
 	private Lighting mainLight;
 
-	private SceneObject testModel;
+	private int redTexture, greenTexture, blueTexture, skyboxTexture, woodTexture;
 
-	private int redTexture, greenTexture, blueTexture;
-	private ImportedObject sphereObj;
 	private boolean drawAxes = true;
-
 	private Camera camera;
-
-	private Sphere sphere;
-	private int numSphereVerts;
 	private GL4 gl;
+	private Cube cube = new Cube();
 
-	private float theta = 1.0f; // bigger number = faster circle
-	private float thetaTotal = 0.0f;
 
 	private ArrayList<SceneObject> sceneObjects = new ArrayList<>();
 
@@ -139,7 +130,8 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		gl = (GL4) GLContext.getCurrentGL();
 		gl.glClear(GL_COLOR_BUFFER_BIT);
 		gl.glClear(GL_DEPTH_BUFFER_BIT);
-		elapsedTime = System.currentTimeMillis() - startTime;
+
+		drawSkyBox();
 
 		lightVmat.identity().setLookAt(mainLight.getLightPos(), origin, up);	// vector from light to origin
 		lightPmat.identity().setPerspective((float) Math.toRadians(60.0f), aspect, 0.1f, 1000.0f);
@@ -155,6 +147,8 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		gl.glPolygonOffset(3.0f, 5.0f);		//  shadow artifacts
 
 		//drawAxisLines();
+
+
 
 		shadowPass();
 
@@ -179,6 +173,8 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		gl.glUseProgram(shadowProgram);
 		sLoc = gl.glGetUniformLocation(shadowProgram, "shadowMVP");
 		gl.glClear(GL_DEPTH_BUFFER_BIT);
+
+		drawSceneObjectShadow(mainLight.getLightObject());
 		for (SceneObject sceneObject : sceneObjects) {
 			drawSceneObjectShadow(sceneObject);
 		}
@@ -274,7 +270,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		gl.glVertexAttribPointer(2, 2, GL_FLOAT, false, 0, 0);
 		gl.glEnableVertexAttribArray(2);
 
-		//bindTexture(object.getTexture());
+		bindTexture(object.getTexture());
 
 		gl.glEnable(GL_CULL_FACE);
 		gl.glFrontFace(GL_CCW);
@@ -285,6 +281,30 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		gl.glDrawArrays(GL_TRIANGLES, 0, object.getNumVerts());
 	}
 
+	private void drawSkyBox(){
+		gl.glUseProgram(skyBoxProgram);
+
+		vMat = camera.getView();
+
+		vLoc = gl.glGetUniformLocation(skyBoxProgram, "v_matrix");
+		gl.glUniformMatrix4fv(vLoc, 1, false, vMat.get(vals));
+
+		projLoc = gl.glGetUniformLocation(skyBoxProgram, "proj_matrix");
+		gl.glUniformMatrix4fv(projLoc, 1, false, pMat.get(vals));
+
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vboSkyBox[0]);
+		gl.glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
+		gl.glEnableVertexAttribArray(0);
+
+		gl.glActiveTexture(GL_TEXTURE0);
+		gl.glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);
+
+		gl.glEnable(GL_CULL_FACE);
+		gl.glFrontFace(GL_CCW);	     // cube is CW, but we are viewing the inside
+		gl.glDisable(GL_DEPTH_TEST);
+		gl.glDrawArrays(GL_TRIANGLES, 0, 36);
+		gl.glEnable(GL_DEPTH_TEST);
+	}
 
 	// Outputs versions, creates and links shaders and textures
 	public void init(GLAutoDrawable drawable) {
@@ -300,7 +320,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 		shadowProgram = ShaderTools.createShaderProgram("vertShader.glsl", "fragShader.glsl");
 		mainProgram = ShaderTools.createShaderProgram("vert2shader.glsl", "frag2shader.glsl");
-
+		skyBoxProgram = ShaderTools.createShaderProgram("vertCShader.glsl", "fragCShader.glsl");
 
 		setupVertices();
 		setupShadowBuffers();
@@ -311,18 +331,16 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 				0.0f, 0.0f, 0.5f, 0.0f,
 				0.5f, 0.5f, 0.5f, 1.0f);
 
-		earthTexture = ShaderTools.loadTexture("\\textures\\earth.jpg");
-		moonTexture = ShaderTools.loadTexture("\\textures\\moon.jpg");
-		venusTexture = ShaderTools.loadTexture("\\textures\\venus.jpg");
-		marsTexture = ShaderTools.loadTexture("\\textures\\mars.jpg");
-		moonTexture = ShaderTools.loadTexture("\\textures\\moon.jpg");
-		sunTexture = ShaderTools.loadTexture("\\textures\\sun.jpg");
-		jupiterTexture = ShaderTools.loadTexture("\\textures\\jupiter.jpg");
-		shipTexture = ShaderTools.loadTexture("\\textures\\spstob_1.jpg");
-		ceresTexture = ShaderTools.loadTexture("\\textures\\ceres.jpg");
 		redTexture = ShaderTools.loadTexture("\\textures\\red.jpg");
 		greenTexture = ShaderTools.loadTexture("\\textures\\green.jpg");
 		blueTexture = ShaderTools.loadTexture("\\textures\\blue.jpg");
+		skyboxTexture = ShaderTools.loadCubeMap("cubeMap");
+
+		// bark texture from: https://freestocktextures.com/texture/forest-nature-bark,17.html
+		// This site uses the Creative Commons Zero license, meaning their textures are free to use.
+		// Link: https://freestocktextures.com/license/
+		woodTexture = ShaderTools.loadTexture("\\textures\\bark.jpg");
+		gl.glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
 		ImportedObject temp = new ImportedObject("\\OBJ_files\\sphere.obj");
 		mainLight = new Lighting(new SceneObject(temp, new Vector3f(0.0f, 0.0f, 0.0f)));
@@ -347,16 +365,17 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		ImportedObject pineLeaves = new ImportedObject("\\OBJ_files\\PineTree1_Leaves.obj");
 		ImportedObject terrain = new ImportedObject("\\OBJ_files\\SnowTerrain.obj");
 
-		addNewSceneObject(pine, new Vector3f(0.0f, -2.0f, 0.0f), 1.5f, blueTexture, pineWoodMaterial);
-		addNewSceneObject(pineLeaves, new Vector3f(0.0f, -2.0f, 0.0f), 1.5f, greenTexture, pineLeavesMaterial);
-		addNewSceneObject(pine, new Vector3f(-3.0f, -2.0f, 1.0f), 0.7f, blueTexture, pineWoodMaterial);
-		addNewSceneObject(pineLeaves, new Vector3f(-3.0f, -2.0f, 1.0f), 0.7f, greenTexture, pineLeavesMaterial);
-		addNewSceneObject(pine, new Vector3f(5.0f, -1.2f, -3.0f), 1.0f, blueTexture, pineWoodMaterial);
+		addNewSceneObject(terrain, new Vector3f(0.0f, -2.0f, 0.0f), 0.5f, greenTexture, darkGrassMaterial);
+
+		addNewSceneObject(pine, new Vector3f(0.0f, -1.5f, 0.0f), 1.5f, woodTexture, pineWoodMaterial);
+		addNewSceneObject(pineLeaves, new Vector3f(0.0f, -1.5f, 0.0f), 1.5f, greenTexture, pineLeavesMaterial);
+		addNewSceneObject(pine, new Vector3f(-3.0f, -1.2f, 1.0f), 0.7f, woodTexture, pineWoodMaterial);
+		addNewSceneObject(pineLeaves, new Vector3f(-3.0f, -1.2f, 1.0f), 0.7f, greenTexture, pineLeavesMaterial);
+		addNewSceneObject(pine, new Vector3f(5.0f, -1.2f, -3.0f), 1.0f, woodTexture, pineWoodMaterial);
 		addNewSceneObject(pineLeaves, new Vector3f(5.0f, -1.2f, -3.0f), 1.0f, greenTexture, pineLeavesMaterial);
-		addNewSceneObject(pine, new Vector3f(1.0f, -1.6f, 5.0f), 0.5f, blueTexture, pineWoodMaterial);
+		addNewSceneObject(pine, new Vector3f(1.0f, -1.6f, 5.0f), 0.5f, woodTexture, pineWoodMaterial);
 		addNewSceneObject(pineLeaves, new Vector3f(1.0f, -1.6f, 5.0f), 0.5f, greenTexture, pineLeavesMaterial);
 
-		addNewSceneObject(terrain, new Vector3f(0.0f, -2.0f, 0.0f), 0.5f, greenTexture, pineLeavesMaterial);
 
 
 		for(int i = 0; i < sceneObjects.size(); i++){
@@ -364,7 +383,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		}
 
 
-		//setupCube();
+		setupSkyBox();
 
 		//setupDiamond();
 		//setupSphere();
@@ -391,78 +410,12 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	}
 
+	private void setupSkyBox(){
 
-
-
-
-
-	private void setupCube(){
-		Cube cube = new Cube();
-
-		gl.glGenBuffers(vboCube.length, vboCube, 0);
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vboCube[0]);
+		gl.glGenBuffers(vboSkyBox.length, vboSkyBox, 0);
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vboSkyBox[0]);
 		FloatBuffer vertBuf = Buffers.newDirectFloatBuffer(cube.getPositions());
 		gl.glBufferData(GL_ARRAY_BUFFER, vertBuf.limit()*4, vertBuf, GL_STATIC_DRAW);
-
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vboCube[1]);
-		FloatBuffer texBuf = Buffers.newDirectFloatBuffer(cube.getTextCoords());
-		gl.glBufferData(GL_ARRAY_BUFFER, texBuf.limit()*4, texBuf, GL_STATIC_DRAW);
-
-	}
-
-	private void setupDiamond(){
-		Diamond diamond = new Diamond();
-
-		gl.glGenBuffers(vboDiamond.length, vboDiamond, 0);
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vboDiamond[0]);
-		FloatBuffer vertBuf = Buffers.newDirectFloatBuffer(diamond.getPositions());
-		gl.glBufferData(GL_ARRAY_BUFFER, vertBuf.limit()*4, vertBuf, GL_STATIC_DRAW);
-
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vboDiamond[1]);
-		FloatBuffer texBuf = Buffers.newDirectFloatBuffer(diamond.getTextureCoords());
-		gl.glBufferData(GL_ARRAY_BUFFER, texBuf.limit()*4, texBuf, GL_STATIC_DRAW);
-
-	}
-
-	private void setupSphere(){
-		int numVertices = sphere.getNumVertices();
-		Vector3f[] vertices = sphere.getVertices();
-		Vector2f[] texCoords = sphere.getTexCoords();
-		Vector3f[] normals = sphere.getNormals();
-
-
-		float[] pvalues = new float[numVertices*3];
-		float[] tvalues = new float[numVertices*2];
-		float[] nvalues = new float[numVertices*3];
-
-		for (int i=0; i<numVertices; i++)
-		{	pvalues[i*3]   = (float) (vertices[i]).x();
-			pvalues[i*3+1] = (float) (vertices[i]).y();
-			pvalues[i*3+2] = (float) (vertices[i]).z();
-			tvalues[i*2]   = (float) (texCoords[i]).x();
-			tvalues[i*2+1] = (float) (texCoords[i]).y();
-			nvalues[i*3]   = (float) (normals[i]).x();
-			nvalues[i*3+1] = (float) (normals[i]).y();
-			nvalues[i*3+2] = (float) (normals[i]).z();
-		}
-
-		gl.glGenBuffers(vboSphere.length, vboSphere, 0);
-
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vboSphere[0]);
-		FloatBuffer vertBuf = Buffers.newDirectFloatBuffer(pvalues);
-		gl.glBufferData(GL_ARRAY_BUFFER, vertBuf.limit()*4, vertBuf, GL_STATIC_DRAW);
-
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vboSphere[1]);
-		FloatBuffer texBuf = Buffers.newDirectFloatBuffer(tvalues);
-		gl.glBufferData(GL_ARRAY_BUFFER, texBuf.limit()*4, texBuf, GL_STATIC_DRAW);
-
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vboSphere[2]);
-		FloatBuffer norBuf = Buffers.newDirectFloatBuffer(nvalues);
-		gl.glBufferData(GL_ARRAY_BUFFER, norBuf.limit()*4,norBuf, GL_STATIC_DRAW);
-
-		//gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[3]);
-		//IntBuffer idxBuf = Buffers.newDirectIntBuffer(model.getIndices());
-		//gl.glBufferData(GL_ELEMENT_ARRAY_BUFFER, idxBuf.limit()*4, idxBuf, GL_STATIC_DRAW);
 	}
 
 	public static void main(String[] args) { new Starter(); }
@@ -472,53 +425,10 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	}
 	public void dispose(GLAutoDrawable drawable) {}
 
-	// Re-uses the cube model to draw very thin lines along the xyz axes
-	private void drawAxisLines(){
-		// x-axis
-		mMat.translation(25.0f, 0.0f, 0.0f);
-		mMat.scale(50.0f, 0.04f, 0.04f);
-		mvMat.identity();
-		mvMat.mul(vMat);
-		mvMat.mul(mMat);
-		drawCube(redTexture);
-
-		mMat.translation(0.0f, 25.0f, 0.0f);
-		mMat.scale(0.04f, 50.0f, 0.04f);
-		mvMat.identity();
-		mvMat.mul(vMat);
-		mvMat.mul(mMat);
-		drawCube(greenTexture);
-
-		mMat.translation(0.0f, 0.0f, 25.0f);
-		mMat.scale(0.04f, 0.04f, 50.0f);
-		mvMat.identity();
-		mvMat.mul(vMat);
-		mvMat.mul(mMat);
-		drawCube(greenTexture);
-	}
-
-
-
-	private void drawCube(int tex){
-		gl.glUniformMatrix4fv(mvLoc, 1, false, mvMat.get(vals));
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vboCube[0]);
-		gl.glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
-		gl.glEnableVertexAttribArray(0);
-
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vboCube[1]);
-		gl.glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0);
-		gl.glEnableVertexAttribArray(1);
-
-		bindTexture(tex);
-
-		gl.glDrawArrays(GL_TRIANGLES, 0, 36);
-	}
-
 	private void bindTexture(int tex){
-		gl.glActiveTexture(GL_TEXTURE0);
+		gl.glActiveTexture(GL_TEXTURE1);
 		gl.glBindTexture(GL_TEXTURE_2D, tex);
-		gl.glEnable(GL_CULL_FACE);
-		gl.glFrontFace(GL_CCW);
+		gl.glClear(GL_DEPTH_BUFFER_BIT);
 	}
 
 	private void popMultipleTimes(int count){
