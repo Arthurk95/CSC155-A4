@@ -31,7 +31,6 @@ public class SceneObject {
     public float[] getAmb(){return matAmb;}
     public float[] getDif(){return matDif;}
     public float[] getSpe(){return matSpe;}
-    private int renderingProgram;
     private Vector3f position;
 
     private int[] indices;
@@ -42,22 +41,20 @@ public class SceneObject {
     private int[] vbo = new int[4];
 
     public SceneObject(){}
-    public SceneObject(int r, ImportedObject o, Vector3f pos){
-        renderingProgram = r;
+    public SceneObject(ImportedObject o, Vector3f pos){
         model = o;
         position = pos;
     }
 
-    public SceneObject(int r, ImportedObject o, int tex, Vector3f pos){
-        renderingProgram = r;
+    public SceneObject(ImportedObject o, int tex, Vector3f pos){
         model = o;
         position = pos;
         texture = tex;
     }
 
-    public SceneObject(int r){renderingProgram = r;}
+    public SceneObject(int r){}
 
-    public void setLighting(){
+    public void setLighting(int renderingProgram){
         GL4 gl = (GL4) GLContext.getCurrentGL();
 
         int mambLoc = gl.glGetUniformLocation(renderingProgram, "material.ambient");
@@ -83,7 +80,6 @@ public class SceneObject {
 
         precision = numVertices;
 
-        System.out.println("Verticies: " + numVertices);
         float[] pvalues = new float[numVertices*3];
         float[] tvalues = new float[numVertices*2];
         float[] nvalues = new float[numVertices*3];

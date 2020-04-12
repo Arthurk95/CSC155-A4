@@ -29,7 +29,6 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.lang.Math;
 import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 import java.util.ArrayList;
 
 /* All planet textures from https://www.solarsystemscope.com/textures/,
@@ -43,7 +42,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	private double startTime = 0.0;
 	private double elapsedTime;
 	private GLCanvas myCanvas;
-	private int renderingProgram;
+	private int shadowProgram, mainProgram;
 	private int[] vao = new int[1];
 	private int[] vboDiamond = new int[2];
 	private int[] vboCube = new int[2];
@@ -57,13 +56,26 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	private Matrix4f mMat = new Matrix4f();
 	private Matrix4f pMat = new Matrix4f();
 	private Matrix4f invTrMat = new Matrix4f(); // inverse-transpose
-	private int mvLoc, projLoc, nLoc;
+
+	// Shadow declarations
+	private int scSizeX, scSizeY;
+	private int [] shadowTex = new int[1];
+	private int [] shadowBuffer = new int[1];
+	private Matrix4f lightVmat = new Matrix4f();
+	private Matrix4f lightPmat = new Matrix4f();
+	private Matrix4f shadowMVP1 = new Matrix4f();
+	private Matrix4f shadowMVP2 = new Matrix4f();
+	private Matrix4f b = new Matrix4f();
+	private Vector3f origin = new Vector3f(0.0f, 0.0f, 0.0f);
+	private Vector3f up = new Vector3f(0.0f, 1.0f, 0.0f);
+
+	private int mvLoc, projLoc, nLoc, sLoc;
 	private float aspect;
 	private double tf;
 	private int earthTexture, moonTexture, marsTexture, venusTexture,
 			sunTexture, jupiterTexture, shipTexture, ceresTexture;
 
-	private Lighting lights;
+	private Lighting mainLight;
 
 	private SceneObject testModel;
 
@@ -123,28 +135,60 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		gl.glClear(GL_DEPTH_BUFFER_BIT);
 		elapsedTime = System.currentTimeMillis() - startTime;
 
-		tf = elapsedTime/1000.0;  // time factor
+		lightVmat.identity().setLookAt(mainLight.getLightPos(), origin, up);	// vector from light to origin
+		lightPmat.identity().setPerspective((float) Math.toRadians(60.0f), aspect, 0.1f, 1000.0f);
 
-		gl.glUseProgram(renderingProgram);
+		gl.glBindFramebuffer(GL_FRAMEBUFFER, shadowBuffer[0]);
+		gl.glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, shadowTex[0], 0);
 
-		mvLoc = gl.glGetUniformLocation(renderingProgram, "mv_matrix");
-		projLoc = gl.glGetUniformLocation(renderingProgram, "proj_matrix");
-		nLoc = gl.glGetUniformLocation(renderingProgram, "norm_matrix");
-		aspect = (float) myCanvas.getWidth() / (float) myCanvas.getHeight();
-		pMat.setPerspective((float) Math.toRadians(60.0f), aspect, 0.1f, 1000.0f);
+		gl.glDrawBuffer(GL_NONE);
+		gl.glEnable(GL_DEPTH_TEST);
+		gl.glEnable(GL_POLYGON_OFFSET_FILL);	//  for reducing
+		gl.glPolygonOffset(3.0f, 5.0f);		//  shadow artifacts
+
+		//drawAxisLines();
+
+		shadowPass();
+
+		gl.glDisable(GL_POLYGON_OFFSET_FILL);	// artifact reduction, continued
+
+		gl.glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		gl.glActiveTexture(GL_TEXTURE0);
+		gl.glBindTexture(GL_TEXTURE_2D, shadowTex[0]);
+
+		gl.glDrawBuffer(GL_FRONT);
+
+		mainPass();
+
+
+
+	}
+
+	private void shadowPass(){
+		gl = (GL4) GLContext.getCurrentGL();
+		gl.glUseProgram(shadowProgram);
+
+		for(int i = 0; i < sceneObjects.size(); i++){
+			drawSceneObjectShadow(sceneObjects.get(i));
+		}
+	}
+
+	private void mainPass(){
+		gl = (GL4) GLContext.getCurrentGL();
+		gl.glUseProgram(mainProgram);
+
+		mvLoc = gl.glGetUniformLocation(mainProgram, "mv_matrix");
+		projLoc = gl.glGetUniformLocation(mainProgram, "proj_matrix");
+		nLoc = gl.glGetUniformLocation(mainProgram, "norm_matrix");
+		sLoc = gl.glGetUniformLocation(mainProgram, "shadowMVP");
 
 		vMat = camera.getView();
 
-		lights.installLights(vMat);
-
-		drawSceneObject(lights.getLightObject());
-
-		//drawAxisLines();
+		drawSceneObject(mainLight.getLightObject());
 
 		for(int i = 0; i < sceneObjects.size(); i++){
 			drawSceneObject(sceneObjects.get(i));
 		}
-
 	}
 
 	// Outputs versions, creates and links shaders and textures
@@ -156,11 +200,21 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		System.out.println("JOGL Version: " + Package.getPackage("com.jogamp.opengl").getImplementationVersion());
 		System.out.println("Java Version: " + System.getProperty("java.version"));
 
-		renderingProgram = ShaderTools.createShaderProgram("vertShader.glsl", "fragShader.glsl");
+		aspect = (float) myCanvas.getWidth() / (float) myCanvas.getHeight();
+		pMat.identity().setPerspective((float) Math.toRadians(60.0f), aspect, 0.1f, 1000.0f);
+
+		shadowProgram = ShaderTools.createShaderProgram("vertShader.glsl", "fragShader.glsl");
+		mainProgram = ShaderTools.createShaderProgram("vert2shader.glsl", "frag2shader.glsl");
 
 
 		setupVertices();
+		setupShadowBuffers();
 
+		b.set(
+				0.5f, 0.0f, 0.0f, 0.0f,
+				0.0f, 0.5f, 0.0f, 0.0f,
+				0.0f, 0.0f, 0.5f, 0.0f,
+				0.5f, 0.5f, 0.5f, 1.0f);
 
 		earthTexture = ShaderTools.loadTexture("\\textures\\earth.jpg");
 		moonTexture = ShaderTools.loadTexture("\\textures\\moon.jpg");
@@ -176,7 +230,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		blueTexture = ShaderTools.loadTexture("\\textures\\blue.jpg");
 
 		ImportedObject temp = new ImportedObject("\\OBJ_files\\sphere.obj");
-		lights = new Lighting(renderingProgram, new SceneObject(renderingProgram, temp, new Vector3f(0.0f, 0.0f, 0.0f)));
+		mainLight = new Lighting(new SceneObject(temp, new Vector3f(0.0f, 0.0f, 0.0f)));
 
 
 
@@ -187,9 +241,15 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		gl.glGenVertexArrays(vao.length, vao, 0);
 		gl.glBindVertexArray(vao[0]);
 
+		SceneObject temp;
 
 		ImportedObject tempObject = new ImportedObject("\\OBJ_Files\\birch_tree.obj");
-		sceneObjects.add(new SceneObject(renderingProgram, tempObject, new Vector3f(0.0f, 0.0f, 0.0f)));
+		sceneObjects.add(new SceneObject(tempObject, new Vector3f(0.0f, 0.0f, 0.0f)));
+		tempObject = new ImportedObject("\\OBJ_Files\\sphere.obj");
+		temp = new SceneObject(tempObject, new Vector3f(0.0f, 0.0f, 2.0f));
+		temp.setScale(0.5f);
+		sceneObjects.add(temp);
+
 
 		for(int i = 0; i < sceneObjects.size(); i++){
 			sceneObjects.get(i).setupVBO();
@@ -202,17 +262,46 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		//setupSphere();
 	}
 
+	private void setupShadowBuffers()
+	{	gl = (GL4) GLContext.getCurrentGL();
+		scSizeX = myCanvas.getWidth();
+		scSizeY = myCanvas.getHeight();
+
+		gl.glGenFramebuffers(1, shadowBuffer, 0);
+
+		gl.glGenTextures(1, shadowTex, 0);
+		gl.glBindTexture(GL_TEXTURE_2D, shadowTex[0]);
+		gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32,
+				scSizeX, scSizeY, 0, GL_DEPTH_COMPONENT, GL_FLOAT, null);
+		gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+		gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+
+		// may reduce shadow border artifacts
+		gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	}
+
 
 	private void drawSceneObject(SceneObject object){
-		object.setLighting();
+		mainLight.installLights(mainProgram, vMat);
+		object.setLighting(mainProgram);
+		gl = (GL4) GLContext.getCurrentGL();
 
+		mMat.identity();
 		mMat.translation(object.getPosition());
 		mvMat.identity();
 		mvMat.mul(vMat);
 		mvMat.mul(mMat);
-
 		mvMat.invert(invTrMat);
 		invTrMat.transpose(invTrMat);
+
+		shadowMVP2.identity();
+		shadowMVP2.mul(b);
+		shadowMVP2.mul(lightPmat);
+		shadowMVP2.mul(lightVmat);
+		shadowMVP2.mul(mMat);
 
 		int[] vbo = object.getVBO();
 
@@ -220,6 +309,8 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		gl.glUniformMatrix4fv(mvLoc, 1, false, mvMat.get(vals));
 		gl.glUniformMatrix4fv(projLoc, 1, false, pMat.get(vals));
 		gl.glUniformMatrix4fv(nLoc, 1, false, invTrMat.get(vals));
+		gl.glUniformMatrix4fv(sLoc, 1, false, shadowMVP2.get(vals));
+
 		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
 		gl.glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
 		gl.glEnableVertexAttribArray(0);
@@ -234,12 +325,51 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 		bindTexture(object.getTexture());
 
+		gl.glClear(GL_DEPTH_BUFFER_BIT);
 		gl.glEnable(GL_CULL_FACE);
 		gl.glFrontFace(GL_CCW);
 		gl.glEnable(GL_DEPTH_TEST);
 		gl.glDepthFunc(GL_LEQUAL);
 
 		//gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboSphere[3]);
+		gl.glDrawArrays(GL_TRIANGLES, 0, object.getNumVerts());
+	}
+
+	private void drawSceneObjectShadow(SceneObject object){
+		gl = (GL4) GLContext.getCurrentGL();
+
+		mMat.identity();
+		mMat.translate(object.getPosition());
+
+		shadowMVP1.identity();
+		shadowMVP1.mul(lightPmat);
+		shadowMVP1.mul(lightVmat);
+		shadowMVP1.mul(mMat);
+		sLoc = gl.glGetUniformLocation(shadowProgram, "shadowMVP");
+		gl.glUniformMatrix4fv(sLoc, 1, false, shadowMVP1.get(vals));
+
+		int[] vbo = object.getVBO();
+
+
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+		gl.glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
+		gl.glEnableVertexAttribArray(0);
+
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+		gl.glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0);
+		gl.glEnableVertexAttribArray(1);
+
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
+		gl.glVertexAttribPointer(2, 2, GL_FLOAT, false, 0, 0);
+		gl.glEnableVertexAttribArray(2);
+
+		gl.glClear(GL_DEPTH_BUFFER_BIT);
+		gl.glEnable(GL_CULL_FACE);
+		gl.glFrontFace(GL_CCW);
+		gl.glEnable(GL_DEPTH_TEST);
+		gl.glDepthFunc(GL_LEQUAL);
+
+		//gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[4]);
 		gl.glDrawArrays(GL_TRIANGLES, 0, object.getNumVerts());
 	}
 
@@ -313,7 +443,12 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	}
 
 	public static void main(String[] args) { new Starter(); }
-	public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {}
+	public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
+		aspect = (float) myCanvas.getWidth() / (float) myCanvas.getHeight();
+		pMat.identity().setPerspective((float) Math.toRadians(60.0f), aspect, 0.1f, 1000.0f);
+
+		setupShadowBuffers();
+	}
 	public void dispose(GLAutoDrawable drawable) {}
 
 	// Re-uses the cube model to draw very thin lines along the xyz axes

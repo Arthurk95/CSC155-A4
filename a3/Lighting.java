@@ -20,24 +20,23 @@ public class Lighting {
     private float[] matSpe = ShaderTools.silverSpecular();
     private float matShi = ShaderTools.silverShininess();
 
-    private Vector3f initialLightLoc = new Vector3f(1.0f, 1.0f, 0.0f);
-    public static Vector3f currentLightPos = new Vector3f(5.0f, 5.0f, 10.0f);
+    private Vector3f initialLightLoc = new Vector3f(-4.0f, 5.0f, 0.0f);
+    public static Vector3f currentLightPos = new Vector3f(0.0f, 0.0f, 0.0f);
 
     private float amt = 0.0f;
-    private int renderingProgram;
     private float[] lightPos = new float[3];
 
-    public Lighting(int r, SceneObject o){
-        renderingProgram = r; lightObject = o;
+    public Lighting(SceneObject o){
+        lightObject = o;
         lightObject.setupVBO();
         lightObject.setScale(0.2f);
     }
 
-    public void installLights(Matrix4f vMatrix) {
+    public void installLights(int renderingProgram, Matrix4f vMatrix) {
         GL4 gl = (GL4) GLContext.getCurrentGL();
         currentLightPos.set(initialLightLoc);
-        amt += 0.2f;
-        currentLightPos.rotateAxis((float)Math.toRadians(amt), 0.1f, 1.0f, 0.2f);
+        //amt += 0.2f;
+        //currentLightPos.rotateAxis((float)Math.toRadians(amt), 0.1f, 1.0f, 0.2f);
 
         currentLightPos.mulPosition(vMatrix);
         lightPos[0]=currentLightPos.x(); lightPos[1]=currentLightPos.y(); lightPos[2]=currentLightPos.z();
@@ -68,5 +67,9 @@ public class Lighting {
         lightObject.setPosition(lightPos);
     }
 
+
+
     public SceneObject getLightObject(){return lightObject;}
+
+    public Vector3f getLightPos(){return new Vector3f(lightPos[0], lightPos[1], lightPos[2]);}
 }
