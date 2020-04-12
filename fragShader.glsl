@@ -1,2 +1,4 @@
 #version 430
-void main(void) {}
+out vec4 fragColor;
+void main(void) {
+}

@@ -12,6 +12,9 @@ import static com.jogamp.opengl.GL4.*;
 
 import a3.actions.ToggleAxes;
 import a3.actions.camera.*;
+import a3.material.Material;
+import a3.material.PineLeaves;
+import a3.material.PineWood;
 import a3.models.Cube;
 import a3.models.Diamond;
 import a3.models.Sphere;
@@ -57,6 +60,9 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	private Matrix4f pMat = new Matrix4f();
 	private Matrix4f invTrMat = new Matrix4f(); // inverse-transpose
 
+	private Material pineLeavesMaterial = new PineLeaves();
+	private Material pineWoodMaterial = new PineWood();
+	private Material defaultMaterial = new Material();
 	// Shadow declarations
 	private int scSizeX, scSizeY;
 	private int [] shadowTex = new int[1];
@@ -141,7 +147,9 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		gl.glBindFramebuffer(GL_FRAMEBUFFER, shadowBuffer[0]);
 		gl.glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, shadowTex[0], 0);
 
-		gl.glDrawBuffer(GL_NONE);
+		aspect = (float) myCanvas.getWidth() / (float) myCanvas.getHeight();
+		pMat.identity().setPerspective((float) Math.toRadians(60.0f), aspect, 0.1f, 1000.0f);
+
 		gl.glEnable(GL_DEPTH_TEST);
 		gl.glEnable(GL_POLYGON_OFFSET_FILL);	//  for reducing
 		gl.glPolygonOffset(3.0f, 5.0f);		//  shadow artifacts
@@ -149,6 +157,8 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		//drawAxisLines();
 
 		shadowPass();
+
+		gl = (GL4) GLContext.getCurrentGL();
 
 		gl.glDisable(GL_POLYGON_OFFSET_FILL);	// artifact reduction, continued
 
@@ -167,10 +177,39 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	private void shadowPass(){
 		gl = (GL4) GLContext.getCurrentGL();
 		gl.glUseProgram(shadowProgram);
-
-		for(int i = 0; i < sceneObjects.size(); i++){
-			drawSceneObjectShadow(sceneObjects.get(i));
+		sLoc = gl.glGetUniformLocation(shadowProgram, "shadowMVP");
+		gl.glClear(GL_DEPTH_BUFFER_BIT);
+		for (SceneObject sceneObject : sceneObjects) {
+			drawSceneObjectShadow(sceneObject);
 		}
+	}
+
+	private void drawSceneObjectShadow(SceneObject object){
+		gl = (GL4) GLContext.getCurrentGL();
+
+		mMat.identity();
+		mMat.translate(object.getPosition());
+
+		shadowMVP1.identity();
+		shadowMVP1.mul(lightPmat);
+		shadowMVP1.mul(lightVmat);
+		shadowMVP1.mul(mMat);
+		gl.glUniformMatrix4fv(sLoc, 1, false, shadowMVP1.get(vals));
+
+		int[] vbo = object.getVBO();
+
+
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+		gl.glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
+		gl.glEnableVertexAttribArray(0);
+
+		gl.glEnable(GL_CULL_FACE);
+		gl.glFrontFace(GL_CCW);
+		gl.glEnable(GL_DEPTH_TEST);
+		gl.glDepthFunc(GL_LEQUAL);
+
+		//gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[4]);
+		gl.glDrawArrays(GL_TRIANGLES, 0, object.getNumVerts());
 	}
 
 	private void mainPass(){
@@ -184,12 +223,68 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 		vMat = camera.getView();
 
+		gl.glClear(GL_DEPTH_BUFFER_BIT);
+
+
 		drawSceneObject(mainLight.getLightObject());
 
-		for(int i = 0; i < sceneObjects.size(); i++){
-			drawSceneObject(sceneObjects.get(i));
+		for (SceneObject sceneObject : sceneObjects) {
+			drawSceneObject(sceneObject);
 		}
 	}
+
+	private void drawSceneObject(SceneObject object){
+
+		gl = (GL4) GLContext.getCurrentGL();
+
+		vMat = camera.getView();
+		mainLight.installLights(mainProgram, vMat, object.getMaterial());
+
+		mMat.identity();
+		mMat.translate(object.getPosition());
+		mvMat.identity();
+		mvMat.mul(vMat);
+		mvMat.mul(mMat);
+		mvMat.invert(invTrMat);
+		invTrMat.transpose(invTrMat);
+
+		shadowMVP2.identity();
+		shadowMVP2.mul(b);
+		shadowMVP2.mul(lightPmat);
+		shadowMVP2.mul(lightVmat);
+		shadowMVP2.mul(mMat);
+
+		int[] vbo = object.getVBO();
+
+		mvMat.scale(object.getScale(), object.getScale(), object.getScale());
+		gl.glUniformMatrix4fv(mvLoc, 1, false, mvMat.get(vals));
+		gl.glUniformMatrix4fv(projLoc, 1, false, pMat.get(vals));
+		gl.glUniformMatrix4fv(nLoc, 1, false, invTrMat.get(vals));
+		gl.glUniformMatrix4fv(sLoc, 1, false, shadowMVP2.get(vals));
+
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+		gl.glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
+		gl.glEnableVertexAttribArray(0);
+
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+		gl.glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0);
+		gl.glEnableVertexAttribArray(1);
+
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
+		gl.glVertexAttribPointer(2, 2, GL_FLOAT, false, 0, 0);
+		gl.glEnableVertexAttribArray(2);
+
+		//bindTexture(object.getTexture());
+
+		gl.glEnable(GL_CULL_FACE);
+		gl.glFrontFace(GL_CCW);
+		gl.glEnable(GL_DEPTH_TEST);
+		gl.glDepthFunc(GL_LEQUAL);
+
+		//gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboSphere[3]);
+		gl.glDrawArrays(GL_TRIANGLES, 0, object.getNumVerts());
+	}
+
 
 	// Outputs versions, creates and links shaders and textures
 	public void init(GLAutoDrawable drawable) {
@@ -236,19 +331,32 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 	}
 
+	private void addNewSceneObject(ImportedObject obj, Vector3f pos, float scale, int texture, Material mat){
+		SceneObject temp = new SceneObject(obj, texture, mat, pos);
+		temp.setScale(scale);
+		sceneObjects.add(temp);
+	}
+
 	private void setupVertices() {
 		gl = (GL4) GLContext.getCurrentGL();
 		gl.glGenVertexArrays(vao.length, vao, 0);
 		gl.glBindVertexArray(vao[0]);
 
-		SceneObject temp;
 
-		ImportedObject tempObject = new ImportedObject("\\OBJ_Files\\birch_tree.obj");
-		sceneObjects.add(new SceneObject(tempObject, new Vector3f(0.0f, 0.0f, 0.0f)));
-		tempObject = new ImportedObject("\\OBJ_Files\\sphere.obj");
-		temp = new SceneObject(tempObject, new Vector3f(0.0f, 0.0f, 2.0f));
-		temp.setScale(0.5f);
-		sceneObjects.add(temp);
+		ImportedObject pine = new ImportedObject("\\OBJ_files\\PineTree1.obj");
+		ImportedObject pineLeaves = new ImportedObject("\\OBJ_files\\PineTree1_Leaves.obj");
+		ImportedObject terrain = new ImportedObject("\\OBJ_files\\SnowTerrain.obj");
+
+		addNewSceneObject(pine, new Vector3f(0.0f, -2.0f, 0.0f), 1.5f, blueTexture, pineWoodMaterial);
+		addNewSceneObject(pineLeaves, new Vector3f(0.0f, -2.0f, 0.0f), 1.5f, greenTexture, pineLeavesMaterial);
+		addNewSceneObject(pine, new Vector3f(-3.0f, -2.0f, 1.0f), 0.7f, blueTexture, pineWoodMaterial);
+		addNewSceneObject(pineLeaves, new Vector3f(-3.0f, -2.0f, 1.0f), 0.7f, greenTexture, pineLeavesMaterial);
+		addNewSceneObject(pine, new Vector3f(5.0f, -1.2f, -3.0f), 1.0f, blueTexture, pineWoodMaterial);
+		addNewSceneObject(pineLeaves, new Vector3f(5.0f, -1.2f, -3.0f), 1.0f, greenTexture, pineLeavesMaterial);
+		addNewSceneObject(pine, new Vector3f(1.0f, -1.6f, 5.0f), 0.5f, blueTexture, pineWoodMaterial);
+		addNewSceneObject(pineLeaves, new Vector3f(1.0f, -1.6f, 5.0f), 0.5f, greenTexture, pineLeavesMaterial);
+
+		addNewSceneObject(terrain, new Vector3f(0.0f, -2.0f, 0.0f), 0.5f, greenTexture, pineLeavesMaterial);
 
 
 		for(int i = 0; i < sceneObjects.size(); i++){
@@ -284,94 +392,9 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	}
 
 
-	private void drawSceneObject(SceneObject object){
-		mainLight.installLights(mainProgram, vMat);
-		object.setLighting(mainProgram);
-		gl = (GL4) GLContext.getCurrentGL();
-
-		mMat.identity();
-		mMat.translation(object.getPosition());
-		mvMat.identity();
-		mvMat.mul(vMat);
-		mvMat.mul(mMat);
-		mvMat.invert(invTrMat);
-		invTrMat.transpose(invTrMat);
-
-		shadowMVP2.identity();
-		shadowMVP2.mul(b);
-		shadowMVP2.mul(lightPmat);
-		shadowMVP2.mul(lightVmat);
-		shadowMVP2.mul(mMat);
-
-		int[] vbo = object.getVBO();
-
-		mvMat.scale(object.getScale(), object.getScale(), object.getScale());
-		gl.glUniformMatrix4fv(mvLoc, 1, false, mvMat.get(vals));
-		gl.glUniformMatrix4fv(projLoc, 1, false, pMat.get(vals));
-		gl.glUniformMatrix4fv(nLoc, 1, false, invTrMat.get(vals));
-		gl.glUniformMatrix4fv(sLoc, 1, false, shadowMVP2.get(vals));
-
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-		gl.glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
-		gl.glEnableVertexAttribArray(0);
-
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
-		gl.glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0);
-		gl.glEnableVertexAttribArray(1);
-
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
-		gl.glVertexAttribPointer(2, 2, GL_FLOAT, false, 0, 0);
-		gl.glEnableVertexAttribArray(2);
-
-		bindTexture(object.getTexture());
-
-		gl.glClear(GL_DEPTH_BUFFER_BIT);
-		gl.glEnable(GL_CULL_FACE);
-		gl.glFrontFace(GL_CCW);
-		gl.glEnable(GL_DEPTH_TEST);
-		gl.glDepthFunc(GL_LEQUAL);
-
-		//gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboSphere[3]);
-		gl.glDrawArrays(GL_TRIANGLES, 0, object.getNumVerts());
-	}
-
-	private void drawSceneObjectShadow(SceneObject object){
-		gl = (GL4) GLContext.getCurrentGL();
-
-		mMat.identity();
-		mMat.translate(object.getPosition());
-
-		shadowMVP1.identity();
-		shadowMVP1.mul(lightPmat);
-		shadowMVP1.mul(lightVmat);
-		shadowMVP1.mul(mMat);
-		sLoc = gl.glGetUniformLocation(shadowProgram, "shadowMVP");
-		gl.glUniformMatrix4fv(sLoc, 1, false, shadowMVP1.get(vals));
-
-		int[] vbo = object.getVBO();
 
 
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-		gl.glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
-		gl.glEnableVertexAttribArray(0);
 
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
-		gl.glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0);
-		gl.glEnableVertexAttribArray(1);
-
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
-		gl.glVertexAttribPointer(2, 2, GL_FLOAT, false, 0, 0);
-		gl.glEnableVertexAttribArray(2);
-
-		gl.glClear(GL_DEPTH_BUFFER_BIT);
-		gl.glEnable(GL_CULL_FACE);
-		gl.glFrontFace(GL_CCW);
-		gl.glEnable(GL_DEPTH_TEST);
-		gl.glDepthFunc(GL_LEQUAL);
-
-		//gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[4]);
-		gl.glDrawArrays(GL_TRIANGLES, 0, object.getNumVerts());
-	}
 
 	private void setupCube(){
 		Cube cube = new Cube();
@@ -444,8 +467,6 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 	public static void main(String[] args) { new Starter(); }
 	public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
-		aspect = (float) myCanvas.getWidth() / (float) myCanvas.getHeight();
-		pMat.identity().setPerspective((float) Math.toRadians(60.0f), aspect, 0.1f, 1000.0f);
 
 		setupShadowBuffers();
 	}

@@ -80,9 +80,9 @@ public class Camera {
 
     public void resetCamera(){
         cVector = new Vector4f(0.0f, 0.0f, 10.0f, 0.0f);
-        uVector = new Vector4f(MOVE_INTERVAL, 0.0f, 0.0f, 1.0f);
-        vVector = new Vector4f(0.0f, MOVE_INTERVAL, 0.0f, 1.0f);
-        nVector = new Vector4f(0.0f, 0.0f, MOVE_INTERVAL, 1.0f);
+        uVector = new Vector4f(1.0f, 0.0f, 0.0f, 1.0f);
+        vVector = new Vector4f(0.0f, 1.0f, 0.0f, 1.0f);
+        nVector = new Vector4f(0.0f, 0.0f, 1.0f, 1.0f);
         viewMatrix = new Matrix4f();
         updateView();
     }

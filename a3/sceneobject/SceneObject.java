@@ -1,8 +1,7 @@
 package a3.sceneobject;
 
 import a3.ImportedObject;
-import a3.ShaderTools;
-import a3.models.Sphere;
+import a3.material.Material;
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.GLContext;
@@ -10,8 +9,6 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-import java.util.ArrayList;
 
 import static com.jogamp.opengl.GL.*;
 
@@ -23,14 +20,12 @@ public class SceneObject {
     float scale = 1.0f;
 
     // SceneObjects default to silver material
-    private float[] matAmb = ShaderTools.silverAmbient();
-    private float[] matDif = ShaderTools.silverDiffuse();
-    private float[] matSpe = ShaderTools.silverSpecular();
-    private float matShi = ShaderTools.silverShininess();
+    private Material material = new Material();
 
-    public float[] getAmb(){return matAmb;}
-    public float[] getDif(){return matDif;}
-    public float[] getSpe(){return matSpe;}
+    public float[] getAmb(){return material.getAmbient();}
+    public float[] getDif(){return material.getDiffuse();}
+    public float[] getSpe(){return material.getSpecular();}
+    public float getShiny(){return material.getShine();}
     private Vector3f position;
 
     private int[] indices;
@@ -46,8 +41,9 @@ public class SceneObject {
         position = pos;
     }
 
-    public SceneObject(ImportedObject o, int tex, Vector3f pos){
+    public SceneObject(ImportedObject o, int tex, Material mat, Vector3f pos){
         model = o;
+        material = mat;
         position = pos;
         texture = tex;
     }
@@ -62,10 +58,10 @@ public class SceneObject {
         int mspecLoc = gl.glGetUniformLocation(renderingProgram, "material.specular");
         int mshiLoc = gl.glGetUniformLocation(renderingProgram, "material.shininess");
 
-        gl.glProgramUniform4fv(renderingProgram, mambLoc, 1, matAmb, 0);
-        gl.glProgramUniform4fv(renderingProgram, mdiffLoc, 1, matDif, 0);
-        gl.glProgramUniform4fv(renderingProgram, mspecLoc, 1, matSpe, 0);
-        gl.glProgramUniform1f(renderingProgram, mshiLoc, matShi);
+        gl.glProgramUniform4fv(renderingProgram, mambLoc, 1, material.getAmbient(), 0);
+        gl.glProgramUniform4fv(renderingProgram, mdiffLoc, 1, material.getDiffuse(), 0);
+        gl.glProgramUniform4fv(renderingProgram, mspecLoc, 1, material.getSpecular(), 0);
+        gl.glProgramUniform1f(renderingProgram, mshiLoc, material.getShine());
     }
 
     public int getNumVerts(){return model.getNumVertices(); }
@@ -133,9 +129,9 @@ public class SceneObject {
     public void setScale(float s){scale = s;}
     public float getScale(){return scale;}
 
-    public void setMats(ArrayList<float[]> mats){
-        matAmb = mats.get(0);
-        matDif = mats.get(1);
-        matSpe = mats.get(2);
+    public void setMat(Material mat){
+        material = mat;
     }
+
+    public Material getMaterial(){return material;}
 }

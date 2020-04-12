@@ -1,5 +1,6 @@
 package a3;
 
+import a3.material.Material;
 import a3.sceneobject.SceneObject;
 import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.GLContext;
@@ -20,8 +21,8 @@ public class Lighting {
     private float[] matSpe = ShaderTools.silverSpecular();
     private float matShi = ShaderTools.silverShininess();
 
-    private Vector3f initialLightLoc = new Vector3f(-4.0f, 5.0f, 0.0f);
-    public static Vector3f currentLightPos = new Vector3f(0.0f, 0.0f, 0.0f);
+    private Vector3f initialLightLoc = new Vector3f(20.0f, 8.0f, 0.0f);
+    private Vector3f currentLightPos = new Vector3f(0.0f, 0.0f, 0.0f);
 
     private float amt = 0.0f;
     private float[] lightPos = new float[3];
@@ -32,13 +33,13 @@ public class Lighting {
         lightObject.setScale(0.2f);
     }
 
-    public void installLights(int renderingProgram, Matrix4f vMatrix) {
+    public void installLights(int renderingProgram, Matrix4f vMatrix, Material objMat) {
         GL4 gl = (GL4) GLContext.getCurrentGL();
         currentLightPos.set(initialLightLoc);
-        //amt += 0.2f;
-        //currentLightPos.rotateAxis((float)Math.toRadians(amt), 0.1f, 1.0f, 0.2f);
+        amt += 0.1f;
+        currentLightPos.rotateAxis((float)Math.toRadians(amt), 0.1f, 1.0f, 0.1f);
 
-        currentLightPos.mulPosition(vMatrix);
+        //currentLightPos.mulPosition(vMatrix);
         lightPos[0]=currentLightPos.x(); lightPos[1]=currentLightPos.y(); lightPos[2]=currentLightPos.z();
 
         // get the locations of the light and material fields in the shader
@@ -58,10 +59,10 @@ public class Lighting {
         gl.glProgramUniform4fv(renderingProgram, diffLoc, 1, lightDiffuse, 0);
         gl.glProgramUniform4fv(renderingProgram, specLoc, 1, lightSpecular, 0);
         gl.glProgramUniform3fv(renderingProgram, posLoc, 1, lightPos, 0);
-        gl.glProgramUniform4fv(renderingProgram, mambLoc, 1, matAmb, 0);
-        gl.glProgramUniform4fv(renderingProgram, mdiffLoc, 1, matDif, 0);
-        gl.glProgramUniform4fv(renderingProgram, mspecLoc, 1, matSpe, 0);
-        gl.glProgramUniform1f(renderingProgram, mshiLoc, matShi);
+        gl.glProgramUniform4fv(renderingProgram, mambLoc, 1, objMat.getAmbient(), 0);
+        gl.glProgramUniform4fv(renderingProgram, mdiffLoc, 1, objMat.getDiffuse(), 0);
+        gl.glProgramUniform4fv(renderingProgram, mspecLoc, 1, objMat.getSpecular(), 0);
+        gl.glProgramUniform1f(renderingProgram, mshiLoc, objMat.getShine());
 
 
         lightObject.setPosition(lightPos);
