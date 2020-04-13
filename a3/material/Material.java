@@ -4,7 +4,7 @@ import a3.ShaderTools;
 
 public class Material {
 
-    private float[] matAmb = ShaderTools.silverAmbient();
+    private float[] matAmb = {0.05f, 0.05f, 0.05f, 1.0f};
     private float[] matDif = ShaderTools.silverDiffuse();
     private float[] matSpe = ShaderTools.silverSpecular();
     private float matShi = ShaderTools.silverShininess();

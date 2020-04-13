@@ -11,18 +11,13 @@ public class Lighting {
     private SceneObject lightObject;
 
     // white light properties
-    private float[] globalAmbient = new float[] { 0.6f, 0.6f, 0.6f, 1.0f };
+    private float[] globalAmbient = new float[] { 0.1f, 0.1f, 0.1f, 1.0f };
     private float[] lightAmbient = new float[] { 0.1f, 0.1f, 0.1f, 1.0f };
     private float[] lightDiffuse = new float[] { 1.0f, 1.0f, 1.0f, 1.0f };
     private float[] lightSpecular = new float[] { 1.0f, 1.0f, 1.0f, 1.0f };
 
-    private float[] matAmb = ShaderTools.silverAmbient();
-    private float[] matDif = ShaderTools.silverDiffuse();
-    private float[] matSpe = ShaderTools.silverSpecular();
-    private float matShi = ShaderTools.silverShininess();
-
-    private Vector3f initialLightLoc = new Vector3f(10.0f, 5.0f, 0.0f);
-    private Vector3f currentLightPos = new Vector3f(0.0f, 0.0f, 0.0f);
+    private Vector3f initialLightLoc = new Vector3f(3.0f, 8.0f, 0.0f);
+    private Vector3f currentLightPos = new Vector3f();
 
     private float amt = 0.0f;
     private float[] lightPos = new float[3];
@@ -30,7 +25,7 @@ public class Lighting {
     public Lighting(SceneObject o){
         lightObject = o;
         lightObject.setupVBO();
-        lightObject.setScale(0.2f);
+        lightObject.setScale(0.3f);
     }
 
     public void installLights(int renderingProgram, Matrix4f vMatrix, Material objMat) {

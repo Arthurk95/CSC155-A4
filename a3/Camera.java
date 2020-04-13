@@ -12,6 +12,7 @@ public class Camera {
     private final float MOVE_INTERVAL = 0.5f;
     private final float TURN_ANGLE = 0.1f;
     private DecimalFormat format = new DecimalFormat("###,###.##");
+    private Vector4f startingPos;
     private Vector4f uVector = new Vector4f(1.0f, 0.0f, 0.0f, 1.0f);
     private Vector4f vVector = new Vector4f(0.0f, 1.0f, 0.0f, 1.0f);
     private Vector4f nVector = new Vector4f(0.0f, 0.0f, 1.0f, 1.0f);
@@ -19,6 +20,7 @@ public class Camera {
     private Matrix4f viewMatrix;
 
     public Camera(float x, float y, float z){
+        startingPos = new Vector4f(x, y, z, 1.0f);
         cVector = new Vector4f(x, y, z, 1.0f);
         viewMatrix = new Matrix4f();
         updateView();
@@ -79,7 +81,7 @@ public class Camera {
     }
 
     public void resetCamera(){
-        cVector = new Vector4f(0.0f, 0.0f, 10.0f, 0.0f);
+        cVector = startingPos;
         uVector = new Vector4f(1.0f, 0.0f, 0.0f, 1.0f);
         vVector = new Vector4f(0.0f, 1.0f, 0.0f, 1.0f);
         nVector = new Vector4f(0.0f, 0.0f, 1.0f, 1.0f);

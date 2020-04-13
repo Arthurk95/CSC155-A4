@@ -25,10 +25,9 @@ uniform mat4 shadowMVP;
 layout (binding=0) uniform sampler2DShadow shadowTex;
 layout (binding=1) uniform sampler2D samp;
 
-float lookup(float x, float y)
-{  	float t = textureProj(shadowTex, shadow_coord + vec4(x * 0.001 * shadow_coord.w,
-y * 0.001 * shadow_coord.w,
--0.01, 0.0));
+float lookup(float x, float y){
+	float t = textureProj(shadowTex, shadow_coord + vec4(x * 0.001 * shadow_coord.w,
+	y * 0.001 * shadow_coord.w, -0.01, 0.0));
 	return t;
 }
 
@@ -69,5 +68,5 @@ void main(void)
 
 	vec4 tex = texture(samp, tc);
 
-	fragColor = vec4((shadowColor.xyz + shadowFactor*(lightedColor.xyz)) + tex.xyz,1.0);
+	fragColor = vec4((shadowColor.xyz + shadowFactor*(lightedColor.xyz*tex.xyz) ),1.0) ;
 }
