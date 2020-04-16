@@ -8,14 +8,13 @@ import java.text.DecimalFormat;
 public class Camera {
     private Vector4f cVector;
 
-    private Vector4f pc = new Vector4f();
     private final float MOVE_INTERVAL = 0.5f;
     private final float TURN_ANGLE = 0.1f;
     private DecimalFormat format = new DecimalFormat("###,###.##");
     private Vector4f startingPos;
-    private Vector4f uVector = new Vector4f(1.0f, 0.0f, 0.0f, 1.0f);
-    private Vector4f vVector = new Vector4f(0.0f, 1.0f, 0.0f, 1.0f);
-    private Vector4f nVector = new Vector4f(0.0f, 0.0f, 1.0f, 1.0f);
+    private Vector4f uVector = new Vector4f(1.0f, 0.0f, 0.0f, 0.0f);
+    private Vector4f vVector = new Vector4f(0.0f, 1.0f, 0.0f, 0.0f);
+    private Vector4f nVector = new Vector4f(0.0f, 0.0f, 1.0f, 0.0f);
 
     private Matrix4f viewMatrix;
 
@@ -42,8 +41,9 @@ public class Camera {
           0.0f, 0.0f, 1.0f, 0.0f,
                 -cVector.x, -cVector.y, -cVector.z, 1.0f
         );
-        tMat.mul(rMat, viewMatrix); // store rMat * tMat in viewMatrix
-        cVector.mul(viewMatrix, pc); // store cVector * viewMatrix in pc
+        viewMatrix.identity();
+        viewMatrix.mul(tMat);
+        viewMatrix.mul(rMat);
     }
 
     public void moveBackward(){
@@ -81,7 +81,7 @@ public class Camera {
     }
 
     public void resetCamera(){
-        cVector = startingPos;
+        cVector.set(startingPos);
         uVector = new Vector4f(1.0f, 0.0f, 0.0f, 1.0f);
         vVector = new Vector4f(0.0f, 1.0f, 0.0f, 1.0f);
         nVector = new Vector4f(0.0f, 0.0f, 1.0f, 1.0f);
@@ -89,6 +89,7 @@ public class Camera {
         updateView();
     }
 
-    public Vector4f getLoc(){ return pc;}
+    public Vector4f getLoc() {return cVector;}
     public Matrix4f getView(){ return viewMatrix;}
+
 }

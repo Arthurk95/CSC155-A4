@@ -67,7 +67,9 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	private Matrix4f b = new Matrix4f();
 	private Vector3f origin = new Vector3f(0.0f, 0.0f, 0.0f);
 	private Vector3f up = new Vector3f(0.0f, 1.0f, 0.0f);
+	private Vector4f cameraLoc;
 
+	private Vector4f objectLoc = new Vector4f();
 	private int mvLoc, projLoc, nLoc, sLoc, vLoc;
 	private float aspect;
 
@@ -142,6 +144,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		//drawAxisLines();
 
 
+		cameraLoc = camera.getLoc();
 
 		shadowPass();
 
@@ -177,7 +180,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		gl = (GL4) GLContext.getCurrentGL();
 
 		mMat.identity();
-		mMat.translate(object.getPosition());
+		mMat.translate(object.getPosition().x, object.getPosition().y, object.getPosition().z);
 		mMat.scale(object.getScale());
 
 		shadowMVP1.identity();
@@ -212,7 +215,6 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		sLoc = gl.glGetUniformLocation(mainProgram, "shadowMVP");
 
 		vMat = camera.getView();
-
 		gl.glClear(GL_DEPTH_BUFFER_BIT);
 
 
@@ -224,17 +226,13 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 	}
 
+	// Draws a SceneObject using its position and scale
 	private void drawSceneObject(SceneObject object){
 
-		gl = (GL4) GLContext.getCurrentGL();
-
-		vMat = camera.getView();
-
-
-		gl = (GL4) GLContext.getCurrentGL();
 		mMat.identity();
-		mMat.translate(object.getPosition());
+		mMat.translate(object.getPosition().x, object.getPosition().y, object.getPosition().z);
 		mMat.scale(object.getScale());
+
 		mvMat.identity();
 		mvMat.mul(vMat);
 		mvMat.mul(mMat);
@@ -247,9 +245,10 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		shadowMVP2.mul(lightVmat);
 		shadowMVP2.mul(mMat);
 
+		mainLight.installLights(mainProgram, mMat, object.getMaterial());
+		gl = (GL4) GLContext.getCurrentGL();
 		int[] vbo = object.getVBO();
 
-		mvMat.scale(object.getScale(), object.getScale(), object.getScale());
 		gl.glUniformMatrix4fv(mvLoc, 1, false, mvMat.get(vals));
 		gl.glUniformMatrix4fv(projLoc, 1, false, pMat.get(vals));
 		gl.glUniformMatrix4fv(nLoc, 1, false, invTrMat.get(vals));
@@ -267,8 +266,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		gl.glVertexAttribPointer(2, 2, GL_FLOAT, false, 0, 0);
 		gl.glEnableVertexAttribArray(1);
 
-		bindTexture(object.getTexture());
-		mainLight.installLights(mainProgram, vMat, object.getMaterial());
+		//bindTexture(object.getTexture());
 		gl.glEnable(GL_CULL_FACE);
 		gl.glFrontFace(GL_CCW);
 		gl.glEnable(GL_DEPTH_TEST);
@@ -315,14 +313,22 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		aspect = (float) myCanvas.getWidth() / (float) myCanvas.getHeight();
 		pMat.identity().setPerspective((float) Math.toRadians(60.0f), aspect, 0.1f, 1000.0f);
 
-		shadowProgram = ShaderTools.createShaderProgram("vertShader.glsl", "fragShader.glsl");
-		mainProgram = ShaderTools.createShaderProgram("vert2shader.glsl", "frag2shader.glsl");
-		skyBoxProgram = ShaderTools.createShaderProgram("vertCShader.glsl", "fragCShader.glsl");
+		shadowProgram = ShaderTools.createShaderProgram("shadowvert.glsl", "shadowfrag.glsl");
+		mainProgram = ShaderTools.createShaderProgram("mainvert.glsl", "mainfrag.glsl");
+		skyBoxProgram = ShaderTools.createShaderProgram("skyvert.glsl", "skyfrag.glsl");
+
 
 		redTexture = ShaderTools.loadTexture("\\textures\\red.jpg");
 		greenTexture = ShaderTools.loadTexture("\\textures\\green.jpg");
 		blueTexture = ShaderTools.loadTexture("\\textures\\blue.jpg");
 		skyboxTexture = ShaderTools.loadCubeMap("cubeMap");
+
+
+		b.set(
+				0.5f, 0.0f, 0.0f, 0.0f,
+				0.0f, 0.5f, 0.0f, 0.0f,
+				0.0f, 0.0f, 0.5f, 0.0f,
+				0.5f, 0.5f, 0.5f, 1.0f);
 
 		// bark texture from: https://freestocktextures.com/texture/forest-nature-bark,17.html
 		// This site uses the Creative Commons Zero license, meaning their textures are free to use.
@@ -331,28 +337,19 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		// ground texture from same website.
 		// link: https://freestocktextures.com/texture/nature-ground-weed,101.html
 		groundTexture = ShaderTools.loadTexture("\\textures\\ground.jpg");
+
 		setupVertices();
 		setupShadowBuffers();
-
-		b.set(
-				0.5f, 0.0f, 0.0f, 0.0f,
-				0.0f, 0.5f, 0.0f, 0.0f,
-				0.0f, 0.0f, 0.5f, 0.0f,
-				0.5f, 0.5f, 0.5f, 1.0f);
-
-
-
-
 		gl.glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
 		ImportedObject temp = new ImportedObject("\\OBJ_files\\sphere.obj");
-		mainLight = new Lighting(new SceneObject(temp, blueTexture, defaultMaterial, new Vector3f(0.0f, 0.0f, 0.0f)));
+		mainLight = new Lighting(new SceneObject(temp, blueTexture, defaultMaterial, new Vector4f(0.0f, 0.0f, 0.0f, 1.0f)));
 
 
 
 	}
 
-	private void addNewSceneObject(ImportedObject obj, Vector3f pos, float scale, int texture, Material mat){
+	private void addNewSceneObject(ImportedObject obj, Vector4f pos, float scale, int texture, Material mat){
 		SceneObject temp = new SceneObject(obj, texture, mat, pos);
 		temp.setScale(scale);
 		sceneObjects.add(temp);
@@ -368,19 +365,19 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		ImportedObject pineLeaves = new ImportedObject("\\OBJ_files\\PineTree1_Leaves.obj");
 		ImportedObject terrain = new ImportedObject("\\OBJ_files\\terrain.obj");
 
-		addNewSceneObject(terrain, new Vector3f(0.0f, -0.4f, 0.0f), 1.0f, groundTexture, defaultMaterial);
+		addNewSceneObject(terrain, new Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 1.0f, greenTexture, defaultMaterial);
 
-		addNewSceneObject(pine, new Vector3f(0.0f, 0.0f, 0.0f), 0.9f, woodTexture, defaultMaterial);
-		addNewSceneObject(pineLeaves, new Vector3f(0.0f, 0.0f, 0.0f), 0.9f, greenTexture, defaultMaterial);
+		addNewSceneObject(pine, new Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.5f, woodTexture, defaultMaterial);
+		addNewSceneObject(pineLeaves, new Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.5f, greenTexture, darkGrassMaterial);
 
-		addNewSceneObject(pine, new Vector3f(-3.0f, 0.0f, 1.0f), 0.7f, woodTexture, defaultMaterial);
-		addNewSceneObject(pineLeaves, new Vector3f(-3.0f, 0.0f, 1.0f), 0.7f, greenTexture, defaultMaterial);
+		addNewSceneObject(pine, new Vector4f(-3.0f, 0.0f, 1.0f, 1.0f), 0.7f, woodTexture, defaultMaterial);
+		addNewSceneObject(pineLeaves, new Vector4f(-3.0f, 0.0f, 1.0f, 1.0f), 0.7f, greenTexture, darkGrassMaterial);
 
-		addNewSceneObject(pine, new Vector3f(5.0f, 0.0f, -3.0f), 1.0f, woodTexture, defaultMaterial);
-		addNewSceneObject(pineLeaves, new Vector3f(5.0f, 0.0f, -3.0f), 1.0f, greenTexture, defaultMaterial);
+		addNewSceneObject(pine, new Vector4f(5.0f, 0.0f, -3.0f, 1.0f), 0.65f, woodTexture, defaultMaterial);
+		addNewSceneObject(pineLeaves, new Vector4f(5.0f, 0.0f, -3.0f, 1.0f), 0.65f, greenTexture, darkGrassMaterial);
 
-		addNewSceneObject(pine, new Vector3f(1.0f, 0.0f, 5.0f), 0.8f, woodTexture, defaultMaterial);
-		addNewSceneObject(pineLeaves, new Vector3f(1.0f, 0.0f, 5.0f), 0.8f, greenTexture, defaultMaterial);
+		addNewSceneObject(pine, new Vector4f(1.0f, 0.0f, 5.0f, 1.0f), 0.6f, woodTexture, defaultMaterial);
+		addNewSceneObject(pineLeaves, new Vector4f(1.0f, 0.0f, 5.0f, 1.0f), 0.6f, greenTexture, darkGrassMaterial);
 
 
 
@@ -412,8 +409,8 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
 
 		// may reduce shadow border artifacts
-		gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+		gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	}
 
 	private void setupSkyBox(){

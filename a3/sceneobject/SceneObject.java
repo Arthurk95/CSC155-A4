@@ -7,48 +7,42 @@ import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.GLContext;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import java.nio.FloatBuffer;
 
 import static com.jogamp.opengl.GL.*;
 
+
+/* Each SceneObject contains an ImportedObject.
+*  This class provides the tools necessary to manage the objects in this program. */
 public class SceneObject {
 
-    ImportedObject model;
+    private ImportedObject model;
 
-    int texture;
-    float scale = 1.0f;
+    private int texture;
+    private float scale = 1.0f;
 
     // SceneObjects default to silver material
     private Material material = new Material();
 
-    public float[] getAmb(){return material.getAmbient();}
-    public float[] getDif(){return material.getDiffuse();}
-    public float[] getSpe(){return material.getSpecular();}
-    public float getShiny(){return material.getShine();}
-    private Vector3f position;
-
-    private int[] indices;
-    private int precision;
-
-    private int numIndices;
+    private Vector4f position;
 
     private int[] vbo = new int[4];
 
     public SceneObject(){}
-    public SceneObject(ImportedObject o, Vector3f pos){
+
+    public SceneObject(ImportedObject o, Vector4f pos){
         model = o;
         position = pos;
     }
 
-    public SceneObject(ImportedObject o, int tex, Material mat, Vector3f pos){
+    public SceneObject(ImportedObject o, int tex, Material mat, Vector4f pos){
         model = o;
         material = mat;
         position = pos;
         texture = tex;
     }
-
-    public SceneObject(int r){}
 
     public void setLighting(int renderingProgram){
         GL4 gl = (GL4) GLContext.getCurrentGL();
@@ -65,7 +59,7 @@ public class SceneObject {
     }
 
     public int getNumVerts(){return model.getNumVertices(); }
-    public Vector3f getPosition(){return position;}
+    public Vector4f getPosition(){return position;}
 
     public void setupVBO(){
         GL4 gl = (GL4) GLContext.getCurrentGL();
@@ -73,8 +67,6 @@ public class SceneObject {
         Vector3f[] vertices = model.getVertices();
         Vector2f[] texCoords = model.getTexCoords();
         Vector3f[] normals = model.getNormals();
-
-        precision = numVertices;
 
         float[] pvalues = new float[numVertices*3];
         float[] tvalues = new float[numVertices*2];
@@ -116,11 +108,7 @@ public class SceneObject {
     public Vector3f[] getNormals(){return model.getNormals();}
     public int[] getVBO(){return vbo;}
 
-    public void setPosition(float[] newPos){
-        position = new Vector3f(newPos[0], newPos[1], newPos[2]);
-    }
-
-    public void setPosition(Vector3f newPos){
+    public void setPosition(Vector4f newPos){
         position = newPos;
     }
 

@@ -6,17 +6,18 @@ import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.GLContext;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 public class Lighting {
     private SceneObject lightObject;
 
     // white light properties
-    private float[] globalAmbient = new float[] { 0.1f, 0.1f, 0.1f, 1.0f };
-    private float[] lightAmbient = new float[] { 0.1f, 0.1f, 0.1f, 1.0f };
+    private float[] globalAmbient = new float[] { 0.6f, 0.6f, 0.6f, 1.0f };
+    private float[] lightAmbient = new float[] { 0.0f, 0.0f, 0.0f, 1.0f };
     private float[] lightDiffuse = new float[] { 1.0f, 1.0f, 1.0f, 1.0f };
     private float[] lightSpecular = new float[] { 1.0f, 1.0f, 1.0f, 1.0f };
 
-    private Vector3f initialLightLoc = new Vector3f(3.0f, 8.0f, 0.0f);
+    private Vector3f initialLightLoc = new Vector3f(-10.0f, 6.0f, 5.0f);
     private Vector3f currentLightPos = new Vector3f();
 
     private float amt = 0.0f;
@@ -25,16 +26,20 @@ public class Lighting {
     public Lighting(SceneObject o){
         lightObject = o;
         lightObject.setupVBO();
-        lightObject.setScale(0.3f);
+        lightObject.setScale(0.5f);
+
+        lightPos[0]=initialLightLoc.x();
+        lightPos[1]=initialLightLoc.y();
+        lightPos[2]=initialLightLoc.z();
     }
 
     public void installLights(int renderingProgram, Matrix4f vMatrix, Material objMat) {
         GL4 gl = (GL4) GLContext.getCurrentGL();
         currentLightPos.set(initialLightLoc);
         amt += 0.01f;
-        currentLightPos.rotateAxis((float)Math.toRadians(amt), 0.1f, 1.0f, 0.1f);
+        //currentLightPos.rotateAxis((float)Math.toRadians(amt), 0.1f, 1.0f, 0.1f);
 
-        //currentLightPos.mulPosition(vMatrix);
+        currentLightPos.mulPosition(vMatrix);
         lightPos[0]=currentLightPos.x(); lightPos[1]=currentLightPos.y(); lightPos[2]=currentLightPos.z();
 
         // get the locations of the light and material fields in the shader
@@ -60,7 +65,7 @@ public class Lighting {
         gl.glProgramUniform1f(renderingProgram, mshiLoc, objMat.getShine());
 
 
-        lightObject.setPosition(lightPos);
+        lightObject.setPosition(new Vector4f(getLightPos(), 1.0f));
     }
 
 
