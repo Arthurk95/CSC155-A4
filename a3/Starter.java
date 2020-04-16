@@ -11,6 +11,7 @@ import javax.swing.*;
 import static com.jogamp.opengl.GL4.*;
 
 import a3.actions.ToggleAxes;
+import a3.actions.ToggleLight;
 import a3.actions.camera.*;
 import a3.material.*;
 import a3.models.Cube;
@@ -62,18 +63,24 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	private int [] shadowBuffer = new int[1];
 	private Matrix4f lightVmat = new Matrix4f();
 	private Matrix4f lightPmat = new Matrix4f();
+
+	private Matrix4f mobileLightVmat = new Matrix4f();
+	private Matrix4f mobileLightPmat = new Matrix4f();
+
 	private Matrix4f shadowMVP1 = new Matrix4f();
 	private Matrix4f shadowMVP2 = new Matrix4f();
 	private Matrix4f b = new Matrix4f();
 	private Vector3f origin = new Vector3f(0.0f, 0.0f, 0.0f);
 	private Vector3f up = new Vector3f(0.0f, 1.0f, 0.0f);
-	private Vector4f cameraLoc;
+
+	private MobileLight mobileLight;
+	private boolean controlMobileLight = false;
 
 	private Vector4f objectLoc = new Vector4f();
 	private int mvLoc, projLoc, nLoc, sLoc, vLoc;
 	private float aspect;
 
-	private Lighting mainLight;
+	private Light mainLight;
 
 	private int redTexture, greenTexture, blueTexture, skyboxTexture, woodTexture, groundTexture;
 
@@ -89,10 +96,10 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		setTitle("CSC 155 - a2");
 		setSize(800, 800);
 		camera = new Camera(0.0f, 3.0f, 10.0f);
-		this.addMouseWheelListener(this);
 
 		myCanvas = new GLCanvas();
 		myCanvas.addGLEventListener(this);
+
 
 		this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
@@ -127,9 +134,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 		drawSkyBox();
 
-		lightVmat.identity().setLookAt(mainLight.getLightPos(), origin, up);	// vector from light to origin
 		lightPmat.identity().setPerspective((float) Math.toRadians(60.0f), aspect, 0.1f, 1000.0f);
-
 		gl.glBindFramebuffer(GL_FRAMEBUFFER, shadowBuffer[0]);
 		gl.glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, shadowTex[0], 0);
 
@@ -142,11 +147,14 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		gl.glPolygonOffset(3.0f, 5.0f);		//  shadow artifacts
 
 		//drawAxisLines();
+		lightVmat.identity().setLookAt(mainLight.getLightPos(), origin, up);	// vector from light to origin
+		shadowPass(mainLight);
+		if(controlMobileLight){
+			mobileLight.setViewMatrix(camera.getView());
+			lightVmat.identity().setLookAt(mobileLight.getLightPos(), origin, up);	// vector from light to origin
+			shadowPass(mobileLight);
+		}
 
-
-		cameraLoc = camera.getLoc();
-
-		shadowPass();
 
 		gl = (GL4) GLContext.getCurrentGL();
 
@@ -159,18 +167,15 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		gl.glDrawBuffer(GL_FRONT);
 
 		mainPass();
-
-
-
 	}
 
-	private void shadowPass(){
+	private void shadowPass(Light light){
 		gl = (GL4) GLContext.getCurrentGL();
 		gl.glUseProgram(shadowProgram);
 		sLoc = gl.glGetUniformLocation(shadowProgram, "shadowMVP");
 		gl.glClear(GL_DEPTH_BUFFER_BIT);
 
-		drawSceneObjectShadow(mainLight.getLightObject());
+		drawSceneObjectShadow(light.getLightObject());
 		for (SceneObject sceneObject : sceneObjects) {
 			drawSceneObjectShadow(sceneObject);
 		}
@@ -223,6 +228,9 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 			drawSceneObject(sceneObject);
 		}
 		drawSceneObject(mainLight.getLightObject());
+		if(controlMobileLight) {
+			drawSceneObject(mobileLight.getLightObject());
+		}
 
 	}
 
@@ -245,7 +253,12 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		shadowMVP2.mul(lightVmat);
 		shadowMVP2.mul(mMat);
 
+		if(controlMobileLight){
+			mobileLight.installLights(mainProgram, mMat, object.getMaterial());
+		}
+
 		mainLight.installLights(mainProgram, mMat, object.getMaterial());
+
 		gl = (GL4) GLContext.getCurrentGL();
 		int[] vbo = object.getVBO();
 
@@ -266,7 +279,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		gl.glVertexAttribPointer(2, 2, GL_FLOAT, false, 0, 0);
 		gl.glEnableVertexAttribArray(1);
 
-		//bindTexture(object.getTexture());
+		bindTexture(object.getTexture());
 		gl.glEnable(GL_CULL_FACE);
 		gl.glFrontFace(GL_CCW);
 		gl.glEnable(GL_DEPTH_TEST);
@@ -306,6 +319,8 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		gl = (GL4) GLContext.getCurrentGL();
 		startTime = System.currentTimeMillis();
 
+
+
 		System.out.println("OpenGL Version: " + gl.glGetString(gl.GL_VERSION));
 		System.out.println("JOGL Version: " + Package.getPackage("com.jogamp.opengl").getImplementationVersion());
 		System.out.println("Java Version: " + System.getProperty("java.version"));
@@ -343,10 +358,11 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		gl.glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
 		ImportedObject temp = new ImportedObject("\\OBJ_files\\sphere.obj");
-		mainLight = new Lighting(new SceneObject(temp, blueTexture, defaultMaterial, new Vector4f(0.0f, 0.0f, 0.0f, 1.0f)));
+		mainLight = new Light(new SceneObject(temp, blueTexture, defaultMaterial, new Vector4f(0.0f, 0.0f, 0.0f, 1.0f)));
+		mobileLight = new MobileLight(camera.getView(),
+				new SceneObject(temp, blueTexture, defaultMaterial, new Vector4f(0.0f, 5.0f, 0.0f, 1.0f)));
 
-
-
+		myCanvas.addMouseMotionListener(mobileLight);
 	}
 
 	private void addNewSceneObject(ImportedObject obj, Vector4f pos, float scale, int texture, Material mat){
@@ -474,6 +490,9 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 		imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), KeyEvent.VK_SPACE);
 		amap.put(KeyEvent.VK_SPACE, new ToggleAxes(this));
+
+		imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, 0), KeyEvent.VK_C);
+		amap.put(KeyEvent.VK_C, new ToggleLight(this));
 	}
 
 	public void toggleAxes(){
@@ -486,4 +505,6 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		if (e.getWheelRotation() > 0 && scale < MAX_SCALE){ scale += 0.1f; }
 		else if(e.getWheelRotation() < 0 && scale > MIN_SCALE){ scale += -0.1f; }
 	}
+
+	public void toggleMobileLight(){controlMobileLight = !controlMobileLight; mobileLight.toggleMobileLight();}
 }

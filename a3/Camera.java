@@ -8,7 +8,6 @@ import java.text.DecimalFormat;
 public class Camera {
     private Vector4f cVector;
 
-    private final float MOVE_INTERVAL = 0.5f;
     private final float TURN_ANGLE = 0.1f;
     private DecimalFormat format = new DecimalFormat("###,###.##");
     private Vector4f startingPos;
@@ -24,8 +23,6 @@ public class Camera {
         viewMatrix = new Matrix4f();
         updateView();
     }
-
-
 
     public void updateView() {
         Matrix4f rMat = new Matrix4f(
@@ -70,13 +67,13 @@ public class Camera {
     }
 
     public void panRight(){
-        nVector.rotateAbout(TURN_ANGLE, vVector.x, vVector.y, vVector.z);
-        uVector.rotateAbout(TURN_ANGLE, vVector.x, vVector.y, vVector.z);
+        nVector.rotateAbout(TURN_ANGLE, -vVector.x, -vVector.y, -vVector.z);
+        uVector.rotateAbout(TURN_ANGLE, -vVector.x, -vVector.y, -vVector.z);
         updateView();
     }
     public void panLeft(){
-        nVector.rotateAbout(TURN_ANGLE, -(vVector.x), -(vVector.y), -(vVector.z));
-        uVector.rotateAbout(TURN_ANGLE, -(vVector.x), -(vVector.y), -(vVector.z));
+        nVector.rotateAbout(TURN_ANGLE, vVector.x, vVector.y, vVector.z);
+        uVector.rotateAbout(TURN_ANGLE, vVector.x, vVector.y, vVector.z);
         updateView();
     }
 

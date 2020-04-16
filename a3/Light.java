@@ -8,7 +8,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
-public class Lighting {
+public class Light {
     private SceneObject lightObject;
 
     // white light properties
@@ -20,10 +20,11 @@ public class Lighting {
     private Vector3f initialLightLoc = new Vector3f(-10.0f, 6.0f, 5.0f);
     private Vector3f currentLightPos = new Vector3f();
 
-    private float amt = 0.0f;
     private float[] lightPos = new float[3];
 
-    public Lighting(SceneObject o){
+    public Light(){}
+
+    public Light(SceneObject o){
         lightObject = o;
         lightObject.setupVBO();
         lightObject.setScale(0.5f);
@@ -36,8 +37,6 @@ public class Lighting {
     public void installLights(int renderingProgram, Matrix4f vMatrix, Material objMat) {
         GL4 gl = (GL4) GLContext.getCurrentGL();
         currentLightPos.set(initialLightLoc);
-        amt += 0.01f;
-        //currentLightPos.rotateAxis((float)Math.toRadians(amt), 0.1f, 1.0f, 0.1f);
 
         currentLightPos.mulPosition(vMatrix);
         lightPos[0]=currentLightPos.x(); lightPos[1]=currentLightPos.y(); lightPos[2]=currentLightPos.z();
@@ -69,8 +68,9 @@ public class Lighting {
     }
 
 
-
+    public void setSceneObject(SceneObject o){lightObject = o;}
     public SceneObject getLightObject(){return lightObject;}
 
     public Vector3f getLightPos(){return new Vector3f(lightPos[0], lightPos[1], lightPos[2]);}
+    public void setLightPosition(float x, float y, float z){lightPos[0] = x; lightPos[1] = y; lightPos[2] = z;}
 }
