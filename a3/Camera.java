@@ -29,9 +29,9 @@ public class Camera {
 
     public void updateView() {
         Matrix4f rMat = new Matrix4f(
-                uVector.x, uVector.y, uVector.z, 0.0f,
-                vVector.x, vVector.y, vVector.z, 0.0f,
-                nVector.x, nVector.y, nVector.z, 0.0f,
+                uVector.x, vVector.x, nVector.x, 0.0f,
+                uVector.y, vVector.y, nVector.y, 0.0f,
+                uVector.z, vVector.z, nVector.z, 0.0f,
                 0.0f, 0.0f, 0.0f, 1.0f
         );
 
@@ -42,30 +42,30 @@ public class Camera {
                 -cVector.x, -cVector.y, -cVector.z, 1.0f
         );
         viewMatrix.identity();
-        viewMatrix.mul(tMat);
         viewMatrix.mul(rMat);
+        viewMatrix.mul(tMat);
     }
 
     public void moveBackward(){
-        cVector.z += MOVE_INTERVAL; updateView();}
+        cVector.add(nVector); updateView();}
     public void moveForward(){
-        cVector.z -= MOVE_INTERVAL; updateView();}
+        cVector.sub(nVector); updateView();}
 
-    public void moveRight(){ cVector.x += MOVE_INTERVAL; updateView();}
-    public void moveLeft(){ cVector.x -= MOVE_INTERVAL; updateView(); }
+    public void moveRight(){ cVector.add(uVector); updateView();}
+    public void moveLeft(){ cVector.sub(uVector); updateView(); }
 
-    public void moveUp(){  cVector.y += MOVE_INTERVAL; updateView();}
-    public void moveDown(){ cVector.y -= MOVE_INTERVAL; updateView();}
+    public void moveUp(){  cVector.add(vVector); updateView();}
+    public void moveDown(){ cVector.sub(vVector); updateView();}
 
     public void pitchUp(){
-        nVector.rotateAbout(TURN_ANGLE, -uVector.x, -uVector.y, -uVector.z);
-        vVector.rotateAbout(TURN_ANGLE, -uVector.x, -uVector.y, -uVector.z);
+        nVector.rotateAbout(TURN_ANGLE, uVector.x, uVector.y, uVector.z);
+        vVector.rotateAbout(TURN_ANGLE, uVector.x, uVector.y, uVector.z);
         updateView();
     }
 
     public void pitchDown(){
-        nVector.rotateAbout(TURN_ANGLE, uVector.x, uVector.y, uVector.z);
-        vVector.rotateAbout(TURN_ANGLE, uVector.x, uVector.y, uVector.z);
+        nVector.rotateAbout(TURN_ANGLE, -uVector.x, -uVector.y, -uVector.z);
+        vVector.rotateAbout(TURN_ANGLE, -uVector.x, -uVector.y, -uVector.z);
         updateView();
     }
 
