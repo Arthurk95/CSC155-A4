@@ -36,12 +36,11 @@ import java.util.ArrayList;
  * Attribution 4.0 International license
  *
  * */
-public class Starter extends JFrame implements GLEventListener, MouseWheelListener {
+public class Starter extends JFrame implements GLEventListener {
 	public static final float MAX_SCALE = 2.0f;
 	public static final float MIN_SCALE = 0.1f;
-	private double startTime = 0.0;
 	private GLCanvas myCanvas;
-	private int shadowProgram, mainProgram, skyBoxProgram;
+	private int shadowProgram, mainProgram, skyBoxProgram, axisProgram;
 	private int[] vao = new int[1];
 	private int[] vboSkyBox = new int[2];
 	private float scale = 1.0f;
@@ -52,20 +51,15 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	private Matrix4f pMat = new Matrix4f();
 	private Matrix4f invTrMat = new Matrix4f(); // inverse-transpose
 
-	private Material pineLeavesMaterial = new PineLeaves();
-	private Material pineWoodMaterial = new PineWood();
 	private Material defaultMaterial = new Material();
 	private Material darkGrassMaterial = new DarkGrass();
-	private Material darkMaterial = new DarkMaterial();
+
 	// Shadow declarations
 	private int scSizeX, scSizeY;
 	private int [] shadowTex = new int[1];
 	private int [] shadowBuffer = new int[1];
 	private Matrix4f lightVmat = new Matrix4f();
 	private Matrix4f lightPmat = new Matrix4f();
-
-	private Matrix4f mobileLightVmat = new Matrix4f();
-	private Matrix4f mobileLightPmat = new Matrix4f();
 
 	private Matrix4f shadowMVP1 = new Matrix4f();
 	private Matrix4f shadowMVP2 = new Matrix4f();
@@ -76,7 +70,6 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	private MobileLight mobileLight;
 	private boolean controlMobileLight = false;
 
-	private Vector4f objectLoc = new Vector4f();
 	private int mvLoc, projLoc, nLoc, sLoc, vLoc;
 	private float aspect;
 
@@ -131,27 +124,34 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		gl = (GL4) GLContext.getCurrentGL();
 		gl.glClear(GL_COLOR_BUFFER_BIT);
 		gl.glClear(GL_DEPTH_BUFFER_BIT);
+		aspect = (float) myCanvas.getWidth() / (float) myCanvas.getHeight();
+		pMat.identity().setPerspective((float) Math.toRadians(60.0f), aspect, 0.1f, 1000.0f);
+
+		vMat = camera.getView();
+
+		// NOT DISPLAYING - NO IDEA WHY
+		if(drawAxes){
+			drawAxes();
+		}
+
 
 		drawSkyBox();
 
-		lightPmat.identity().setPerspective((float) Math.toRadians(60.0f), aspect, 0.1f, 1000.0f);
 		gl.glBindFramebuffer(GL_FRAMEBUFFER, shadowBuffer[0]);
 		gl.glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, shadowTex[0], 0);
 
-		aspect = (float) myCanvas.getWidth() / (float) myCanvas.getHeight();
-		pMat.identity().setPerspective((float) Math.toRadians(60.0f), aspect, 0.1f, 1000.0f);
 
 		gl.glDrawBuffer(GL_NONE);
 		gl.glEnable(GL_DEPTH_TEST);
 		gl.glEnable(GL_POLYGON_OFFSET_FILL);	//  for reducing
 		gl.glPolygonOffset(3.0f, 5.0f);		//  shadow artifacts
 
-		//drawAxisLines();
 		lightVmat.identity().setLookAt(mainLight.getLightPos(), origin, up);	// vector from light to origin
+		lightPmat.identity().setPerspective((float) Math.toRadians(120.0f), aspect, 0.1f, 1000.0f);
 		shadowPass(mainLight);
 		if(controlMobileLight){
-			mobileLight.setViewMatrix(camera.getView());
 			lightVmat.identity().setLookAt(mobileLight.getLightPos(), origin, up);	// vector from light to origin
+			lightPmat.identity().setPerspective((float) Math.toRadians(120.0f), aspect, 0.1f, 1000.0f);
 			shadowPass(mobileLight);
 		}
 
@@ -227,9 +227,11 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		for (SceneObject sceneObject : sceneObjects) {
 			drawSceneObject(sceneObject);
 		}
-		drawSceneObject(mainLight.getLightObject());
 		if(controlMobileLight) {
 			drawSceneObject(mobileLight.getLightObject());
+		}
+		else{
+			drawSceneObject(mainLight.getLightObject());
 		}
 
 	}
@@ -253,12 +255,12 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		shadowMVP2.mul(lightVmat);
 		shadowMVP2.mul(mMat);
 
+
+		mainLight.installLights(mainProgram, vMat, object.getMaterial());
+
 		if(controlMobileLight){
-			mobileLight.installLights(mainProgram, mMat, object.getMaterial());
+			mobileLight.installLights(mainProgram, vMat, object.getMaterial());
 		}
-
-		mainLight.installLights(mainProgram, mMat, object.getMaterial());
-
 		gl = (GL4) GLContext.getCurrentGL();
 		int[] vbo = object.getVBO();
 
@@ -314,12 +316,28 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		gl.glEnable(GL_DEPTH_TEST);
 	}
 
+	private void drawAxes(){
+		gl = (GL4) GLContext.getCurrentGL();
+		gl.glUseProgram(axisProgram);
+
+		mvLoc = gl.glGetUniformLocation(axisProgram, "mv_matrix");
+		projLoc = gl.glGetUniformLocation(axisProgram, "proj_matrix");
+
+		mMat.identity();
+		mMat.translate(0.0f, 0.0f, 0.0f);
+
+		mvMat.identity();
+		mvMat.mul(vMat);
+		mvMat.mul(mMat);
+
+		gl.glUniformMatrix4fv(mvLoc, 1, false, mvMat.get(vals));
+		gl.glUniformMatrix4fv(projLoc, 1, false, pMat.get(vals));
+		gl.glDrawArrays(GL_LINES, 0, 6);
+	}
+
 	// Outputs versions, creates and links shaders and textures
 	public void init(GLAutoDrawable drawable) {
 		gl = (GL4) GLContext.getCurrentGL();
-		startTime = System.currentTimeMillis();
-
-
 
 		System.out.println("OpenGL Version: " + gl.glGetString(gl.GL_VERSION));
 		System.out.println("JOGL Version: " + Package.getPackage("com.jogamp.opengl").getImplementationVersion());
@@ -331,6 +349,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		shadowProgram = ShaderTools.createShaderProgram("shadowvert.glsl", "shadowfrag.glsl");
 		mainProgram = ShaderTools.createShaderProgram("mainvert.glsl", "mainfrag.glsl");
 		skyBoxProgram = ShaderTools.createShaderProgram("skyvert.glsl", "skyfrag.glsl");
+		axisProgram = ShaderTools.createShaderProgram("axisvert.glsl", "axisfrag.glsl");
 
 
 		redTexture = ShaderTools.loadTexture("\\textures\\red.jpg");
@@ -363,6 +382,9 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 				new SceneObject(temp, blueTexture, defaultMaterial, new Vector4f(0.0f, 5.0f, 0.0f, 1.0f)));
 
 		myCanvas.addMouseMotionListener(mobileLight);
+		myCanvas.addMouseWheelListener(mobileLight);
+		mobileLight.setWindowSize(myCanvas.getWidth(), myCanvas.getHeight());
+
 	}
 
 	private void addNewSceneObject(ImportedObject obj, Vector4f pos, float scale, int texture, Material mat){
@@ -425,8 +447,8 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
 
 		// may reduce shadow border artifacts
-		gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+		gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	}
 
 	private void setupSkyBox(){
@@ -447,6 +469,17 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	private void bindTexture(int tex){
 		gl.glActiveTexture(GL_TEXTURE1);
 		gl.glBindTexture(GL_TEXTURE_2D, tex);
+
+		//mip-mapping
+		gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		gl.glGenerateMipmap(GL_TEXTURE_2D);
+
+		// Anisotropic filtering
+		if(gl.isExtensionAvailable("GL_EXT_texture_filter_anisotropic")){
+			float[] anisoSetting = new float[1];
+			gl.glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, anisoSetting, 0);
+			gl.glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisoSetting[0]);
+		}
 	}
 
 
@@ -497,13 +530,6 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 	public void toggleAxes(){
 		drawAxes = !drawAxes;
-	}
-
-	@Override
-	// Increases/decreases scale of triangle when mousewheel scrolled
-	public void mouseWheelMoved(MouseWheelEvent e){
-		if (e.getWheelRotation() > 0 && scale < MAX_SCALE){ scale += 0.1f; }
-		else if(e.getWheelRotation() < 0 && scale > MIN_SCALE){ scale += -0.1f; }
 	}
 
 	public void toggleMobileLight(){controlMobileLight = !controlMobileLight; mobileLight.toggleMobileLight();}

@@ -77,7 +77,7 @@ void main(void)
 
 	vec4 tex = texture(samp, tc);
 
-	vec4 shadowColor = (globalAmbient * material.ambient
+	vec4 shadowColor = tex * (globalAmbient * material.ambient
 	+ light.ambient * material.ambient);
 
 	vec4 lightedColor = (light.diffuse * material.diffuse * max(dot(L,N),0.0)
@@ -86,10 +86,10 @@ void main(void)
 
 
 	// not producing soft shadows for some reason, but weird shadow problem fixed
-	fragColor = vec4(shadowColor.xyz + lightedColor.xyz*shadowFactor, 1.0) * tex;
+	fragColor = vec4(shadowColor.xyz + lightedColor.xyz*shadowFactor, 1.0);
 
-	if (notInShadow == 1.0){
-		fragColor += (shadowColor + lightedColor*shadowFactor) ;
+	if(notInShadow == 1.0){
+		fragColor += globalAmbient * material.ambient;
 	}
 
 }

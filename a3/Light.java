@@ -12,12 +12,12 @@ public class Light {
     private SceneObject lightObject;
 
     // white light properties
-    private float[] globalAmbient = new float[] { 0.6f, 0.6f, 0.6f, 1.0f };
-    private float[] lightAmbient = new float[] { 0.0f, 0.0f, 0.0f, 1.0f };
-    private float[] lightDiffuse = new float[] { 1.0f, 1.0f, 1.0f, 1.0f };
+    private float[] globalAmbient = new float[] { 0.5f, 0.5f, 0.5f, 1.0f };
+    private float[] lightAmbient = new float[] { 0.5f, 0.5f, 0.5f, 1.0f };
+    private float[] lightDiffuse = new float[] { 0.8f, 0.8f, 0.8f, 1.0f };
     private float[] lightSpecular = new float[] { 1.0f, 1.0f, 1.0f, 1.0f };
 
-    private Vector3f initialLightLoc = new Vector3f(-10.0f, 6.0f, 5.0f);
+    private Vector3f initialLightLoc = new Vector3f(-8.0f, 5.0f, 5.0f);
     private Vector3f currentLightPos = new Vector3f();
 
     private float[] lightPos = new float[3];
@@ -36,10 +36,10 @@ public class Light {
 
     public void installLights(int renderingProgram, Matrix4f vMatrix, Material objMat) {
         GL4 gl = (GL4) GLContext.getCurrentGL();
-        currentLightPos.set(initialLightLoc);
+        //currentLightPos.set(initialLightLoc);
 
-        currentLightPos.mulPosition(vMatrix);
-        lightPos[0]=currentLightPos.x(); lightPos[1]=currentLightPos.y(); lightPos[2]=currentLightPos.z();
+        //currentLightPos.mulPosition(vMatrix);
+        //lightPos[0]=currentLightPos.x(); lightPos[1]=currentLightPos.y(); lightPos[2]=currentLightPos.z();
 
         // get the locations of the light and material fields in the shader
         int globalAmbLoc = gl.glGetUniformLocation(renderingProgram, "globalAmbient");
@@ -57,7 +57,7 @@ public class Light {
         gl.glProgramUniform4fv(renderingProgram, ambLoc, 1, lightAmbient, 0);
         gl.glProgramUniform4fv(renderingProgram, diffLoc, 1, lightDiffuse, 0);
         gl.glProgramUniform4fv(renderingProgram, specLoc, 1, lightSpecular, 0);
-        gl.glProgramUniform3fv(renderingProgram, posLoc, 1, lightPos, 0);
+        //gl.glProgramUniform3fv(renderingProgram, posLoc, 1, lightPos, 0);
         gl.glProgramUniform4fv(renderingProgram, mambLoc, 1, objMat.getAmbient(), 0);
         gl.glProgramUniform4fv(renderingProgram, mdiffLoc, 1, objMat.getDiffuse(), 0);
         gl.glProgramUniform4fv(renderingProgram, mspecLoc, 1, objMat.getSpecular(), 0);

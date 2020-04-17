@@ -10,18 +10,29 @@ import org.joml.Vector4f;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.text.DecimalFormat;
 
-public class MobileLight extends Light implements MouseMotionListener {
-    private float[] globalAmbient = new float[] { 0.6f, 0.6f, 0.6f, 1.0f };
-    private float[] lightAmbient = new float[] { 0.0f, 0.0f, 0.0f, 1.0f };
-    private float[] lightDiffuse = new float[] { 1.0f, 1.0f, 1.0f, 1.0f };
+public class MobileLight extends Light implements MouseMotionListener, MouseWheelListener {
+    private float[] globalAmbient = new float[] { 0.5f, 0.5f, 0.5f, 1.0f };
+    private float[] lightAmbient = new float[] { 0.5f, 0.5f, 0.5f, 1.0f };
+    private float[] lightDiffuse = new float[] { 0.8f, 0.8f, 0.8f, 1.0f };
     private float[] lightSpecular = new float[] { 1.0f, 1.0f, 1.0f, 1.0f };
+
     private boolean listening = false;
     private SceneObject lightObject;
     private Matrix4f viewMatrix;
     private float[] lightPos = new float[3];
+    private Vector3f initialLoc = new Vector3f(0.0f, 5.0f, 0.0f);
+    private Vector3f currentLoc = new Vector3f();
     private DecimalFormat format = new DecimalFormat("###,###.##");
+
+    private float lastX = 0.0f;
+    private float lastY = 0.0f;
+
+    private float width;
+    private float height;
 
     public MobileLight(Matrix4f v, SceneObject o){
         viewMatrix = v;
@@ -33,6 +44,9 @@ public class MobileLight extends Light implements MouseMotionListener {
 
     public void toggleMobileLight(){
         listening = !listening;
+        currentLoc.set(initialLoc);
+        System.out.println(initialLoc.toString(format));
+        lightPos[0] = initialLoc.x; lightPos[1] = initialLoc.y; lightPos[2] = initialLoc.z;
     }
 
     @Override
@@ -76,18 +90,47 @@ public class MobileLight extends Light implements MouseMotionListener {
     @Override
     public void mouseDragged(MouseEvent e) {
         if(listening){
-            Vector4f v = new Vector4f(e.getX(), e.getY(), 0.0f, 1.0f);
-            v.mul(viewMatrix);
-            v.normalize();
-            v.mul(5.0f);
-            lightPos[0] = v.x; lightPos[1] = v.y; lightPos[2] = v.z;
+            float xDiff =  Math.abs(e.getX() - lastX);
+            float yDiff =  Math.abs(e.getY() - lastY);
+            if(xDiff > 20.0f){xDiff = 10.0f;}
+            if(yDiff > 20.0f){yDiff = 10.0f;}
+            float xInterval = 0.01f;
+            float yInterval = 0.01f;
+
+            xInterval = xInterval * xDiff;
+            if(e.getX() < lastX){
+                xInterval = -xInterval;
+            }
+
+            yInterval = yInterval * yDiff;
+            if(e.getY() > lastY){
+                yInterval = -yInterval;
+            }
+
+
+            currentLoc.x += xInterval;
+            currentLoc.y += yInterval;
+            updateLoc();
+
+            lastX = e.getX();
+            lastY = e.getY();
         }
     }
 
+    private void updateLoc(){lightPos[0] = currentLoc.x; lightPos[1] = currentLoc.y; lightPos[2] = currentLoc.z;}
 
+    public void setWindowSize(float w, float h){width = w; height = h;}
 
     @Override
     public void mouseMoved(MouseEvent e) {
 
+    }
+
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        if(listening){
+            currentLoc.z += e.getWheelRotation() * 0.5f;
+            updateLoc();
+        }
     }
 }
