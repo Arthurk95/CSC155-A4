@@ -70,7 +70,7 @@ public class Starter extends JFrame implements GLEventListener {
 	private MobileLight mobileLight;
 	private boolean controlMobileLight = false;
 
-	private int mvLoc, projLoc, nLoc, sLoc, vLoc;
+	private int mvLoc, projLoc, nLoc, sLoc, vLoc, cLoc;
 	private float aspect;
 
 	private Light mainLight;
@@ -218,6 +218,7 @@ public class Starter extends JFrame implements GLEventListener {
 		projLoc = gl.glGetUniformLocation(mainProgram, "proj_matrix");
 		nLoc = gl.glGetUniformLocation(mainProgram, "norm_matrix");
 		sLoc = gl.glGetUniformLocation(mainProgram, "shadowMVP");
+		cLoc = gl.glGetUniformLocation(mainProgram, "cameraPos");
 
 		vMat = camera.getView();
 		gl.glClear(GL_DEPTH_BUFFER_BIT);
@@ -268,6 +269,7 @@ public class Starter extends JFrame implements GLEventListener {
 		gl.glUniformMatrix4fv(projLoc, 1, false, pMat.get(vals));
 		gl.glUniformMatrix4fv(nLoc, 1, false, invTrMat.get(vals));
 		gl.glUniformMatrix4fv(sLoc, 1, false, shadowMVP2.get(vals));
+		gl.glUniformMatrix4fv(cLoc, 1, false, camera.getLoc().get(vals));
 
 		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
 		gl.glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);

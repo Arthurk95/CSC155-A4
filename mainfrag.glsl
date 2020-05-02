@@ -3,6 +3,7 @@
 in vec3 varyingNormal, varyingLightDir, varyingVertPos, varyingHalfVec, varyingTangent;
 in vec4 shadow_coord;
 in vec2 tc;
+in vec3 eyeSpacePos;
 out vec4 fragColor;
 
 struct PositionalLight
@@ -22,9 +23,10 @@ uniform mat4 mv_matrix;
 uniform mat4 proj_matrix;
 uniform mat4 norm_matrix;
 uniform mat4 shadowMVP;
+uniform vec4 cameraPos;
 layout (binding=0) uniform sampler2DShadow shadowTex;
 layout (binding=1) uniform sampler2D samp;
-layout (binding=3) uniform sampler2D normMap;
+layout (binding=2) uniform sampler2D normMap;
 
 float lookup(float x, float y){
 	float t = textureProj(shadowTex, shadow_coord + vec4(x * 0.001 * shadow_coord.w,
@@ -85,11 +87,16 @@ void main(void)
 	* pow(max(dot(H,N),0.0),material.shininess*3.0));
 
 
+	vec4 fogColor = vec4(0.7, 0.7, 0.7, 1.0);
+	float dist = length(eyeSpacePos);
+
+	float fogFactor = dist * 0.05;
+
+	if(fogFactor > 1.0){fogFactor = 1.0;}
 	// not producing soft shadows for some reason, but weird shadow problem fixed
-	fragColor = vec4(shadowColor.xyz + lightedColor.xyz*shadowFactor, 1.0);
+	fragColor = mix(vec4((shadowColor.xyz*shadowFactor + lightedColor.xyz*shadowFactor), 1.0), fogColor, fogFactor);
 
 	if(notInShadow == 1.0){
-		fragColor += globalAmbient * material.ambient;
+		fragColor += (globalAmbient * material.ambient) * shadowFactor;
 	}
-
 }
