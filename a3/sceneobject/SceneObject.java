@@ -22,6 +22,7 @@ public class SceneObject {
 
     private int texture;
     private float scale = 1.0f;
+    private int mapType = -1;
 
     // SceneObjects default to silver material
     private Material material = new Material();
@@ -67,10 +68,12 @@ public class SceneObject {
         Vector3f[] vertices = model.getVertices();
         Vector2f[] texCoords = model.getTexCoords();
         Vector3f[] normals = model.getNormals();
+        Vector3f[] tangents = model.getTangents();
 
         float[] pvalues = new float[numVertices*3];
         float[] tvalues = new float[numVertices*2];
         float[] nvalues = new float[numVertices*3];
+        float[] tanValues = new float[numVertices*3];
 
         for (int i=0; i<numVertices; i++)
         {	pvalues[i*3]   = (float) (vertices[i]).x();
@@ -81,6 +84,9 @@ public class SceneObject {
             nvalues[i*3]   = (float) (normals[i]).x();
             nvalues[i*3+1] = (float) (normals[i]).y();
             nvalues[i*3+2] = (float) (normals[i]).z();
+            //tanValues[i*3] = (float) (tangents[i]).x();
+            //tanValues[i*3+1] = (float) (tangents[i]).y();
+            //tanValues[i*3+2] = (float) (tangents[i]).z();
         }
 
         gl.glGenBuffers(vbo.length, vbo, 0);
@@ -97,11 +103,19 @@ public class SceneObject {
         FloatBuffer norBuf = Buffers.newDirectFloatBuffer(nvalues);
         gl.glBufferData(GL_ARRAY_BUFFER, norBuf.limit()*4,norBuf, GL_STATIC_DRAW);
 
+        /*
+        gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[3]);
+        FloatBuffer tanBuf = Buffers.newDirectFloatBuffer(tanValues);
+        gl.glBufferData(GL_ARRAY_BUFFER, tanBuf.limit()*4, tanBuf, GL_STATIC_DRAW);
+        */
         //gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[3]);
         //IntBuffer idxBuf = Buffers.newDirectIntBuffer(model.getIndices());
         //gl.glBufferData(GL_ELEMENT_ARRAY_BUFFER, idxBuf.limit()*4, idxBuf, GL_STATIC_DRAW);
 
     }
+
+    public void applyMapping(int t){mapType = t;}
+    public int mapType(){return mapType;}
 
     public Vector3f[] getVerts(){return model.getVertices();}
     public Vector2f[] getTexCoords(){return model.getTexCoords();}

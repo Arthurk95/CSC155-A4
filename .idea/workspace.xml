@@ -3,9 +3,18 @@
   <component name="ChangeListManager">
     <list default="true" id="1f0ac45b-1513-4a63-8cb0-e37a5c2d0247" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a3/ImportedObject.java" beforeDir="false" afterPath="$PROJECT_DIR$/a3/ImportedObject.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a3/ShaderTools.java" beforeDir="false" afterPath="$PROJECT_DIR$/a3/ShaderTools.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/a3/Starter.java" beforeDir="false" afterPath="$PROJECT_DIR$/a3/Starter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mainfrag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/mainfrag.glsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mainvert.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/mainvert.glsl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a3/sceneobject/SceneObject.java" beforeDir="false" afterPath="$PROJECT_DIR$/a3/sceneobject/SceneObject.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/axisfrag.glsl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/axisvert.glsl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/mainfrag.glsl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/mainvert.glsl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shadowfrag.glsl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/shadowvert.glsl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skyfrag.glsl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/skyvert.glsl" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -15,89 +24,28 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/a3/Starter.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="272">
-              <caret line="273" column="49" lean-forward="true" selection-start-line="273" selection-start-column="49" selection-end-line="273" selection-end-column="49" />
+            <state relative-caret-position="6324">
+              <caret line="428" lean-forward="true" selection-start-line="428" selection-end-line="428" />
               <folding>
                 <element signature="imports" expanded="true" />
+                <element signature="e#22870#22871#0" expanded="true" />
+                <element signature="e#22897#22898#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/axisfrag.glsl">
+        <entry file="file://$PROJECT_DIR$/a3/Water.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="102">
-              <caret line="6" column="25" selection-start-line="6" selection-start-column="25" selection-end-line="6" selection-end-column="25" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/axisvert.glsl">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="289">
-              <caret line="17" column="42" selection-start-line="17" selection-start-column="42" selection-end-line="17" selection-end-column="42" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/mainvert.glsl">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="407">
-              <caret line="47" column="4" lean-forward="true" selection-start-line="47" selection-start-column="4" selection-end-line="47" selection-end-column="54" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/a3/Light.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="204">
-              <caret line="18" selection-start-line="18" selection-end-line="18" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/a3/MobileLight.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1649">
-              <caret line="109" selection-start-line="109" selection-end-line="109" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/a3/Camera.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="510">
-              <caret line="33" selection-start-line="33" selection-end-line="33" />
+            <state relative-caret-position="-1258">
+              <caret line="25" column="28" selection-start-line="25" selection-start-column="16" selection-end-line="25" selection-end-column="28" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/mainfrag.glsl">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="380">
-              <caret line="95" column="81" lean-forward="true" selection-start-line="95" selection-start-column="81" selection-end-line="95" selection-end-column="81" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/a3/material/Material.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="102">
-              <caret line="6" column="56" selection-start-line="6" selection-start-column="56" selection-end-line="6" selection-end-column="56" />
             </state>
           </provider>
         </entry>
@@ -105,11 +53,43 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/a3/sceneobject/SceneObject.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="799">
-              <caret line="58" column="5" selection-start-line="46" selection-start-column="4" selection-end-line="58" selection-end-column="5" />
+            <state relative-caret-position="633">
+              <caret line="88" column="14" selection-start-line="88" selection-start-column="14" selection-end-line="88" selection-end-column="14" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Shaders/Terrain/tessCShader.glsl">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Shaders/Shadow/shadowfrag.glsl">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="51">
+              <caret line="3" column="41" selection-start-line="3" selection-start-column="41" selection-end-line="3" selection-end-column="41" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Shaders/Terrain/fragShader.glsl">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="231">
+              <caret line="42" column="29" selection-start-line="42" selection-start-column="29" selection-end-line="42" selection-end-column="29" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Shaders/Terrain/vertShader.glsl">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="442">
+              <caret line="26" column="50" selection-start-line="26" selection-start-column="50" selection-end-line="26" selection-end-column="50" />
             </state>
           </provider>
         </entry>
@@ -131,6 +111,9 @@
       <find>sceneObjects</find>
       <find>clamp</find>
       <find>lines</find>
+      <find>shadowtex</find>
+      <find>look</find>
+      <find>noiseT</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -143,16 +126,23 @@
         <option value="$PROJECT_DIR$/axisvert.glsl" />
         <option value="$PROJECT_DIR$/axisfrag.glsl" />
         <option value="$PROJECT_DIR$/a3/MobileLight.java" />
-        <option value="$PROJECT_DIR$/a3/Starter.java" />
+        <option value="$PROJECT_DIR$/a3/ImportedObject.java" />
+        <option value="$PROJECT_DIR$/a3/sceneobject/SceneObject.java" />
         <option value="$PROJECT_DIR$/mainvert.glsl" />
         <option value="$PROJECT_DIR$/mainfrag.glsl" />
+        <option value="$PROJECT_DIR$/a3/ShaderTools.java" />
+        <option value="$PROJECT_DIR$/Shaders/Terrain/vertShader.glsl" />
+        <option value="$PROJECT_DIR$/Shaders/Shadow/shadowfrag.glsl" />
+        <option value="$PROJECT_DIR$/Shaders/Terrain/fragShader.glsl" />
+        <option value="$PROJECT_DIR$/a3/Water.java" />
+        <option value="$PROJECT_DIR$/a3/Starter.java" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="-7" />
-    <option name="width" value="974" />
-    <option name="height" value="1047" />
+    <option name="x" value="6" />
+    <option name="width" value="1591" />
+    <option name="height" value="1026" />
   </component>
   <component name="ProjectId" id="1XizR0dDhFdwUK5PpJ4RFbEUAnd" />
   <component name="ProjectLevelVcsManager">
@@ -163,7 +153,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="PackagesPane" />
       <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
@@ -206,14 +195,38 @@
               <item name="CSC155-A1" type="462c0819:PsiDirectoryNode" />
               <item name="OBJ_Files" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="CSC155-A1" type="b2602c69:ProjectViewProjectNode" />
+              <item name="CSC155-A1" type="462c0819:PsiDirectoryNode" />
+              <item name="Shaders" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="CSC155-A1" type="b2602c69:ProjectViewProjectNode" />
+              <item name="CSC155-A1" type="462c0819:PsiDirectoryNode" />
+              <item name="Shaders" type="462c0819:PsiDirectoryNode" />
+              <item name="Main" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="CSC155-A1" type="b2602c69:ProjectViewProjectNode" />
+              <item name="CSC155-A1" type="462c0819:PsiDirectoryNode" />
+              <item name="Shaders" type="462c0819:PsiDirectoryNode" />
+              <item name="Shadow" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="CSC155-A1" type="b2602c69:ProjectViewProjectNode" />
+              <item name="CSC155-A1" type="462c0819:PsiDirectoryNode" />
+              <item name="Shaders" type="462c0819:PsiDirectoryNode" />
+              <item name="Terrain" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
       </pane>
+      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1587097250150" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1588530765511" />
     <property name="last_opened_file_path" value="C:/Program Files/Java/joml-1.9.24.jar!/" />
     <property name="project.structure.last.edited" value="Modules" />
     <property name="project.structure.proportion" value="0.15" />
@@ -420,14 +433,21 @@
       <option name="project" value="LOCAL" />
       <updated>1587097243166</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="added fog">
+      <created>1588452998437</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1588452998438</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <frame x="6" y="0" width="1591" height="1026" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.15671642" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.11430438" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Designer" order="3" />
@@ -436,13 +456,13 @@
       <window_info id="Favorites" order="6" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49946696" visible="true" weight="0.30444443" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.3988889" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.4989059" visible="true" weight="0.31494254" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.39842874" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Terminal" order="7" />
-      <window_info active="true" anchor="bottom" id="Event Log" order="8" sideWeight="0.50053304" side_tool="true" visible="true" weight="0.30444443" />
+      <window_info anchor="bottom" id="Event Log" order="8" sideWeight="0.5010941" side_tool="true" weight="0.30751964" />
       <window_info anchor="bottom" id="Version Control" order="9" weight="0.2188889" />
       <window_info anchor="bottom" id="Messages" order="10" weight="0.32777777" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -538,7 +558,8 @@
     <MESSAGE value="updated lighting, added different scene" />
     <MESSAGE value="camera finally working correctly" />
     <MESSAGE value="finished assignment" />
-    <option name="LAST_COMMIT_MESSAGE" value="finished assignment" />
+    <MESSAGE value="added fog" />
+    <option name="LAST_COMMIT_MESSAGE" value="added fog" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -553,44 +574,21 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/shadowfrag.glsl">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/shadowvert.glsl">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/a3/ShaderTools.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="520">
-          <caret line="92" selection-start-line="92" selection-end-line="92" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/axisfrag.glsl">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="6" column="25" selection-start-line="6" selection-start-column="25" selection-end-line="6" selection-end-column="25" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/axisvert.glsl">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="289">
-          <caret line="17" column="42" selection-start-line="17" selection-start-column="42" selection-end-line="17" selection-end-column="42" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/a3/Light.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="18" selection-start-line="18" selection-end-line="18" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/shadowfrag.glsl" />
+    <entry file="file://$PROJECT_DIR$/shadowvert.glsl" />
+    <entry file="file://$PROJECT_DIR$/axisfrag.glsl" />
+    <entry file="file://$PROJECT_DIR$/axisvert.glsl" />
     <entry file="file://$PROJECT_DIR$/a3/MobileLight.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1649">
           <caret line="109" selection-start-line="109" selection-end-line="109" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/a3/material/Material.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="6" column="56" selection-start-line="6" selection-start-column="56" selection-end-line="6" selection-end-column="56" />
         </state>
       </provider>
     </entry>
@@ -604,17 +602,97 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/a3/material/Material.java">
+    <entry file="file://$PROJECT_DIR$/mainvert.glsl" />
+    <entry file="file://$PROJECT_DIR$/mainfrag.glsl" />
+    <entry file="file://$PROJECT_DIR$/a3/ImportedObject.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-51">
+          <caret line="41" column="17" selection-start-line="41" selection-start-column="17" selection-end-line="41" selection-end-column="17" />
+          <folding>
+            <element signature="e#1944#1951#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Shaders/Shadow/shadowvert.glsl">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Shaders/Terrain/tessEShader.glsl">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="663">
+          <caret line="39" column="16" selection-start-line="39" selection-start-column="14" selection-end-line="39" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Shaders/Terrain/tessCShader.glsl">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Shaders/Shadow/shadowfrag.glsl">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="51">
+          <caret line="3" column="41" selection-start-line="3" selection-start-column="41" selection-end-line="3" selection-end-column="41" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Shaders/Terrain/fragShader.glsl">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="231">
+          <caret line="42" column="29" selection-start-line="42" selection-start-column="29" selection-end-line="42" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Shaders/Main/mainfrag.glsl">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="537">
+          <caret line="107" selection-start-line="99" selection-start-column="4" selection-end-line="107" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Shaders/Main/mainvert.glsl">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="102">
-          <caret line="6" column="56" selection-start-line="6" selection-start-column="56" selection-end-line="6" selection-end-column="56" />
+          <caret line="6" column="12" selection-start-line="6" selection-start-column="12" selection-end-line="7" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Shaders/Terrain/vertShader.glsl">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="442">
+          <caret line="26" column="50" selection-start-line="26" selection-start-column="50" selection-end-line="26" selection-end-column="50" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/a3/Light.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="204">
+          <caret line="18" selection-start-line="18" selection-end-line="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/a3/ShaderTools.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2428">
+          <caret line="143" selection-start-line="143" selection-end-line="143" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/a3/sceneobject/SceneObject.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="799">
-          <caret line="58" column="5" selection-start-line="46" selection-start-column="4" selection-end-line="58" selection-end-column="5" />
+        <state relative-caret-position="633">
+          <caret line="88" column="14" selection-start-line="88" selection-start-column="14" selection-end-line="88" selection-end-column="14" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/a3/Water.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1258">
+          <caret line="25" column="28" selection-start-line="25" selection-start-column="16" selection-end-line="25" selection-end-column="28" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -623,25 +701,13 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/a3/Starter.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="273" column="49" lean-forward="true" selection-start-line="273" selection-start-column="49" selection-end-line="273" selection-end-column="49" />
+        <state relative-caret-position="6324">
+          <caret line="428" lean-forward="true" selection-start-line="428" selection-end-line="428" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#22870#22871#0" expanded="true" />
+            <element signature="e#22897#22898#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mainvert.glsl">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="407">
-          <caret line="47" column="4" lean-forward="true" selection-start-line="47" selection-start-column="4" selection-end-line="47" selection-end-column="54" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mainfrag.glsl">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="380">
-          <caret line="95" column="81" lean-forward="true" selection-start-line="95" selection-start-column="81" selection-end-line="95" selection-end-column="81" />
         </state>
       </provider>
     </entry>

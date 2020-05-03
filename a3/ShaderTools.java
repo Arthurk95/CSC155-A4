@@ -70,6 +70,21 @@ public class ShaderTools {
 		return vfprogram;
 	}
 
+	public static int createShaderProgram(String vS, String tCS, String tES, String fS)
+	{	GL4 gl = (GL4) GLContext.getCurrentGL();
+		int vShader  = prepareShader2(GL_VERTEX_SHADER, vS);
+		int tcShader = prepareShader2(GL_TESS_CONTROL_SHADER, tCS);
+		int teShader = prepareShader2(GL_TESS_EVALUATION_SHADER, tES);
+		int fShader  = prepareShader2(GL_FRAGMENT_SHADER, fS);
+		int vtfprogram = gl.glCreateProgram();
+		gl.glAttachShader(vtfprogram, vShader);
+		gl.glAttachShader(vtfprogram, tcShader);
+		gl.glAttachShader(vtfprogram, teShader);
+		gl.glAttachShader(vtfprogram, fShader);
+		finalizeProgram(vtfprogram);
+		return vtfprogram;
+	}
+
 	// Acquired from program 2.6 of the provided CD.
 	// Links the .glsl files to the program.
 	public static void finalizeProgram(int sprogram) {
@@ -106,6 +121,27 @@ public class ShaderTools {
 		return shaderSource;
 	}
 
+	private static int prepareShader2(int shaderTYPE, String shader)
+	{	GL4 gl = (GL4) GLContext.getCurrentGL();
+		int[] shaderCompiled = new int[1];
+		String shaderSource[] = readShaderSource(shader);
+		int shaderRef = gl.glCreateShader(shaderTYPE);
+		gl.glShaderSource(shaderRef, shaderSource.length, shaderSource, null, 0);
+		gl.glCompileShader(shaderRef);
+		checkOpenGLError();
+		gl.glGetShaderiv(shaderRef, GL_COMPILE_STATUS, shaderCompiled, 0);
+		if (shaderCompiled[0] != 1)
+		{	if (shaderTYPE == GL_VERTEX_SHADER) System.out.print("Vertex ");
+			if (shaderTYPE == GL_TESS_CONTROL_SHADER) System.out.print("Tess Control ");
+			if (shaderTYPE == GL_TESS_EVALUATION_SHADER) System.out.print("Tess Eval ");
+			if (shaderTYPE == GL_GEOMETRY_SHADER) System.out.print("Geometry ");
+			if (shaderTYPE == GL_FRAGMENT_SHADER) System.out.print("Fragment ");
+			System.out.println("shader compilation error.");
+			printShaderLog(shaderRef);
+		}
+		return shaderRef;
+	}
+
 	// Acquired from program 2.6 of the provided CD.
 	// Reads the shader source files and stores them in a String array
 	private static String[] readShaderSource(String filename) {
@@ -113,6 +149,8 @@ public class ShaderTools {
 		Scanner sc;
 		String[] program;
 		try {
+			String tmp = new File("").getAbsolutePath();
+			filename = tmp + filename;
 			sc = new Scanner(new File(filename));
 			while (sc.hasNext()) {
 				lines.addElement(sc.nextLine());

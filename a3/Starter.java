@@ -25,8 +25,6 @@ import org.joml.*;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
 import java.lang.Math;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -40,7 +38,7 @@ public class Starter extends JFrame implements GLEventListener {
 	public static final float MAX_SCALE = 2.0f;
 	public static final float MIN_SCALE = 0.1f;
 	private GLCanvas myCanvas;
-	private int shadowProgram, mainProgram, skyBoxProgram, axisProgram;
+	private int shadowProgram, mainProgram, skyBoxProgram, axisProgram, terrainProgram, waterProgram;
 	private int[] vao = new int[1];
 	private int[] vboSkyBox = new int[2];
 	private float scale = 1.0f;
@@ -49,10 +47,13 @@ public class Starter extends JFrame implements GLEventListener {
 	private Matrix4f vMat = new Matrix4f();
 	private Matrix4f mMat = new Matrix4f();
 	private Matrix4f pMat = new Matrix4f();
+	private Matrix4f mvpMat = new Matrix4f(); // model-view-perspective matrix
 	private Matrix4f invTrMat = new Matrix4f(); // inverse-transpose
 
 	private Material defaultMaterial = new Material();
 	private Material darkGrassMaterial = new DarkGrass();
+
+	private Water water = new Water();
 
 	// Shadow declarations
 	private int scSizeX, scSizeY;
@@ -70,12 +71,17 @@ public class Starter extends JFrame implements GLEventListener {
 	private MobileLight mobileLight;
 	private boolean controlMobileLight = false;
 
-	private int mvLoc, projLoc, nLoc, sLoc, vLoc, cLoc;
+	private float depthLookup;
+	private int dOffsetLoc;
+	private long lastTime = System.currentTimeMillis();
+
+	private int mvLoc, projLoc, nLoc, sLoc, vLoc, mvpLoc;
 	private float aspect;
 
 	private Light mainLight;
 
-	private int redTexture, greenTexture, blueTexture, skyboxTexture, woodTexture, groundTexture;
+	private int redTexture, greenTexture, blueTexture, skyboxTexture,
+		woodTexture, groundTexture, squareMoonTexture, squareMoonHeight, squareMoonNormalMap, noiseTexture;
 
 	private boolean drawAxes = true;
 	private Camera camera;
@@ -130,9 +136,7 @@ public class Starter extends JFrame implements GLEventListener {
 		vMat = camera.getView();
 
 		// NOT DISPLAYING - NO IDEA WHY
-		if(drawAxes){
-			drawAxes();
-		}
+
 
 
 		drawSkyBox();
@@ -155,7 +159,6 @@ public class Starter extends JFrame implements GLEventListener {
 			shadowPass(mobileLight);
 		}
 
-
 		gl = (GL4) GLContext.getCurrentGL();
 
 		gl.glDisable(GL_POLYGON_OFFSET_FILL);	// artifact reduction, continued
@@ -166,18 +169,24 @@ public class Starter extends JFrame implements GLEventListener {
 
 		gl.glDrawBuffer(GL_FRONT);
 
+		if(drawAxes){
+			drawAxes();
+		}
+
 		mainPass();
+
 	}
 
 	private void shadowPass(Light light){
 		gl = (GL4) GLContext.getCurrentGL();
-		gl.glUseProgram(shadowProgram);
 		sLoc = gl.glGetUniformLocation(shadowProgram, "shadowMVP");
 		gl.glClear(GL_DEPTH_BUFFER_BIT);
 
+		gl.glUseProgram(shadowProgram);
+
 		drawSceneObjectShadow(light.getLightObject());
-		for (SceneObject sceneObject : sceneObjects) {
-			drawSceneObjectShadow(sceneObject);
+		for (int i = 0; i < sceneObjects.size(); i++) {
+			drawSceneObjectShadow(sceneObjects.get(i));
 		}
 	}
 
@@ -211,6 +220,10 @@ public class Starter extends JFrame implements GLEventListener {
 	}
 
 	private void mainPass(){
+		gl.glClear(GL_DEPTH_BUFFER_BIT);
+		vMat = camera.getView();
+		drawTerrain(sceneObjects.get(0));
+		renderWater();
 		gl = (GL4) GLContext.getCurrentGL();
 		gl.glUseProgram(mainProgram);
 
@@ -218,15 +231,10 @@ public class Starter extends JFrame implements GLEventListener {
 		projLoc = gl.glGetUniformLocation(mainProgram, "proj_matrix");
 		nLoc = gl.glGetUniformLocation(mainProgram, "norm_matrix");
 		sLoc = gl.glGetUniformLocation(mainProgram, "shadowMVP");
-		cLoc = gl.glGetUniformLocation(mainProgram, "cameraPos");
-
-		vMat = camera.getView();
-		gl.glClear(GL_DEPTH_BUFFER_BIT);
 
 
-
-		for (SceneObject sceneObject : sceneObjects) {
-			drawSceneObject(sceneObject);
+		for (int i = 1; i < sceneObjects.size(); i++) {
+			drawSceneObject(sceneObjects.get(i));
 		}
 		if(controlMobileLight) {
 			drawSceneObject(mobileLight.getLightObject());
@@ -235,6 +243,66 @@ public class Starter extends JFrame implements GLEventListener {
 			drawSceneObject(mainLight.getLightObject());
 		}
 
+	}
+
+	private void drawTerrain(SceneObject object){
+		gl = (GL4) GLContext.getCurrentGL();
+
+		mvpLoc = gl.glGetUniformLocation(terrainProgram, "mvp");
+		mvLoc = gl.glGetUniformLocation(terrainProgram, "mv_matrix");
+		projLoc = gl.glGetUniformLocation(terrainProgram, "proj_matrix");
+		nLoc = gl.glGetUniformLocation(terrainProgram, "norm_matrix");
+
+		gl.glUseProgram(terrainProgram);
+
+		mMat.identity();
+		mMat.translate(object.getPosition().x, object.getPosition().y, object.getPosition().z);
+		mMat.scale(object.getScale());
+
+		mvMat.identity();
+		mvMat.mul(vMat);
+		mvMat.mul(mMat);
+		mvMat.invert(invTrMat);
+		invTrMat.transpose(invTrMat);
+
+		shadowMVP2.identity();
+		shadowMVP2.mul(b);
+		shadowMVP2.mul(lightPmat);
+		shadowMVP2.mul(lightVmat);
+		shadowMVP2.mul(mMat);
+
+		mvpMat.identity();
+		mvpMat.mul(pMat);
+		mvpMat.mul(vMat);
+		mvpMat.mul(mMat);
+
+
+		mainLight.installLights(terrainProgram, vMat, object.getMaterial());
+
+		if(controlMobileLight){
+			mobileLight.installLights(terrainProgram, vMat, object.getMaterial());
+		}
+
+		gl.glUniformMatrix4fv(mvpLoc, 1, false, mvpMat.get(vals));
+		gl.glUniformMatrix4fv(mvLoc, 1, false, mvMat.get(vals));
+		gl.glUniformMatrix4fv(projLoc, 1, false, pMat.get(vals));
+		gl.glUniformMatrix4fv(nLoc, 1, false, invTrMat.get(vals));
+
+		gl.glActiveTexture(GL_TEXTURE0);
+		gl.glBindTexture(GL_TEXTURE_2D, squareMoonTexture);
+		gl.glActiveTexture(GL_TEXTURE1);
+		gl.glBindTexture(GL_TEXTURE_2D, squareMoonHeight);
+		gl.glActiveTexture(GL_TEXTURE2);
+		gl.glBindTexture(GL_TEXTURE_2D, squareMoonNormalMap);
+
+		gl.glClear(GL_DEPTH_BUFFER_BIT);
+		gl.glEnable(GL_DEPTH_TEST);
+		gl.glEnable(GL_CULL_FACE);
+		gl.glFrontFace(GL_CW);
+
+		gl.glPatchParameteri(GL_PATCH_VERTICES, 4);
+		gl.glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		gl.glDrawArraysInstanced(GL_PATCHES, 0, 4, 64*64);
 	}
 
 	// Draws a SceneObject using its position and scale
@@ -269,7 +337,9 @@ public class Starter extends JFrame implements GLEventListener {
 		gl.glUniformMatrix4fv(projLoc, 1, false, pMat.get(vals));
 		gl.glUniformMatrix4fv(nLoc, 1, false, invTrMat.get(vals));
 		gl.glUniformMatrix4fv(sLoc, 1, false, shadowMVP2.get(vals));
-		gl.glUniformMatrix4fv(cLoc, 1, false, camera.getLoc().get(vals));
+		int toMap = object.mapType();
+		int mapLoc = gl.glGetUniformLocation(mainProgram, "map");
+		gl.glUniform1i(mapLoc, toMap);
 
 		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
 		gl.glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
@@ -277,11 +347,11 @@ public class Starter extends JFrame implements GLEventListener {
 
 		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
 		gl.glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0);
-		gl.glEnableVertexAttribArray(2);
+		gl.glEnableVertexAttribArray(1);
 
 		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
-		gl.glVertexAttribPointer(2, 2, GL_FLOAT, false, 0, 0);
-		gl.glEnableVertexAttribArray(1);
+		gl.glVertexAttribPointer(2, 3, GL_FLOAT, false, 0, 0);
+		gl.glEnableVertexAttribArray(2);
 
 		bindTexture(object.getTexture());
 		gl.glEnable(GL_CULL_FACE);
@@ -318,6 +388,75 @@ public class Starter extends JFrame implements GLEventListener {
 		gl.glEnable(GL_DEPTH_TEST);
 	}
 
+	private void renderWater()
+	{	gl = (GL4) GLContext.getCurrentGL();
+
+		long currentTime = System.currentTimeMillis();
+		long elapsedTime = currentTime - lastTime;
+		lastTime = currentTime;
+
+		depthLookup += (float)elapsedTime * .0001f;
+
+		gl.glUseProgram(waterProgram);
+
+		mvLoc = gl.glGetUniformLocation(waterProgram, "mv_matrix");
+		projLoc = gl.glGetUniformLocation(waterProgram, "proj_matrix");
+		nLoc = gl.glGetUniformLocation(waterProgram, "norm_matrix");
+		int aboveLoc = gl.glGetUniformLocation(waterProgram, "isAbove");
+		int dOffsetLoc = gl.glGetUniformLocation(waterProgram, "depthOffset");
+
+		Vector3f waterPos = water.getPosition();
+
+		mMat.translation(waterPos.x(), waterPos.y(), waterPos.z());
+
+		mvMat.identity();
+		mvMat.mul(vMat);
+		mvMat.mul(mMat);
+		mvMat.invert(invTrMat);
+		invTrMat.transpose(invTrMat);
+
+		mainLight.installLights(waterProgram, vMat, defaultMaterial);
+
+
+		gl.glUniformMatrix4fv(mvLoc, 1, false, mvMat.get(vals));
+		gl.glUniformMatrix4fv(projLoc, 1, false, pMat.get(vals));
+		gl.glUniformMatrix4fv(nLoc, 1, false, invTrMat.get(vals));
+
+		if (camera.getLoc().y() > waterPos.y())
+			gl.glUniform1i(aboveLoc, 0);
+		else
+			gl.glUniform1i(aboveLoc, 1);
+
+		gl.glUniform1f(dOffsetLoc, depthLookup);
+
+		int[] vbo = water.getVBO();
+
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+		gl.glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
+		gl.glEnableVertexAttribArray(0);
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+		gl.glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0);
+		gl.glEnableVertexAttribArray(1);
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
+		gl.glVertexAttribPointer(2, 3, GL_FLOAT, false, 0, 0);
+		gl.glEnableVertexAttribArray(2);
+
+		gl.glActiveTexture(GL_TEXTURE0);
+		gl.glBindTexture(GL_TEXTURE_2D, water.getReflectTextureId());
+		gl.glActiveTexture(GL_TEXTURE1);
+		gl.glBindTexture(GL_TEXTURE_2D, water.getRefractTextureId());
+		gl.glActiveTexture(GL_TEXTURE2);
+		gl.glBindTexture(GL_TEXTURE_3D, noiseTexture);
+
+		gl.glEnable(GL_DEPTH_TEST);
+		gl.glDepthFunc(GL_LEQUAL);
+
+		gl.glFrontFace(GL_CW);
+		gl.glDrawArrays(GL_TRIANGLES, 0, 6);
+		gl.glFrontFace(GL_CCW);
+		gl.glDrawArrays(GL_TRIANGLES, 0, 6);
+	}
+
 	private void drawAxes(){
 		gl = (GL4) GLContext.getCurrentGL();
 		gl.glUseProgram(axisProgram);
@@ -348,17 +487,21 @@ public class Starter extends JFrame implements GLEventListener {
 		aspect = (float) myCanvas.getWidth() / (float) myCanvas.getHeight();
 		pMat.identity().setPerspective((float) Math.toRadians(60.0f), aspect, 0.1f, 1000.0f);
 
-		shadowProgram = ShaderTools.createShaderProgram("shadowvert.glsl", "shadowfrag.glsl");
-		mainProgram = ShaderTools.createShaderProgram("mainvert.glsl", "mainfrag.glsl");
-		skyBoxProgram = ShaderTools.createShaderProgram("skyvert.glsl", "skyfrag.glsl");
-		axisProgram = ShaderTools.createShaderProgram("axisvert.glsl", "axisfrag.glsl");
-
+		shadowProgram = ShaderTools.createShaderProgram("\\Shaders\\Shadow\\shadowvert.glsl", "\\Shaders\\Shadow\\shadowfrag.glsl");
+		mainProgram = ShaderTools.createShaderProgram("\\Shaders\\Main\\mainvert.glsl", "\\Shaders\\Main\\mainfrag.glsl");
+		skyBoxProgram = ShaderTools.createShaderProgram("\\Shaders\\Skybox\\skyvert.glsl", "\\Shaders\\Skybox\\skyfrag.glsl");
+		axisProgram = ShaderTools.createShaderProgram("\\Shaders\\Axis\\axisvert.glsl", "\\Shaders\\Axis\\axisfrag.glsl");
+		terrainProgram = ShaderTools.createShaderProgram("\\Shaders\\Terrain\\vertShader.glsl", "\\Shaders\\Terrain\\tessCShader.glsl", "\\Shaders\\Terrain\\tessEShader.glsl", "\\Shaders\\Terrain\\fragShader.glsl");
+		waterProgram = ShaderTools.createShaderProgram("\\Shaders\\Water\\vertshader.glsl", "\\Shaders\\Water\\fragshader.glsl");
 
 		redTexture = ShaderTools.loadTexture("\\textures\\red.jpg");
 		greenTexture = ShaderTools.loadTexture("\\textures\\green.jpg");
 		blueTexture = ShaderTools.loadTexture("\\textures\\blue.jpg");
 		skyboxTexture = ShaderTools.loadCubeMap("cubeMap");
 
+		squareMoonTexture = ShaderTools.loadTexture("\\textures\\squareMoonMap.jpg");
+		squareMoonHeight = ShaderTools.loadTexture("\\textures\\squareMoonBump.jpg");
+		squareMoonNormalMap = ShaderTools.loadTexture("\\textures\\squareMoonNormal.jpg");
 
 		b.set(
 				0.5f, 0.0f, 0.0f, 0.0f,
@@ -399,24 +542,32 @@ public class Starter extends JFrame implements GLEventListener {
 		gl = (GL4) GLContext.getCurrentGL();
 		gl.glGenVertexArrays(vao.length, vao, 0);
 		gl.glBindVertexArray(vao[0]);
+		water.setupVertices();
 
+		water.createReflectRefractBuffers(myCanvas.getWidth(), myCanvas.getHeight());
+
+		noiseTexture = water.buildNoiseTexture();
 
 		ImportedObject pine = new ImportedObject("\\OBJ_files\\PineTree1.obj");
 		ImportedObject pineLeaves = new ImportedObject("\\OBJ_files\\PineTree1_Leaves.obj");
-		ImportedObject terrain = new ImportedObject("\\OBJ_files\\terrain.obj");
+		ImportedObject terrain = new ImportedObject("\\OBJ_files\\flat_plane.obj");
 
-		addNewSceneObject(terrain, new Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 1.0f, greenTexture, defaultMaterial);
+		addNewSceneObject(terrain, new Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 50.0f, groundTexture, defaultMaterial);
 
 		addNewSceneObject(pine, new Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.5f, woodTexture, defaultMaterial);
+		sceneObjects.get(sceneObjects.size() - 1).applyMapping(0);
 		addNewSceneObject(pineLeaves, new Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.5f, greenTexture, darkGrassMaterial);
 
 		addNewSceneObject(pine, new Vector4f(-3.0f, 0.0f, 1.0f, 1.0f), 0.7f, woodTexture, defaultMaterial);
+		sceneObjects.get(sceneObjects.size() - 1).applyMapping(0);
 		addNewSceneObject(pineLeaves, new Vector4f(-3.0f, 0.0f, 1.0f, 1.0f), 0.7f, greenTexture, darkGrassMaterial);
 
 		addNewSceneObject(pine, new Vector4f(5.0f, 0.0f, -3.0f, 1.0f), 0.65f, woodTexture, defaultMaterial);
+		sceneObjects.get(sceneObjects.size() - 1).applyMapping(0);
 		addNewSceneObject(pineLeaves, new Vector4f(5.0f, 0.0f, -3.0f, 1.0f), 0.65f, greenTexture, darkGrassMaterial);
 
 		addNewSceneObject(pine, new Vector4f(1.0f, 0.0f, 5.0f, 1.0f), 0.6f, woodTexture, defaultMaterial);
+		sceneObjects.get(sceneObjects.size() - 1).applyMapping(0);
 		addNewSceneObject(pineLeaves, new Vector4f(1.0f, 0.0f, 5.0f, 1.0f), 0.6f, greenTexture, darkGrassMaterial);
 
 
@@ -483,7 +634,6 @@ public class Starter extends JFrame implements GLEventListener {
 			gl.glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisoSetting[0]);
 		}
 	}
-
 
 	private void setupKeyBindings(){
 		JComponent window = (JComponent) this.getContentPane(); // entire JFrame window

@@ -1,10 +1,14 @@
 #version 430
 
+
 in vec3 varyingNormal, varyingLightDir, varyingVertPos, varyingHalfVec, varyingTangent;
 in vec4 shadow_coord;
+in vec3 originalVertex;
 in vec2 tc;
 in vec3 eyeSpacePos;
 out vec4 fragColor;
+
+
 
 struct PositionalLight
 {	vec4 ambient, diffuse, specular;
@@ -16,6 +20,8 @@ struct Material
 	float shininess;
 };
 
+int tree_bump = 0;
+
 uniform vec4 globalAmbient;
 uniform PositionalLight light;
 uniform Material material;
@@ -23,10 +29,9 @@ uniform mat4 mv_matrix;
 uniform mat4 proj_matrix;
 uniform mat4 norm_matrix;
 uniform mat4 shadowMVP;
-uniform vec4 cameraPos;
+uniform int map;
 layout (binding=0) uniform sampler2DShadow shadowTex;
 layout (binding=1) uniform sampler2D samp;
-layout (binding=2) uniform sampler2D normMap;
 
 float lookup(float x, float y){
 	float t = textureProj(shadowTex, shadow_coord + vec4(x * 0.001 * shadow_coord.w,
@@ -34,25 +39,13 @@ float lookup(float x, float y){
 	return t;
 }
 
-vec3 calcNewNormal(){
-	vec3 normal = normalize(varyingNormal);
-	vec3 tangent = normalize(varyingNormal);
-	tangent = normalize(tangent - dot(tangent, normal) * normal);
-	vec3 bitangent = cross(tangent, normal);
-	mat3 tbn = mat3(tangent, bitangent, normal);
-	vec3 retrievedNormal = texture(normMap, tc).xyz;
-	retrievedNormal = retrievedNormal * 2.0 - 1.0;
-	vec3 newNormal = tbn * retrievedNormal;
-	newNormal = normalize(newNormal);
-	return newNormal;
-}
 
 void main(void)
 {	float shadowFactor=0.0;
 
 	vec3 L = normalize(varyingLightDir);
-	vec3 N = normalize(varyingNormal);
-	vec3 V = normalize(-varyingVertPos);
+    vec3 V = normalize(-varyingVertPos);
+    vec3 N = normalize(varyingNormal);
 	vec3 H = normalize(varyingHalfVec);
 
 	float swidth = 2.5;
@@ -63,6 +56,7 @@ void main(void)
 	shadowFactor += lookup( 0.5*swidth + o.x, -0.5*swidth - o.y);
 	shadowFactor = shadowFactor / 4.0;
 
+	float notInShadow = textureProj(shadowTex, shadow_coord);
 	// hi res PCF
 	/*	float width = 2.5;
         float endp = width * 3.0 + width/2.0;
@@ -75,16 +69,32 @@ void main(void)
 	// this would produce normal hard shadows
 	//	shadowFactor = lookup(0.0, 0.0);
 
-	float notInShadow = textureProj(shadowTex, shadow_coord);
+
+	float cosPhi = dot(H,N);
+	if(map == 0){
+		float a = 1;		// controls depth of bumps
+		float b = 50;	// controls width of bumps
+		float x = originalVertex.x;
+		float y = originalVertex.y;
+		float z = originalVertex.z;
+		N.x = varyingNormal.x + a*cos(b*x);
+		N.y = varyingNormal.y + a*cos(b*y);
+		N.z = varyingNormal.z + a*cos(b*z);
+		N = normalize(N);
+		vec3 R = normalize(reflect(-L, N));
+		cosPhi = dot(V,R);
+	}
 
 	vec4 tex = texture(samp, tc);
 
-	vec4 shadowColor = tex * (globalAmbient * material.ambient
-	+ light.ambient * material.ambient);
+    float cosTheta = dot(L,N);
 
-	vec4 lightedColor = (light.diffuse * material.diffuse * max(dot(L,N),0.0)
+	vec4 shadowColor = globalAmbient * material.ambient
+	+ light.ambient * material.ambient;
+
+	vec4 lightedColor = tex * (light.diffuse * material.diffuse * max(cosTheta,0.0)
 	+ light.specular * material.specular
-	* pow(max(dot(H,N),0.0),material.shininess*3.0));
+	* pow(max(cosPhi,0.0),material.shininess*3.0));
 
 
 	vec4 fogColor = vec4(0.7, 0.7, 0.7, 1.0);
