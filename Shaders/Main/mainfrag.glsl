@@ -29,6 +29,7 @@ uniform mat4 mv_matrix;
 uniform mat4 proj_matrix;
 uniform mat4 norm_matrix;
 uniform mat4 shadowMVP;
+uniform int isAbove;
 uniform int map;
 uniform float fogAmount;
 layout (binding=0) uniform sampler2DShadow shadowTex;
@@ -98,7 +99,7 @@ void main(void)
 	* pow(max(cosPhi,0.0),material.shininess*3.0));
 
 
-	vec4 fogColor = vec4(0.7, 0.7, 0.7, 1.0);
+	vec4 fogColor = vec4(0.8, 0.8, 0.8, 1.0);
 	float dist = length(eyeSpacePos);
 
 	float fog = fogAmount;
@@ -113,4 +114,7 @@ void main(void)
 		fragColor += ((globalAmbient * material.ambient) * shadowFactor) * (1.0 - fogFactor);
 	}
 
+	if(isAbove == 1){
+	}
+	else{fragColor = mix(fragColor, vec4(0.0, 0.05, 0.4, 1.0), 0.6); }// blue tint
 }

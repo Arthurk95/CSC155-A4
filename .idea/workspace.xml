@@ -4,11 +4,9 @@
     <list default="true" id="1f0ac45b-1513-4a63-8cb0-e37a5c2d0247" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Shaders/Main/mainfrag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/Shaders/Main/mainfrag.glsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Shaders/Main/mainvert.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/Shaders/Main/mainvert.glsl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Shaders/Skybox/skyfrag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/Shaders/Skybox/skyfrag.glsl" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Shaders/Terrain/fragShader.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/Shaders/Terrain/fragShader.glsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Shaders/Terrain/vertShader.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/Shaders/Terrain/vertShader.glsl" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Shaders/Water/fragshader.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/Shaders/Water/fragshader.glsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Shaders/Water/vertshader.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/Shaders/Water/vertshader.glsl" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/a3/Starter.java" beforeDir="false" afterPath="$PROJECT_DIR$/a3/Starter.java" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -22,8 +20,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/a3/Starter.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="245">
-              <caret line="540" column="65" selection-start-line="540" selection-start-column="46" selection-end-line="540" selection-end-column="65" />
+            <state relative-caret-position="442">
+              <caret line="588" column="42" selection-start-line="588" selection-start-column="42" selection-end-line="588" selection-end-column="42" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#26188#26189#0" expanded="true" />
@@ -33,10 +31,19 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Shaders/Water/fragshader.glsl">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="418">
+              <caret line="98" column="35" selection-start-line="98" selection-start-column="26" selection-end-line="98" selection-end-column="35" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/a3/Water.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1751">
+            <state relative-caret-position="-884">
               <caret line="17" column="26" selection-start-line="17" selection-start-column="18" selection-end-line="17" selection-end-column="26" />
               <folding>
                 <element signature="imports" expanded="true" />
@@ -59,6 +66,15 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Shaders/Terrain/fragShader.glsl">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="435">
+              <caret line="108" column="58" selection-start-line="108" selection-start-column="28" selection-end-line="108" selection-end-column="58" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/a3/actions/ToggleAxes.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="68">
@@ -72,6 +88,24 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="68">
               <caret line="16" column="69" selection-start-line="16" selection-start-column="50" selection-end-line="16" selection-end-column="69" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Shaders/Main/mainfrag.glsl">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="435">
+              <caret line="118" column="66" selection-start-line="118" selection-start-column="66" selection-end-line="118" selection-end-column="66" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/Shaders/Water/fragShaderFLOOR.glsl">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="469">
+              <caret line="108" column="57" selection-start-line="108" selection-start-column="57" selection-end-line="108" selection-end-column="57" />
             </state>
           </provider>
         </entry>
@@ -115,7 +149,6 @@
         <option value="$PROJECT_DIR$/a3/ShaderTools.java" />
         <option value="$PROJECT_DIR$/Shaders/Shadow/shadowfrag.glsl" />
         <option value="$PROJECT_DIR$/Shaders/Skybox/skyvert.glsl" />
-        <option value="$PROJECT_DIR$/Shaders/Skybox/skyfrag.glsl" />
         <option value="$PROJECT_DIR$/a3/Water.java" />
         <option value="$PROJECT_DIR$/Shaders/Fog/fogfrag.glsl" />
         <option value="$PROJECT_DIR$/Shaders/Terrain/tessEShader.glsl" />
@@ -123,11 +156,13 @@
         <option value="$PROJECT_DIR$/Shaders/Water/vertshader.glsl" />
         <option value="$PROJECT_DIR$/Shaders/Main/mainvert.glsl" />
         <option value="$PROJECT_DIR$/Shaders/Terrain/vertShader.glsl" />
-        <option value="$PROJECT_DIR$/Shaders/Main/mainfrag.glsl" />
-        <option value="$PROJECT_DIR$/Shaders/Water/fragshader.glsl" />
-        <option value="$PROJECT_DIR$/Shaders/Terrain/fragShader.glsl" />
         <option value="$PROJECT_DIR$/a3/actions/ControlFog.java" />
+        <option value="$PROJECT_DIR$/Shaders/Skybox/skyfrag.glsl" />
+        <option value="$PROJECT_DIR$/Shaders/Water/fragshader.glsl" />
         <option value="$PROJECT_DIR$/a3/Starter.java" />
+        <option value="$PROJECT_DIR$/Shaders/Main/mainfrag.glsl" />
+        <option value="$PROJECT_DIR$/Shaders/Terrain/fragShader.glsl" />
+        <option value="$PROJECT_DIR$/Shaders/Water/fragShaderFLOOR.glsl" />
       </list>
     </option>
   </component>
@@ -231,7 +266,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1588555665302" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1588561742929" />
     <property name="last_opened_file_path" value="C:/Program Files/Java/joml-1.9.24.jar!/" />
     <property name="project.structure.last.edited" value="Modules" />
     <property name="project.structure.proportion" value="0.15" />
@@ -459,14 +494,21 @@
       <option name="project" value="LOCAL" />
       <updated>1588552219431</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL-00025" summary="added mouse wheel control for fog">
+      <created>1588556557632</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1588556557633</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="ToolWindowManager">
     <frame x="6" y="0" width="1591" height="1026" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.11430438" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.11430438" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Designer" order="3" />
@@ -475,7 +517,7 @@
       <window_info id="Favorites" order="6" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4989059" visible="true" weight="0.31494254" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.4989059" visible="true" weight="0.31494254" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39770114" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -580,7 +622,8 @@
     <MESSAGE value="added fog" />
     <MESSAGE value="moved shaders into their own folder. added basic water and tessellation" />
     <MESSAGE value="custom height/normal map and shadows working with tessellation" />
-    <option name="LAST_COMMIT_MESSAGE" value="custom height/normal map and shadows working with tessellation" />
+    <MESSAGE value="added mouse wheel control for fog" />
+    <option name="LAST_COMMIT_MESSAGE" value="added mouse wheel control for fog" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -672,13 +715,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Shaders/Skybox/skyfrag.glsl">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="15" selection-start-line="15" selection-end-line="15" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/a3/Light.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-510">
@@ -714,10 +750,20 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Shaders/Main/mainfrag.glsl">
+    <entry file="file://$PROJECT_DIR$/a3/actions/ToggleAxes.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="401">
-          <caret line="103" column="4" lean-forward="true" selection-start-line="103" selection-start-column="4" selection-end-line="104" selection-end-column="29" />
+        <state relative-caret-position="68">
+          <caret line="7" column="46" selection-start-line="7" selection-start-column="32" selection-end-line="7" selection-end-column="46" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/a3/Water.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-884">
+          <caret line="17" column="26" selection-start-line="17" selection-start-column="18" selection-end-line="17" selection-end-column="26" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -732,36 +778,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/a3/MobileLight.java">
+    <entry file="file://$PROJECT_DIR$/Shaders/Skybox/skyfrag.glsl">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="68">
-          <caret line="16" column="69" selection-start-line="16" selection-start-column="50" selection-end-line="16" selection-end-column="69" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/a3/Starter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="245">
-          <caret line="540" column="65" selection-start-line="540" selection-start-column="46" selection-end-line="540" selection-end-column="65" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#26188#26189#0" expanded="true" />
-            <element signature="e#26215#26216#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/a3/actions/ToggleAxes.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="68">
-          <caret line="7" column="46" selection-start-line="7" selection-start-column="32" selection-end-line="7" selection-end-column="46" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Shaders/Terrain/fragShader.glsl">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="231">
-          <caret line="79" column="33" selection-start-line="79" selection-start-column="33" selection-end-line="79" selection-end-column="33" />
+        <state relative-caret-position="238">
+          <caret line="14" column="4" lean-forward="true" selection-start-line="14" selection-start-column="4" selection-end-line="14" selection-end-column="45" />
         </state>
       </provider>
     </entry>
@@ -772,20 +792,50 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Shaders/Water/fragshader.glsl">
+    <entry file="file://$PROJECT_DIR$/a3/MobileLight.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-942">
-          <caret line="9" column="47" selection-start-line="9" selection-start-column="37" selection-end-line="9" selection-end-column="47" />
+        <state relative-caret-position="68">
+          <caret line="16" column="69" selection-start-line="16" selection-start-column="50" selection-end-line="16" selection-end-column="69" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/a3/Water.java">
+    <entry file="file://$PROJECT_DIR$/a3/Starter.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1751">
-          <caret line="17" column="26" selection-start-line="17" selection-start-column="18" selection-end-line="17" selection-end-column="26" />
+        <state relative-caret-position="442">
+          <caret line="588" column="42" selection-start-line="588" selection-start-column="42" selection-end-line="588" selection-end-column="42" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#26188#26189#0" expanded="true" />
+            <element signature="e#26215#26216#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Shaders/Main/mainfrag.glsl">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="435">
+          <caret line="118" column="66" selection-start-line="118" selection-start-column="66" selection-end-line="118" selection-end-column="66" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Shaders/Water/fragshader.glsl">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="418">
+          <caret line="98" column="35" selection-start-line="98" selection-start-column="26" selection-end-line="98" selection-end-column="35" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Shaders/Terrain/fragShader.glsl">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="435">
+          <caret line="108" column="58" selection-start-line="108" selection-start-column="28" selection-end-line="108" selection-end-column="58" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Shaders/Water/fragShaderFLOOR.glsl">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="469">
+          <caret line="108" column="57" selection-start-line="108" selection-start-column="57" selection-end-line="108" selection-end-column="57" />
         </state>
       </provider>
     </entry>

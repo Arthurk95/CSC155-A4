@@ -24,6 +24,7 @@ uniform mat4 proj_matrix;
 uniform mat4 norm_matrix;
 uniform mat4 shadowMVP;
 uniform float fogAmount;
+uniform int isAbove;
 /* ---------------------- */
 
 float lookup(float x, float y){
@@ -59,10 +60,7 @@ void main(void)
 
 	float notInShadow = textureProj(shadowTex, shadow_coord);
 
-	vec4 brown = vec4(0.8, 0.52, 0.24, 1.0);
-	vec4 green = vec4(0.13, 0.52, 0.13, 1.0);
 
-	vec4 c = mix(green, brown, texture(tex_height,tes_out).y);
 	vec3 L = normalize(varyingLightDir);
 	vec3 V = normalize(-varyingVertPos);
 
@@ -72,7 +70,7 @@ void main(void)
 	float cosTheta = dot(L,N);
 	float cosPhi = dot(V,R);
 
-	vec4 fogColor = vec4(0.7, 0.7, 0.7, 1.0);
+	vec4 fogColor = vec4(0.8, 0.8, 0.8, 1.0);
 	float dist = length(varyingVertPos);
 
 	float fog = fogAmount;
@@ -89,15 +87,25 @@ void main(void)
 	+ light.diffuse * material.diffuse * max(cosTheta,0.0)
 	+ light.specular * material.specular * pow(max(cosPhi,0.0), material.shininess) + 0.5);
 
+
+	vec4 brown = vec4(0.8, 0.52, 0.24, 1.0);
+	vec4 green = vec4(0.13, 0.52, 0.13, 1.0);
+
+	vec4 c = mix(brown, green, texture(tex_height,tes_out).y);
 	lightedColor = lightedColor * c;
 
 
 
 	color = mix(vec4((shadowColor.xyz*shadowFactor + lightedColor.xyz*shadowFactor), 1.0), fogColor, fogFactor);
 
+	/*
 	if(notInShadow == 1.0){
 		color += ((globalAmbient * material.ambient) * shadowFactor) * (1.0 - fogFactor);
-	}
+	}*/
 
+	if(isAbove == 1){
+
+	}
+	else{color = mix(color, vec4(0.0, 0.05, 0.4, 1.0), 0.6); }// blue tint
 
 }
