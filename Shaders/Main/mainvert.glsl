@@ -27,6 +27,7 @@ uniform mat4 mv_matrix;
 uniform mat4 proj_matrix;
 uniform mat4 norm_matrix;
 uniform mat4 shadowMVP;
+uniform float fogAmount;
 uniform int map;
 layout (binding=0) uniform sampler2DShadow shadowTex;
 layout (binding=1) uniform sampler2D samp;
@@ -43,14 +44,12 @@ void main(void)
 	//get a vertex normal vector in eye space and output it to the rasterizer for interpolation
 	varyingNormal = (norm_matrix * vec4(vertNormal,1.0)).xyz;
 	varyingTangent = (norm_matrix * vec4(vertTangent,1.0)).xyz;
-	// calculate the half vector (L+V)
-	//varyingHalfVec = (varyingLightDir-varyingVertPos).xyz;
 
 	varyingHalfVec = normalize(normalize(varyingLightDir) + normalize(-varyingVertPos)).xyz;
 
 	shadow_coord = shadowMVP * vec4(vertPos,1.0);
 
-	eyeSpacePos = (mv_matrix * vec4(vertPos,1.0)).xyz;
+	eyeSpacePos = (mv_matrix * vec4(vertPos,1.0)).xyz; // for fog
 	gl_Position = proj_matrix * mv_matrix * vec4(vertPos,1.0);
 
 }

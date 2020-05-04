@@ -23,6 +23,7 @@ uniform mat4 mv_matrix;
 uniform mat4 proj_matrix;
 uniform mat4 norm_matrix;
 uniform mat4 shadowMVP;
+uniform float fogAmount;
 /* ---------------------- */
 
 float lookup(float x, float y){
@@ -74,7 +75,9 @@ void main(void)
 	vec4 fogColor = vec4(0.7, 0.7, 0.7, 1.0);
 	float dist = length(varyingVertPos);
 
-	float fogFactor = dist * 0.02;
+	float fog = fogAmount;
+	if(fog < 0.0){fog = 0.0;}
+	float fogFactor = dist * fog;
 
 	if(fogFactor > 1.0){fogFactor = 1.0;}
 

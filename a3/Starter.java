@@ -10,6 +10,7 @@ package a3;
 import javax.swing.*;
 import static com.jogamp.opengl.GL4.*;
 
+import a3.actions.ControlFog;
 import a3.actions.ToggleAxes;
 import a3.actions.ToggleLight;
 import a3.actions.camera.*;
@@ -25,6 +26,8 @@ import org.joml.*;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.lang.Math;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -34,7 +37,7 @@ import java.util.ArrayList;
  * Attribution 4.0 International license
  *
  * */
-public class Starter extends JFrame implements GLEventListener {
+public class Starter extends JFrame implements GLEventListener, MouseWheelListener {
 	public static final float MAX_SCALE = 2.0f;
 	public static final float MIN_SCALE = 0.1f;
 	private GLCanvas myCanvas;
@@ -87,7 +90,8 @@ public class Starter extends JFrame implements GLEventListener {
 	private Camera camera;
 	private GL4 gl;
 	private Cube cube = new Cube();
-
+	private float fogAmount = 0.02f;
+	private boolean controlFog = false;
 
 	private ArrayList<SceneObject> sceneObjects = new ArrayList<>();
 
@@ -312,7 +316,7 @@ public class Starter extends JFrame implements GLEventListener {
 		projLoc = gl.glGetUniformLocation(terrainProgram, "proj_matrix");
 		nLoc = gl.glGetUniformLocation(terrainProgram, "norm_matrix");
 		sLoc = gl.glGetUniformLocation(terrainProgram, "shadowMVP");
-
+		int fog = gl.glGetUniformLocation(terrainProgram, "fogAmount");
 
 		mMat.identity();
 		mMat.translate(object.getPosition().x, object.getPosition().y, object.getPosition().z);
@@ -349,6 +353,7 @@ public class Starter extends JFrame implements GLEventListener {
 		gl.glUniformMatrix4fv(projLoc, 1, false, pMat.get(vals));
 		gl.glUniformMatrix4fv(nLoc, 1, false, invTrMat.get(vals));
 		gl.glUniformMatrix4fv(sLoc, 1, false, shadowMVP2.get(vals));
+		gl.glUniform1f(fog, fogAmount);
 
 		//gl.glActiveTexture(GL_TEXTURE0);
 		//gl.glBindTexture(GL_TEXTURE_2D, squareMoonTexture);
@@ -395,10 +400,15 @@ public class Starter extends JFrame implements GLEventListener {
 		gl = (GL4) GLContext.getCurrentGL();
 		int[] vbo = object.getVBO();
 
+
+		int fog = gl.glGetUniformLocation(mainProgram, "fogAmount");
+
 		gl.glUniformMatrix4fv(mvLoc, 1, false, mvMat.get(vals));
 		gl.glUniformMatrix4fv(projLoc, 1, false, pMat.get(vals));
 		gl.glUniformMatrix4fv(nLoc, 1, false, invTrMat.get(vals));
 		gl.glUniformMatrix4fv(sLoc, 1, false, shadowMVP2.get(vals));
+		gl.glUniform1f(fog, fogAmount);
+
 		int toMap = object.mapType();
 		int mapLoc = gl.glGetUniformLocation(mainProgram, "map");
 		gl.glUniform1i(mapLoc, toMap);
@@ -484,6 +494,7 @@ public class Starter extends JFrame implements GLEventListener {
 		nLoc = gl.glGetUniformLocation(waterProgram, "norm_matrix");
 		int aboveLoc = gl.glGetUniformLocation(waterProgram, "isAbove");
 		int dOffsetLoc = gl.glGetUniformLocation(waterProgram, "depthOffset");
+		int fog = gl.glGetUniformLocation(waterProgram, "fogAmount");
 
 		Vector3f waterPos = water.getPosition();
 
@@ -505,6 +516,7 @@ public class Starter extends JFrame implements GLEventListener {
 		gl.glUniformMatrix4fv(mvLoc, 1, false, mvMat.get(vals));
 		gl.glUniformMatrix4fv(projLoc, 1, false, pMat.get(vals));
 		gl.glUniformMatrix4fv(nLoc, 1, false, invTrMat.get(vals));
+		gl.glUniform1f(fog, fogAmount);
 
 		if (camera.getLoc().y() > waterPos.y())
 			gl.glUniform1i(aboveLoc, 1);
@@ -612,6 +624,7 @@ public class Starter extends JFrame implements GLEventListener {
 
 		myCanvas.addMouseMotionListener(mobileLight);
 		myCanvas.addMouseWheelListener(mobileLight);
+		myCanvas.addMouseWheelListener(this);
 		mobileLight.setWindowSize(myCanvas.getWidth(), myCanvas.getHeight());
 
 	}
@@ -762,11 +775,33 @@ public class Starter extends JFrame implements GLEventListener {
 
 		imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, 0), KeyEvent.VK_C);
 		amap.put(KeyEvent.VK_C, new ToggleLight(this));
+
+		imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_F, 0), KeyEvent.VK_F);
+		amap.put(KeyEvent.VK_F, new ControlFog(this));
 	}
 
 	public void toggleAxes(){
 		drawAxes = !drawAxes;
 	}
 
-	public void toggleMobileLight(){controlMobileLight = !controlMobileLight; mobileLight.toggleMobileLight();}
+	public void toggleFogControl(){
+		if(controlMobileLight){
+			toggleMobileLight();
+		}
+		controlFog = !controlFog;
+	}
+
+	public void toggleMobileLight(){
+		if(controlFog){toggleFogControl();}
+		controlMobileLight = !controlMobileLight;
+		mobileLight.toggleMobileLight();
+	}
+
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent e) {
+		if(controlFog){
+			fogAmount += e.getWheelRotation() * 0.01f;
+			if(fogAmount < 0.0f){fogAmount = 0.0f;}
+		}
+	}
 }

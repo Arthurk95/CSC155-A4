@@ -30,6 +30,7 @@ uniform mat4 proj_matrix;
 uniform mat4 norm_matrix;
 uniform mat4 shadowMVP;
 uniform int map;
+uniform float fogAmount;
 layout (binding=0) uniform sampler2DShadow shadowTex;
 layout (binding=1) uniform sampler2D samp;
 
@@ -100,7 +101,9 @@ void main(void)
 	vec4 fogColor = vec4(0.7, 0.7, 0.7, 1.0);
 	float dist = length(eyeSpacePos);
 
-	float fogFactor = dist * 0.02;
+	float fog = fogAmount;
+	if(fog < 0.0){fog = 0.0;}
+	float fogFactor = dist * fog;
 
 	if(fogFactor > 1.0){fogFactor = 1.0;}
 	// not producing soft shadows for some reason, but weird shadow problem fixed

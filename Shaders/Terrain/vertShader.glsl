@@ -18,6 +18,7 @@ uniform Material material;
 uniform mat4 mv_matrix;
 uniform mat4 proj_matrix;
 uniform mat4 norm_matrix;
+uniform float fogAmount;
 uniform mat4 shadowMVP;
 /*-----------------*/
 

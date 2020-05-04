@@ -32,6 +32,7 @@ uniform Material material;
 uniform mat4 mv_matrix;
 uniform mat4 proj_matrix;
 uniform mat4 norm_matrix;
+uniform float fogAmount;
 uniform int isAbove;
 uniform float depthOffset;
 
