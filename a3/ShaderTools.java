@@ -99,6 +99,19 @@ public class ShaderTools {
 		}
 	}
 
+	public static int createShaderProgram(String vS, String gS, String fS)
+	{	GL4 gl = (GL4) GLContext.getCurrentGL();
+		int vShader  = prepareShader2(GL_VERTEX_SHADER, vS);
+		int gShader = prepareShader2(GL_GEOMETRY_SHADER, gS);
+		int fShader  = prepareShader2(GL_FRAGMENT_SHADER, fS);
+		int vgfprogram = gl.glCreateProgram();
+		gl.glAttachShader(vgfprogram, vShader);
+		gl.glAttachShader(vgfprogram, gShader);
+		gl.glAttachShader(vgfprogram, fShader);
+		finalizeProgram(vgfprogram);
+		return vgfprogram;
+	}
+
 	// Acquired from program 2.6 of the provided CD.
 	private static String[] prepareShader(int shaderTYPE, String shader) {
 		GL4 gl = (GL4) GLContext.getCurrentGL();

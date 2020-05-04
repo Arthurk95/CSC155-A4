@@ -29,6 +29,8 @@ uniform mat4 norm_matrix;
 uniform mat4 shadowMVP;
 uniform float fogAmount;
 uniform int map;
+uniform float alpha;
+uniform float flipNormal;
 layout (binding=0) uniform sampler2DShadow shadowTex;
 layout (binding=1) uniform sampler2D samp;
 
@@ -48,7 +50,7 @@ void main(void)
 	varyingHalfVec = normalize(normalize(varyingLightDir) + normalize(-varyingVertPos)).xyz;
 
 	shadow_coord = shadowMVP * vec4(vertPos,1.0);
-
+	if (flipNormal < 0) varyingNormal = -varyingNormal;
 	eyeSpacePos = (mv_matrix * vec4(vertPos,1.0)).xyz; // for fog
 	gl_Position = proj_matrix * mv_matrix * vec4(vertPos,1.0);
 

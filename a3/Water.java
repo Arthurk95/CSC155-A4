@@ -21,6 +21,7 @@ public class Water{
     private int reflectTextureId;
     private int refractFrameBuffer;
     private int reflectFrameBuffer;
+    private float size = 64.0f;
 
     private double[][][] noise = new double[noiseWidth][noiseHeight][noiseDepth];
     private int noiseTexture;
@@ -160,23 +161,9 @@ public class Water{
     public void setupVertices()
     {	GL4 gl = (GL4) GLContext.getCurrentGL();
 
-        float[] cubeVertexPositions =
-                { -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f,
-                        1.0f, -1.0f, -1.0f, 1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f,
-                        1.0f, -1.0f, -1.0f, 1.0f, -1.0f,  1.0f, 1.0f,  1.0f, -1.0f,
-                        1.0f, -1.0f,  1.0f, 1.0f,  1.0f,  1.0f, 1.0f,  1.0f, -1.0f,
-                        1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f, 1.0f,  1.0f,  1.0f,
-                        -1.0f, -1.0f,  1.0f, -1.0f,  1.0f,  1.0f, 1.0f,  1.0f,  1.0f,
-                        -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f,  1.0f,
-                        -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f,  1.0f,
-                        -1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f, -1.0f, -1.0f,
-                        1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f,
-                        -1.0f,  1.0f, -1.0f, 1.0f,  1.0f, -1.0f, 1.0f,  1.0f,  1.0f,
-                        1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f, -1.0f
-                };
         float[] PLANE_POSITIONS = {
-                -128.0f, 0.0f, -128.0f,  -128.0f, 0.0f, 128.0f,  128.0f, 0.0f, -128.0f,
-                128.0f, 0.0f, -128.0f,  -128.0f, 0.0f, 128.0f,  128.0f, 0.0f, 128.0f
+                -size, 0.0f, -size,  -size, 0.0f, size,  size, 0.0f, -size,
+                size, 0.0f, -size,  -size, 0.0f, size,  size, 0.0f, size
         };
         float[] PLANE_TEXCOORDS = {
                 0.0f, 0.0f,  0.0f, 1.0f,  1.0f, 0.0f,

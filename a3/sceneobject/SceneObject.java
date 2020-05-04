@@ -29,6 +29,9 @@ public class SceneObject {
 
     private Vector4f position;
 
+    private boolean transparant = false;
+    private float alpha = 1.0f;
+
     private int[] vbo = new int[4];
 
     public SceneObject(){}
@@ -58,6 +61,10 @@ public class SceneObject {
         gl.glProgramUniform4fv(renderingProgram, mspecLoc, 1, material.getSpecular(), 0);
         gl.glProgramUniform1f(renderingProgram, mshiLoc, material.getShine());
     }
+
+    public void setTransparant(float t){transparant = true; alpha = t;}
+    public boolean isTransparant(){return transparant;}
+    public float getAlpha(){return alpha;}
 
     public int getNumVerts(){return model.getNumVertices(); }
     public Vector4f getPosition(){return position;}
@@ -103,14 +110,8 @@ public class SceneObject {
         FloatBuffer norBuf = Buffers.newDirectFloatBuffer(nvalues);
         gl.glBufferData(GL_ARRAY_BUFFER, norBuf.limit()*4,norBuf, GL_STATIC_DRAW);
 
-        /*
-        gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[3]);
-        FloatBuffer tanBuf = Buffers.newDirectFloatBuffer(tanValues);
-        gl.glBufferData(GL_ARRAY_BUFFER, tanBuf.limit()*4, tanBuf, GL_STATIC_DRAW);
-        */
-        //gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[3]);
-        //IntBuffer idxBuf = Buffers.newDirectIntBuffer(model.getIndices());
-        //gl.glBufferData(GL_ELEMENT_ARRAY_BUFFER, idxBuf.limit()*4, idxBuf, GL_STATIC_DRAW);
+        gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[3]);
+        gl.glBufferData(GL_ELEMENT_ARRAY_BUFFER, vertBuf.limit()*4, vertBuf, GL_STATIC_DRAW);
 
     }
 

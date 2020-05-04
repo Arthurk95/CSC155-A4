@@ -24,7 +24,7 @@ public class MobileLight extends Light implements MouseMotionListener, MouseWhee
     private SceneObject lightObject;
     private Matrix4f viewMatrix;
     private float[] lightPos = new float[3];
-    private Vector3f initialLoc = new Vector3f(0.0f, 5.0f, 0.0f);
+    private Vector3f initialLoc = new Vector3f(0.0f, 15.0f, 0.0f);
     private Vector3f currentLoc = new Vector3f();
     private DecimalFormat format = new DecimalFormat("###,###.##");
 
@@ -45,7 +45,6 @@ public class MobileLight extends Light implements MouseMotionListener, MouseWhee
     public void toggleMobileLight(){
         listening = !listening;
         currentLoc.set(initialLoc);
-        System.out.println(initialLoc.toString(format));
         lightPos[0] = initialLoc.x; lightPos[1] = initialLoc.y; lightPos[2] = initialLoc.z;
     }
 

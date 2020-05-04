@@ -17,7 +17,7 @@ public class Light {
     private float[] lightDiffuse = new float[] { 0.8f, 0.8f, 0.8f, 1.0f };
     private float[] lightSpecular = new float[] { 1.0f, 1.0f, 1.0f, 1.0f };
 
-    private Vector3f initialLightLoc = new Vector3f(-8.0f, 5.0f, 5.0f);
+    private Vector3f initialLightLoc = new Vector3f(-8.0f, 15.0f, 5.0f);
     private Vector3f currentLightPos = new Vector3f();
 
     private float[] lightPos = new float[3];

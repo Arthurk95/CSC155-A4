@@ -38,13 +38,11 @@ import java.util.ArrayList;
  *
  * */
 public class Starter extends JFrame implements GLEventListener, MouseWheelListener {
-	public static final float MAX_SCALE = 2.0f;
-	public static final float MIN_SCALE = 0.1f;
 	private GLCanvas myCanvas;
-	private int shadowProgram, mainProgram, skyBoxProgram, axisProgram, terrainProgram, waterProgram, waterFloorProgram;
+	private int shadowProgram, mainProgram, skyBoxProgram, axisProgram, terrainProgram, waterProgram,
+			waterFloorProgram, geometryProgram;
 	private int[] vao = new int[1];
 	private int[] vboSkyBox = new int[2];
-	private float scale = 1.0f;
 	private FloatBuffer vals = Buffers.newDirectFloatBuffer(16);
 	private Matrix4f mvMat = new Matrix4f();
 	private Matrix4f vMat = new Matrix4f();
@@ -73,6 +71,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 	private MobileLight mobileLight;
 	private boolean controlMobileLight = false;
+	private Light activeLight;
 
 	private float depthLookup;
 	private int dOffsetLoc;
@@ -152,14 +151,9 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		gl.glEnable(GL_POLYGON_OFFSET_FILL);	//  for reducing
 		gl.glPolygonOffset(3.0f, 5.0f);		//  shadow artifacts
 
-		lightVmat.identity().setLookAt(mainLight.getLightPos(), origin, up);	// vector from light to origin
+		lightVmat.identity().setLookAt(activeLight.getLightPos(), origin, up);	// vector from light to origin
 		lightPmat.identity().setPerspective((float) Math.toRadians(120.0f), aspect, 0.1f, 1000.0f);
-		shadowPass(mainLight);
-		if(controlMobileLight){
-			lightVmat.identity().setLookAt(mobileLight.getLightPos(), origin, up);	// vector from light to origin
-			lightPmat.identity().setPerspective((float) Math.toRadians(120.0f), aspect, 0.1f, 1000.0f);
-			shadowPass(mobileLight);
-		}
+		shadowPass();
 
 		gl = (GL4) GLContext.getCurrentGL();
 
@@ -171,16 +165,20 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 		gl.glDrawBuffer(GL_FRONT);
 
+		gl.glClear(GL_DEPTH_BUFFER_BIT);
+
+		drawTerrain();
+		renderWaterAndFloor();
+
+		mainPass();
+
 		// Space to toggle
 		if(drawAxes){
 			drawAxes();
 		}
-
-		mainPass();
-
-		renderWaterAndFloor();
 	}
 
+	// renders skybox and floorPrep for water
 	private void renderEnvironment(){
 		Vector4f cameraPos = camera.getLoc();
 		Vector3f waterPos = water.getPosition();
@@ -190,8 +188,6 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		lastTime = currentTime;
 
 		depthLookup += (float)elapsedTime * .0001f;
-
-
 
 		// render refraction scene to refraction buffer ----------------------------------------
 		if (camera.getLoc().y() > water.getPosition().y()) {
@@ -239,14 +235,14 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		gl.glEnable(GL_DEPTH_TEST);
 	}
 
-	private void shadowPass(Light light){
+	private void shadowPass(){
 		gl = (GL4) GLContext.getCurrentGL();
 		sLoc = gl.glGetUniformLocation(shadowProgram, "shadowMVP");
 		gl.glClear(GL_DEPTH_BUFFER_BIT);
 
 		gl.glUseProgram(shadowProgram);
 
-		drawSceneObjectShadow(light.getLightObject());
+		drawSceneObjectShadow(activeLight.getLightObject());
 		for (SceneObject sceneObject : sceneObjects) {
 			drawSceneObjectShadow(sceneObject);
 		}
@@ -259,10 +255,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		mMat.translate(object.getPosition().x, object.getPosition().y, object.getPosition().z);
 		mMat.scale(object.getScale());
 
-		shadowMVP1.identity();
-		shadowMVP1.mul(lightPmat);
-		shadowMVP1.mul(lightVmat);
-		shadowMVP1.mul(mMat);
+		setupShadow1Matrix();
 		gl.glUniformMatrix4fv(sLoc, 1, false, shadowMVP1.get(vals));
 
 		int[] vbo = object.getVBO();
@@ -282,29 +275,13 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	}
 
 	private void mainPass(){
-		gl.glClear(GL_DEPTH_BUFFER_BIT);
+
 		vMat = camera.getView();
 
-		drawTerrain();
-		gl = (GL4) GLContext.getCurrentGL();
-		gl.glUseProgram(mainProgram);
-
-		mvLoc = gl.glGetUniformLocation(mainProgram, "mv_matrix");
-		projLoc = gl.glGetUniformLocation(mainProgram, "proj_matrix");
-		nLoc = gl.glGetUniformLocation(mainProgram, "norm_matrix");
-		sLoc = gl.glGetUniformLocation(mainProgram, "shadowMVP");
-
-
 		for (SceneObject sceneObject : sceneObjects) {
-			drawSceneObject(sceneObject);
+			drawSceneObject(sceneObject, mainProgram);
 		}
-		if(controlMobileLight) {
-			drawSceneObject(mobileLight.getLightObject());
-		}
-		else{
-			drawSceneObject(mainLight.getLightObject());
-		}
-
+		drawSceneObject(activeLight.getLightObject(), geometryProgram);
 	}
 
 	private void drawTerrain(){
@@ -325,30 +302,15 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		float scale = terrainObject.getScale();
 		mMat.scale(scale, scale*10.0f, scale);
 
-
-		mvMat.identity();
-		mvMat.mul(vMat);
-		mvMat.mul(mMat);
-		mvMat.invert(invTrMat);
-		invTrMat.transpose(invTrMat);
-
-		shadowMVP2.identity();
-		shadowMVP2.mul(b);
-		shadowMVP2.mul(lightPmat);
-		shadowMVP2.mul(lightVmat);
-		shadowMVP2.mul(mMat);
+		setupMVMatrix();
+		setupShadow2Matrix();
 
 		mvpMat.identity();
 		mvpMat.mul(pMat);
 		mvpMat.mul(vMat);
 		mvpMat.mul(mMat);
 
-
-		mainLight.installLights(terrainProgram, vMat, terrainObject.getMaterial());
-
-		if(controlMobileLight){
-			mobileLight.installLights(terrainProgram, vMat, terrainObject.getMaterial());
-		}
+		activeLight.installLights(terrainProgram, vMat, terrainObject.getMaterial());
 
 		gl.glUniformMatrix4fv(mvpLoc, 1, false, mvpMat.get(vals));
 		gl.glUniformMatrix4fv(mvLoc, 1, false, mvMat.get(vals));
@@ -381,41 +343,40 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	}
 
 	// Draws a SceneObject using its position and scale
-	private void drawSceneObject(SceneObject object){
+	private void drawSceneObject(SceneObject object, int program){
+
+		gl.glUseProgram(program);
+
+		mvLoc = gl.glGetUniformLocation(program, "mv_matrix");
+		projLoc = gl.glGetUniformLocation(program, "proj_matrix");
+		nLoc = gl.glGetUniformLocation(program, "norm_matrix");
+		sLoc = gl.glGetUniformLocation(program, "shadowMVP");
 
 		mMat.identity();
 		mMat.translate(object.getPosition().x, object.getPosition().y, object.getPosition().z);
 		mMat.scale(object.getScale());
 
-		mvMat.identity();
-		mvMat.mul(vMat);
-		mvMat.mul(mMat);
-		mvMat.invert(invTrMat);
-		invTrMat.transpose(invTrMat);
+		setupMVMatrix();
+		setupShadow2Matrix();
 
-		shadowMVP2.identity();
-		shadowMVP2.mul(b);
-		shadowMVP2.mul(lightPmat);
-		shadowMVP2.mul(lightVmat);
-		shadowMVP2.mul(mMat);
+		activeLight.installLights(program, vMat, object.getMaterial());
 
-
-		mainLight.installLights(mainProgram, vMat, object.getMaterial());
-
-		if(controlMobileLight){
-			mobileLight.installLights(mainProgram, vMat, object.getMaterial());
-		}
 		gl = (GL4) GLContext.getCurrentGL();
 		int[] vbo = object.getVBO();
 
 
-		int fog = gl.glGetUniformLocation(mainProgram, "fogAmount");
-		int aboveLoc = gl.glGetUniformLocation(mainProgram, "isAbove");
+		int fog = gl.glGetUniformLocation(program, "fogAmount");
+		int aboveLoc = gl.glGetUniformLocation(program, "isAbove");
 
 		gl.glUniformMatrix4fv(mvLoc, 1, false, mvMat.get(vals));
 		gl.glUniformMatrix4fv(projLoc, 1, false, pMat.get(vals));
 		gl.glUniformMatrix4fv(nLoc, 1, false, invTrMat.get(vals));
 		gl.glUniformMatrix4fv(sLoc, 1, false, shadowMVP2.get(vals));
+		int alphaLoc = gl.glGetUniformLocation(program, "alpha");
+		int flipLoc = gl.glGetUniformLocation(program, "flipNormal");
+
+		gl.glProgramUniform1f(program, alphaLoc, 1.0f);
+		gl.glProgramUniform1f(program, flipLoc, 1.0f);
 		gl.glUniform1f(fog, fogAmount);
 
 		if (camera.getLoc().y() > water.getPosition().y())
@@ -426,7 +387,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 
 		int toMap = object.mapType();
-		int mapLoc = gl.glGetUniformLocation(mainProgram, "map");
+		int mapLoc = gl.glGetUniformLocation(program, "map");
 		gl.glUniform1i(mapLoc, toMap);
 
 		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
@@ -447,8 +408,53 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		gl.glEnable(GL_DEPTH_TEST);
 		gl.glDepthFunc(GL_LEQUAL);
 
-		//gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboSphere[3]);
-		gl.glDrawArrays(GL_TRIANGLES, 0, object.getNumVerts());
+		if(object.isTransparant()){
+			gl.glEnable(GL_BLEND);
+			gl.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			gl.glBlendEquation(GL_FUNC_ADD);
+
+			gl.glEnable(GL_CULL_FACE);
+
+			gl.glCullFace(GL_FRONT);
+			gl.glProgramUniform1f(program, alphaLoc, object.getAlpha());
+			gl.glProgramUniform1f(program, flipLoc, -1.0f);
+			gl.glDrawArrays(GL_TRIANGLES, 0, object.getNumVerts());
+
+			float alphaBack = object.getAlpha() * 1.5f;
+			if( alphaBack >= 1.0f){alphaBack = 1.0f - (object.getAlpha() / 2);}
+			gl.glCullFace(GL_BACK);
+			gl.glProgramUniform1f(program, alphaLoc, alphaBack);
+			gl.glProgramUniform1f(program, flipLoc, 1.0f);
+			gl.glDrawArrays(GL_TRIANGLES, 0, object.getNumVerts());
+
+			gl.glDisable(GL_BLEND);
+		}
+
+		else{gl.glDrawArrays(GL_TRIANGLES, 0, object.getNumVerts());}
+
+	}
+
+	private void setupMVMatrix(){
+		mvMat.identity();
+		mvMat.mul(vMat);
+		mvMat.mul(mMat);
+		mvMat.invert(invTrMat);
+		invTrMat.transpose(invTrMat);
+	}
+
+	private void setupShadow1Matrix(){
+		shadowMVP1.identity();
+		shadowMVP1.mul(lightPmat);
+		shadowMVP1.mul(lightVmat);
+		shadowMVP1.mul(mMat);
+	}
+
+	private void setupShadow2Matrix(){
+		shadowMVP2.identity();
+		shadowMVP2.mul(b);
+		shadowMVP2.mul(lightPmat);
+		shadowMVP2.mul(lightVmat);
+		shadowMVP2.mul(mMat);
 	}
 
 	private void renderSkyBoxPrep() {
@@ -489,6 +495,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		gl.glDrawArrays(GL_TRIANGLES, 0, 6);
 	}
 
+	// renders the water over every other object in the scene
 	private void renderWater(){
 		gl = (GL4) GLContext.getCurrentGL();
 
@@ -497,6 +504,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		mvLoc = gl.glGetUniformLocation(waterProgram, "mv_matrix");
 		projLoc = gl.glGetUniformLocation(waterProgram, "proj_matrix");
 		nLoc = gl.glGetUniformLocation(waterProgram, "norm_matrix");
+		sLoc = gl.glGetUniformLocation(waterProgram, "shadowMVP");
 		int aboveLoc = gl.glGetUniformLocation(waterProgram, "isAbove");
 		int dOffsetLoc = gl.glGetUniformLocation(waterProgram, "depthOffset");
 		int fog = gl.glGetUniformLocation(waterProgram, "fogAmount");
@@ -507,20 +515,17 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 		vMat = camera.getView();
 
-		mvMat.identity();
-		mvMat.mul(vMat);
-		mvMat.mul(mMat);
-		mvMat.invert(invTrMat);
-		invTrMat.transpose(invTrMat);
+		setupMVMatrix();
 
-		mainLight.installLights(waterProgram, vMat, defaultMaterial);
-		if(controlMobileLight){
-			mobileLight.installLights(waterProgram, vMat, defaultMaterial);
-		}
+		setupShadow2Matrix();
+
+		activeLight.installLights(waterProgram, vMat, defaultMaterial);
+
 
 		gl.glUniformMatrix4fv(mvLoc, 1, false, mvMat.get(vals));
 		gl.glUniformMatrix4fv(projLoc, 1, false, pMat.get(vals));
 		gl.glUniformMatrix4fv(nLoc, 1, false, invTrMat.get(vals));
+		gl.glUniformMatrix4fv(sLoc, 1, false, shadowMVP2.get(vals));
 		gl.glUniform1f(fog, fogAmount);
 
 		if (camera.getLoc().y() > waterPos.y())
@@ -542,11 +547,11 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		gl.glVertexAttribPointer(2, 3, GL_FLOAT, false, 0, 0);
 		gl.glEnableVertexAttribArray(2);
 
-		gl.glActiveTexture(GL_TEXTURE0);
-		gl.glBindTexture(GL_TEXTURE_2D, water.getReflectTextureId());
 		gl.glActiveTexture(GL_TEXTURE1);
-		gl.glBindTexture(GL_TEXTURE_2D, water.getRefractTextureId());
+		gl.glBindTexture(GL_TEXTURE_2D, water.getReflectTextureId());
 		gl.glActiveTexture(GL_TEXTURE2);
+		gl.glBindTexture(GL_TEXTURE_2D, water.getRefractTextureId());
+		gl.glActiveTexture(GL_TEXTURE3);
 		gl.glBindTexture(GL_TEXTURE_3D, noiseTexture);
 
 		gl.glEnable(GL_DEPTH_TEST);
@@ -572,16 +577,9 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 		mMat.translation(terrainObject.getPosition().x, terrainObject.getPosition().y, terrainObject.getPosition().z);
 
-		mvMat.identity();
-		mvMat.mul(vMat);
-		mvMat.mul(mMat);
-		mvMat.invert(invTrMat);
-		invTrMat.transpose(invTrMat);
+		setupMVMatrix();
 
-		mainLight.installLights(waterFloorProgram, vMat, terrainObject.getMaterial());
-		if(controlMobileLight){
-			mobileLight.installLights(waterFloorProgram, vMat, terrainObject.getMaterial());
-		}
+		activeLight.installLights(waterFloorProgram, vMat, terrainObject.getMaterial());
 
 		gl.glUniformMatrix4fv(mvLoc, 1, false, mvMat.get(vals));
 		gl.glUniformMatrix4fv(projLoc, 1, false, pMat.get(vals));
@@ -646,6 +644,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		terrainProgram = ShaderTools.createShaderProgram("\\Shaders\\Terrain\\vertShader.glsl", "\\Shaders\\Terrain\\tessCShader.glsl", "\\Shaders\\Terrain\\tessEShader.glsl", "\\Shaders\\Terrain\\fragShader.glsl");
 		waterProgram = ShaderTools.createShaderProgram("\\Shaders\\Water\\vertshader.glsl", "\\Shaders\\Water\\fragshader.glsl");
 		waterFloorProgram = ShaderTools.createShaderProgram("\\Shaders\\Water\\vertShaderFLOOR.glsl", "\\Shaders\\Water\\fragShaderFLOOR.glsl");
+		geometryProgram = ShaderTools.createShaderProgram("\\Shaders\\Geometry\\vertShader.glsl", "\\Shaders\\Geometry\\geoadd.glsl", "\\Shaders\\Geometry\\fragShader.glsl");
 
 		redTexture = ShaderTools.loadTexture("\\textures\\red.jpg");
 		greenTexture = ShaderTools.loadTexture("\\textures\\green.jpg");
@@ -674,16 +673,18 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		setupShadowBuffers();
 		gl.glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
+		// main light is transparent
 		ImportedObject temp = new ImportedObject("\\OBJ_files\\sphere.obj");
-		mainLight = new Light(new SceneObject(temp, blueTexture, defaultMaterial, new Vector4f(0.0f, 0.0f, 0.0f, 1.0f)));
+		mainLight = new Light(new SceneObject(temp, redTexture, defaultMaterial, new Vector4f(0.0f, 0.0f, 0.0f, 1.0f)));
+		mainLight.getLightObject().setTransparant(0.2f);
+		activeLight = mainLight;
 		mobileLight = new MobileLight(camera.getView(),
-				new SceneObject(temp, blueTexture, defaultMaterial, new Vector4f(0.0f, 5.0f, 0.0f, 1.0f)));
+				new SceneObject(temp, redTexture, defaultMaterial, new Vector4f(0.0f, 5.0f, 0.0f, 1.0f)));
 
 		myCanvas.addMouseMotionListener(mobileLight);
 		myCanvas.addMouseWheelListener(mobileLight);
 		myCanvas.addMouseWheelListener(this);
 		mobileLight.setWindowSize(myCanvas.getWidth(), myCanvas.getHeight());
-
 	}
 
 	private void addNewSceneObject(ImportedObject obj, Vector4f pos, float scale, int texture, Material mat){
@@ -702,40 +703,42 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 
 		noiseTexture = water.buildNoiseTexture();
 
+		ImportedObject terrain = new ImportedObject("\\OBJ_files\\flat_plane.obj");
+
 		ImportedObject pine = new ImportedObject("\\OBJ_files\\PineTree1.obj");
 		ImportedObject pineLeaves = new ImportedObject("\\OBJ_files\\PineTree1_Leaves.obj");
-		ImportedObject terrain = new ImportedObject("\\OBJ_files\\flat_plane.obj");
+		ImportedObject bush = new ImportedObject("\\OBJ_files\\bush.obj");
+		ImportedObject bushLeaves = new ImportedObject("\\OBJ_files\\bush_leaves.obj");
+
+		ImportedObject palm = new ImportedObject("\\OBJ_files\\palm.obj");
+		ImportedObject palmLeaves = new ImportedObject("\\OBJ_files\\palm_leaves.obj");
 
 		terrainObject = new SceneObject(terrain, groundTexture, defaultMaterial, new Vector4f(0.0f, -4.0f, 0.0f, 1.0f));
 		terrainObject.setScale(50.0f);
 
-		addNewSceneObject(pine, new Vector4f(-2.0f, 0.5f, 8.0f, 1.0f), 0.5f, woodTexture, defaultMaterial);
-		sceneObjects.get(sceneObjects.size() - 1).applyMapping(0);
-		addNewSceneObject(pineLeaves, new Vector4f(-2.0f, 0.5f, 8.0f, 1.0f), 0.5f, greenTexture, darkGrassMaterial);
+		generateTree(pine, pineLeaves, new Vector4f(-2.0f, 0.5f, 8.0f, 1.0f), 0.5f);
+		generateTree(pine, pineLeaves, new Vector4f(-3.0f, 0.6f, 6.0f, 1.0f), 0.7f);
+		generateTree(pine, pineLeaves, new Vector4f(4.0f, 0.4f, 6.0f, 1.0f), 0.65f);
+		generateTree(pine, pineLeaves, new Vector4f(1.0f, 0.0f, 7.0f, 1.0f), 0.6f);
 
-		addNewSceneObject(pine, new Vector4f(-3.0f, 0.6f, 6.0f, 1.0f), 0.7f, woodTexture, defaultMaterial);
-		sceneObjects.get(sceneObjects.size() - 1).applyMapping(0);
-		addNewSceneObject(pineLeaves, new Vector4f(-3.0f, 0.6f, 6.0f, 1.0f), 0.7f, greenTexture, darkGrassMaterial);
-
-		addNewSceneObject(pine, new Vector4f(4.0f, 0.4f, 6.0f, 1.0f), 0.65f, woodTexture, defaultMaterial);
-		sceneObjects.get(sceneObjects.size() - 1).applyMapping(0);
-		addNewSceneObject(pineLeaves, new Vector4f(4.0f, 0.4f, 6.0f, 1.0f), 0.65f, greenTexture, darkGrassMaterial);
-
-		addNewSceneObject(pine, new Vector4f(1.0f, 0.0f, 7.0f, 1.0f), 0.6f, woodTexture, defaultMaterial);
-		sceneObjects.get(sceneObjects.size() - 1).applyMapping(0);
-		addNewSceneObject(pineLeaves, new Vector4f(1.0f, 0.0f, 7.0f, 1.0f), 0.6f, greenTexture, darkGrassMaterial);
-
-
+		generateTree(bush, bushLeaves, new Vector4f(15.0f, 0.5f, -4.0f, 1.0f), 1.0f);
+		generateTree(bush, bushLeaves, new Vector4f(13.0f, 0.4f, -6.5f, 1.0f), 0.9f);
+		generateTree(bush, bushLeaves, new Vector4f(16.0f, 0.5f, -2.4f, 1.0f), 1.0f);
+		generateTree(palm, palmLeaves, new Vector4f(14.5f, 0.5f, -6.0f, 1.0f), 1.0f);
+		generateTree(palm, palmLeaves, new Vector4f(13.6f, 0.5f, -2.8f, 1.0f), 0.8f);
+		generateTree(palm, palmLeaves, new Vector4f(15.8f, 0.5f, 0.0f, 1.0f), 0.7f);
 
 		for(int i = 0; i < sceneObjects.size(); i++){
 			sceneObjects.get(i).setupVBO();
 		}
 
-
 		setupSkyBox();
+	}
 
-		//setupDiamond();
-		//setupSphere();
+	private void generateTree(ImportedObject tree, ImportedObject leaves, Vector4f pos, float scale){
+		addNewSceneObject(tree, pos, scale, woodTexture, defaultMaterial);
+		sceneObjects.get(sceneObjects.size() - 1).applyMapping(0);
+		addNewSceneObject(leaves, pos, scale, greenTexture, darkGrassMaterial);
 	}
 
 	private void setupShadowBuffers()
@@ -853,12 +856,14 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		if(controlFog){toggleFogControl();}
 		controlMobileLight = !controlMobileLight;
 		mobileLight.toggleMobileLight();
+		if(controlMobileLight){activeLight = mobileLight;}
+		else {activeLight = mainLight;}
 	}
 
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e) {
 		if(controlFog){
-			fogAmount += e.getWheelRotation() * 0.01f;
+			fogAmount += e.getWheelRotation() * 0.005f;
 			if(fogAmount < 0.0f){fogAmount = 0.0f;}
 		}
 	}

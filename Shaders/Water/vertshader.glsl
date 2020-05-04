@@ -8,10 +8,12 @@ out vec3 varyingLightDir;
 out vec3 varyingVertPos;
 out vec2 tc;
 out vec4 glp;
+out vec4 shadow_coord;
 
-layout (binding=0) uniform sampler2D reflectTex;
-layout (binding=1) uniform sampler2D refractTex;
-layout (binding=2) uniform sampler3D noiseTex;
+layout (binding=0) uniform sampler2DShadow shadowTex;
+layout (binding=1) uniform sampler2D reflectTex;
+layout (binding=2) uniform sampler2D refractTex;
+layout (binding=3) uniform sampler3D noiseTex;
 
 struct PositionalLight
 {	vec4 ambient;
@@ -32,6 +34,7 @@ uniform Material material;
 uniform mat4 mv_matrix;
 uniform mat4 proj_matrix;
 uniform mat4 norm_matrix;
+uniform mat4 shadowMVP;
 uniform float fogAmount;
 uniform int isAbove;
 uniform float depthOffset;
@@ -40,6 +43,8 @@ void main(void)
 {	varyingVertPos = (mv_matrix * vec4(position,1.0)).xyz;
 	varyingLightDir = light.position - varyingVertPos;
 	varyingNormal = (norm_matrix * vec4(vertNormal,1.0)).xyz;
+
+	shadow_coord = shadowMVP * vec4(position,1.0);
 
 	tc = texCoord;
 	glp = proj_matrix * mv_matrix * vec4(position,1.0);

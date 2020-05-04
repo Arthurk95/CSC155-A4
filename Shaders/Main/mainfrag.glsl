@@ -32,6 +32,9 @@ uniform mat4 shadowMVP;
 uniform int isAbove;
 uniform int map;
 uniform float fogAmount;
+uniform float alpha;
+uniform float flipNormal;
+
 layout (binding=0) uniform sampler2DShadow shadowTex;
 layout (binding=1) uniform sampler2D samp;
 
@@ -114,7 +117,8 @@ void main(void)
 		fragColor += ((globalAmbient * material.ambient) * shadowFactor) * (1.0 - fogFactor);
 	}
 
-	if(isAbove == 1){
-	}
+	if(isAbove == 1){}
 	else{fragColor = mix(fragColor, vec4(0.0, 0.05, 0.4, 1.0), 0.6); }// blue tint
+
+	fragColor = vec4(fragColor.xyz, alpha);
 }
