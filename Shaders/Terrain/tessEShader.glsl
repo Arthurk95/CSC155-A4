@@ -3,7 +3,7 @@
 layout (quads, equal_spacing,ccw) in;
 
 uniform mat4 mvp;
-layout (binding = 0) uniform sampler2D tex_color;
+layout (binding = 0) uniform sampler2DShadow shadowTex;
 layout (binding = 1) uniform sampler2D tex_height;
 layout (binding = 2) uniform sampler2D tex_normal;
 
@@ -18,15 +18,20 @@ uniform Material material;
 uniform mat4 mv_matrix;
 uniform mat4 proj_matrix;
 uniform mat4 norm_matrix;
+uniform mat4 shadowMVP;
 out vec3 varyingVertPos;
 out vec3 varyingLightDir; 
 /*-----------------*/
 
 in vec2 tcs_out[];
 out vec2 tes_out;
+out vec4 shadow_coord;
 
-void main (void)
-{	vec2 tc = vec2(tcs_out[0].x + (gl_TessCoord.x)/64.0,
+
+void main (void){
+
+
+	vec2 tc = vec2(tcs_out[0].x + (gl_TessCoord.x)/64.0,
 					tcs_out[0].y + (1.0-gl_TessCoord.y)/64.0);
 
 	// map the tessellated grid onto the texture rectangle:
@@ -38,7 +43,9 @@ void main (void)
 	
 	gl_Position = mvp * tessellatedPoint;
 	tes_out = tc;
-	
+
+	shadow_coord = shadowMVP * tessellatedPoint;
+
 	/*--- light stuff----*/
 	varyingVertPos = (mv_matrix * tessellatedPoint).xyz;
 	varyingLightDir = light.position - varyingVertPos;

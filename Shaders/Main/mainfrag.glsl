@@ -100,13 +100,14 @@ void main(void)
 	vec4 fogColor = vec4(0.7, 0.7, 0.7, 1.0);
 	float dist = length(eyeSpacePos);
 
-	float fogFactor = dist * 0.05;
+	float fogFactor = dist * 0.02;
 
 	if(fogFactor > 1.0){fogFactor = 1.0;}
 	// not producing soft shadows for some reason, but weird shadow problem fixed
 	fragColor = mix(vec4((shadowColor.xyz*shadowFactor + lightedColor.xyz*shadowFactor), 1.0), fogColor, fogFactor);
 
 	if(notInShadow == 1.0){
-		fragColor += (globalAmbient * material.ambient) * shadowFactor;
+		fragColor += ((globalAmbient * material.ambient) * shadowFactor) * (1.0 - fogFactor);
 	}
+
 }

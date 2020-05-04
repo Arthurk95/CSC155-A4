@@ -50,11 +50,12 @@ vec3 estimateWaveNormal(float ofs, float wScale, float hScale)
 }
 
 void main(void)
-{	vec4 fogColor = vec4(0.0, 0.0, 0.2, 1.0);
-	float fogStart = 10.0;
-	float fogEnd = 300.0;
-	float dist = length(varyingVertPos.xyz);
-	float fogFactor = clamp(((fogEnd-dist) / (fogEnd-fogStart)), 0.0, 1.0);
+{	vec4 fogColor = vec4(0.7, 0.7, 0.7, 1.0);
+	float dist = length(varyingVertPos);
+
+	float fogFactor = dist * 0.02;
+
+	if(fogFactor > 1.0){fogFactor = 1.0;}
 
 	// normalize the light, normal, and view vectors:
 	vec3 L = normalize(varyingLightDir);
@@ -88,7 +89,7 @@ void main(void)
 		refractColor = texture(refractTex, (vec2(glp.x,glp.y))/(2.0*glp.w)+0.5);
 		reflectColor = texture(reflectTex, (vec2(glp.x,-glp.y))/(2.0*glp.w)+0.5);
 		reflectColor = vec4((reflectColor.xyz * (ambient + diffuse) + 0.75*specular), 1.0);
-		color = mix(refractColor, reflectColor, fresnel);
+		color = mix(mix(refractColor, reflectColor, fresnel), fogColor, fogFactor);
 	}
 	else
 	{	refractColor = texture(refractTex, (vec2(glp.x,glp.y))/(2.0*glp.w)+0.5);

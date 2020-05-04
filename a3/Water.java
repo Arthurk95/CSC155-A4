@@ -189,15 +189,15 @@ public class Water{
 
         gl.glGenBuffers(vbo.length, vbo, 0);
 
-        gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+        gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
         FloatBuffer planeBuf = Buffers.newDirectFloatBuffer(PLANE_POSITIONS);
         gl.glBufferData(GL_ARRAY_BUFFER, planeBuf.limit()*4, planeBuf, GL_STATIC_DRAW);
 
-        gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+        gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
         FloatBuffer texBuf = Buffers.newDirectFloatBuffer(PLANE_TEXCOORDS);
         gl.glBufferData(GL_ARRAY_BUFFER, texBuf.limit()*4, texBuf, GL_STATIC_DRAW);
 
-        gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
+        gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[3]);
         FloatBuffer norBuf = Buffers.newDirectFloatBuffer(PLANE_NORMALS);
         gl.glBufferData(GL_ARRAY_BUFFER, norBuf.limit()*4, norBuf, GL_STATIC_DRAW);
     }

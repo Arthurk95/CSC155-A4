@@ -3,7 +3,7 @@
 out vec2 tc;
 
 uniform mat4 mvp;
-layout (binding = 0) uniform sampler2D tex_color;
+layout (binding = 0) uniform sampler2DShadow shadowTex;
 layout (binding = 1) uniform sampler2D tex_height;
 layout (binding = 2) uniform sampler2D tex_normal;
 
@@ -18,11 +18,11 @@ uniform Material material;
 uniform mat4 mv_matrix;
 uniform mat4 proj_matrix;
 uniform mat4 norm_matrix;
+uniform mat4 shadowMVP;
 /*-----------------*/
 
 void main(void)
-{	vec2 patchTexCoords[] =
-vec2[] (vec2(0,0), vec2(1,0), vec2(0,1), vec2(1,1));
+{	vec2 patchTexCoords[] = vec2[] (vec2(0,0), vec2(1,0), vec2(0,1), vec2(1,1));
 
 	// compute an offset for coordinates based on which instance this is
 	int x = gl_InstanceID % 64;

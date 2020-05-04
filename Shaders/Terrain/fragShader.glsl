@@ -1,10 +1,11 @@
 #version 430
 
 in vec2 tes_out;
+in vec4 shadow_coord;
 out vec4 color;
 uniform mat4 mvp;
 
-layout (binding = 0) uniform sampler2D tex_color;
+layout (binding = 0) uniform sampler2DShadow shadowTex;
 layout (binding = 1) uniform sampler2D tex_height;
 layout (binding = 2) uniform sampler2D tex_normal;
 
@@ -21,7 +22,14 @@ uniform Material material;
 uniform mat4 mv_matrix;
 uniform mat4 proj_matrix;
 uniform mat4 norm_matrix;
+uniform mat4 shadowMVP;
 /* ---------------------- */
+
+float lookup(float x, float y){
+	float t = textureProj(shadowTex, shadow_coord + vec4(x * 0.001 * shadow_coord.w,
+	y * 0.001 * shadow_coord.w, -0.01, 0.0));
+	return t;
+}
 
 vec3 calcNewNormal()
 {
@@ -37,7 +45,24 @@ vec3 calcNewNormal()
 }
 
 void main(void)
-{	vec3 L = normalize(varyingLightDir);
+{
+	float shadowFactor=0.0;
+
+	float swidth = 2.5;
+	vec2 o = mod(floor(gl_FragCoord.xy), 2.0) * swidth;
+	shadowFactor += lookup(-1.5*swidth + o.x,  1.5*swidth - o.y);
+	shadowFactor += lookup(-1.5*swidth + o.x, -0.5*swidth - o.y);
+	shadowFactor += lookup( 0.5*swidth + o.x,  1.5*swidth - o.y);
+	shadowFactor += lookup( 0.5*swidth + o.x, -0.5*swidth - o.y);
+	shadowFactor = shadowFactor / 4.0;
+
+	float notInShadow = textureProj(shadowTex, shadow_coord);
+
+	vec4 brown = vec4(0.8, 0.52, 0.24, 1.0);
+	vec4 green = vec4(0.13, 0.52, 0.13, 1.0);
+
+	vec4 c = mix(green, brown, texture(tex_height,tes_out).y);
+	vec3 L = normalize(varyingLightDir);
 	vec3 V = normalize(-varyingVertPos);
 
 	vec3 N = calcNewNormal();
@@ -46,12 +71,30 @@ void main(void)
 	float cosTheta = dot(L,N);
 	float cosPhi = dot(V,R);
 
-	color = 0.5 *
+	vec4 fogColor = vec4(0.7, 0.7, 0.7, 1.0);
+	float dist = length(varyingVertPos);
+
+	float fogFactor = dist * 0.02;
+
+	if(fogFactor > 1.0){fogFactor = 1.0;}
+
+	vec4 shadowColor = globalAmbient * material.ambient
+	+ light.ambient * material.ambient;
+
+	vec4 lightedColor = 0.5 *
 	( globalAmbient * material.ambient  +  light.ambient * material.ambient
 	+ light.diffuse * material.diffuse * max(cosTheta,0.0)
-	+ light.specular * material.specular * pow(max(cosPhi,0.0), material.shininess)
-	) +
-	0.5 *
-	( texture(tex_color, tes_out)
-	);
+	+ light.specular * material.specular * pow(max(cosPhi,0.0), material.shininess) + 0.5);
+
+	lightedColor = lightedColor * c;
+
+
+
+	color = mix(vec4((shadowColor.xyz*shadowFactor + lightedColor.xyz*shadowFactor), 1.0), fogColor, fogFactor);
+
+	if(notInShadow == 1.0){
+		color += ((globalAmbient * material.ambient) * shadowFactor) * (1.0 - fogFactor);
+	}
+
+
 }

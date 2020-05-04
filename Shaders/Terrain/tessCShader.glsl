@@ -6,7 +6,7 @@ in vec2 tc[];
 out vec2 tcs_out[];
 
 uniform mat4 mvp;
-layout (binding=0) uniform sampler2D tex_color;
+layout (binding = 0) uniform sampler2D shadow_tex;
 layout (binding = 1) uniform sampler2D tex_height;
 layout (binding = 2) uniform sampler2D tex_normal;
 
@@ -21,6 +21,7 @@ uniform Material material;
 uniform mat4 mv_matrix;
 uniform mat4 proj_matrix;
 uniform mat4 norm_matrix;
+uniform mat4 shadowMVP;
 /*-----------------*/
 
 void main(void)

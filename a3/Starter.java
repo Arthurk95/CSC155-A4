@@ -83,7 +83,7 @@ public class Starter extends JFrame implements GLEventListener {
 	private int redTexture, greenTexture, blueTexture, skyboxTexture,
 		woodTexture, groundTexture, squareMoonTexture, squareMoonHeight, squareMoonNormalMap, noiseTexture;
 
-	private boolean drawAxes = true;
+	private boolean drawAxes = false;
 	private Camera camera;
 	private GL4 gl;
 	private Cube cube = new Cube();
@@ -135,11 +135,8 @@ public class Starter extends JFrame implements GLEventListener {
 
 		vMat = camera.getView();
 
-		// NOT DISPLAYING - NO IDEA WHY
+		renderEnvironment();
 
-
-
-		drawSkyBox();
 
 		gl.glBindFramebuffer(GL_FRAMEBUFFER, shadowBuffer[0]);
 		gl.glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, shadowTex[0], 0);
@@ -169,11 +166,71 @@ public class Starter extends JFrame implements GLEventListener {
 
 		gl.glDrawBuffer(GL_FRONT);
 
+		// Space to toggle
 		if(drawAxes){
 			drawAxes();
 		}
 
 		mainPass();
+
+		renderWater();
+	}
+
+	private void renderEnvironment(){
+		Vector4f cameraPos = camera.getLoc();
+		Vector3f waterPos = water.getPosition();
+
+		long currentTime = System.currentTimeMillis();
+		long elapsedTime = currentTime - lastTime;
+		lastTime = currentTime;
+
+		depthLookup += (float)elapsedTime * .0001f;
+
+		// render reflection scene to reflection buffer ----------------
+		if (cameraPos.y() > waterPos.y()) {
+			gl.glBindFramebuffer(GL_FRAMEBUFFER, water.getReflectFrameBuffer());
+			gl.glClear(GL_DEPTH_BUFFER_BIT);
+			gl.glClear(GL_COLOR_BUFFER_BIT);
+			renderSkyBoxPrep();
+			gl.glEnable(GL_CULL_FACE);
+			gl.glFrontFace(GL_CCW);	// cube is CW, but we are viewing the inside
+			gl.glDisable(GL_DEPTH_TEST);
+			gl.glDrawArrays(GL_TRIANGLES, 0, 36);
+			gl.glEnable(GL_DEPTH_TEST);
+		}
+
+		// render refraction scene to refraction buffer ----------------------------------------
+
+		gl.glBindFramebuffer(GL_FRAMEBUFFER, water.getRefractFrameBuffer());
+
+
+		renderSkyBoxPrep();
+		gl.glEnable(GL_CULL_FACE);
+		gl.glFrontFace(GL_CCW);	// cube is CW, but we are viewing the inside
+		gl.glDisable(GL_DEPTH_TEST);
+		gl.glDrawArrays(GL_TRIANGLES, 0, 36);
+		gl.glEnable(GL_DEPTH_TEST);
+
+		gl.glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		gl.glClear(GL_DEPTH_BUFFER_BIT);
+		gl.glClear(GL_COLOR_BUFFER_BIT);
+
+		// draw cube map
+
+		gl.glClear(GL_DEPTH_BUFFER_BIT);
+		gl.glClear(GL_COLOR_BUFFER_BIT);
+		renderSkyBoxPrep();
+		gl.glEnable(GL_CULL_FACE);
+		gl.glFrontFace(GL_CCW);	// cube is CW, but we are viewing the inside
+		gl.glDisable(GL_DEPTH_TEST);
+		gl.glDrawArrays(GL_TRIANGLES, 0, 36);
+		gl.glEnable(GL_DEPTH_TEST);
+
+
+
+		// draw water top (surface) ======================
+
+
 
 	}
 
@@ -222,8 +279,8 @@ public class Starter extends JFrame implements GLEventListener {
 	private void mainPass(){
 		gl.glClear(GL_DEPTH_BUFFER_BIT);
 		vMat = camera.getView();
+
 		drawTerrain(sceneObjects.get(0));
-		renderWater();
 		gl = (GL4) GLContext.getCurrentGL();
 		gl.glUseProgram(mainProgram);
 
@@ -248,16 +305,20 @@ public class Starter extends JFrame implements GLEventListener {
 	private void drawTerrain(SceneObject object){
 		gl = (GL4) GLContext.getCurrentGL();
 
+		gl.glUseProgram(terrainProgram);
+
 		mvpLoc = gl.glGetUniformLocation(terrainProgram, "mvp");
 		mvLoc = gl.glGetUniformLocation(terrainProgram, "mv_matrix");
 		projLoc = gl.glGetUniformLocation(terrainProgram, "proj_matrix");
 		nLoc = gl.glGetUniformLocation(terrainProgram, "norm_matrix");
+		sLoc = gl.glGetUniformLocation(terrainProgram, "shadowMVP");
 
-		gl.glUseProgram(terrainProgram);
 
 		mMat.identity();
 		mMat.translate(object.getPosition().x, object.getPosition().y, object.getPosition().z);
-		mMat.scale(object.getScale());
+		float scale = object.getScale();
+		mMat.scale(scale, scale*10.0f, scale);
+
 
 		mvMat.identity();
 		mvMat.mul(vMat);
@@ -287,9 +348,10 @@ public class Starter extends JFrame implements GLEventListener {
 		gl.glUniformMatrix4fv(mvLoc, 1, false, mvMat.get(vals));
 		gl.glUniformMatrix4fv(projLoc, 1, false, pMat.get(vals));
 		gl.glUniformMatrix4fv(nLoc, 1, false, invTrMat.get(vals));
+		gl.glUniformMatrix4fv(sLoc, 1, false, shadowMVP2.get(vals));
 
-		gl.glActiveTexture(GL_TEXTURE0);
-		gl.glBindTexture(GL_TEXTURE_2D, squareMoonTexture);
+		//gl.glActiveTexture(GL_TEXTURE0);
+		//gl.glBindTexture(GL_TEXTURE_2D, squareMoonTexture);
 		gl.glActiveTexture(GL_TEXTURE1);
 		gl.glBindTexture(GL_TEXTURE_2D, squareMoonHeight);
 		gl.glActiveTexture(GL_TEXTURE2);
@@ -363,6 +425,30 @@ public class Starter extends JFrame implements GLEventListener {
 		gl.glDrawArrays(GL_TRIANGLES, 0, object.getNumVerts());
 	}
 
+	private void renderSkyBoxPrep() {
+		gl = (GL4) GLContext.getCurrentGL();
+
+		gl.glUseProgram(skyBoxProgram);
+
+		vLoc = gl.glGetUniformLocation(skyBoxProgram, "v_matrix");
+		projLoc = gl.glGetUniformLocation(skyBoxProgram, "p_matrix");
+		int aboveLoc = gl.glGetUniformLocation(skyBoxProgram, "isAbove");
+		gl.glUniformMatrix4fv(vLoc, 1, false, vMat.get(vals));
+		gl.glUniformMatrix4fv(projLoc, 1, false, pMat.get(vals));
+
+		if (camera.getLoc().y() > water.getPosition().y())
+			gl.glUniform1i(aboveLoc, 1);
+		else
+			gl.glUniform1i(aboveLoc, 0);
+
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vboSkyBox[0]);
+		gl.glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
+		gl.glEnableVertexAttribArray(0);
+
+		gl.glActiveTexture(GL_TEXTURE0);
+		gl.glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);
+	}
+
 	private void drawSkyBox(){
 		gl.glUseProgram(skyBoxProgram);
 
@@ -391,12 +477,6 @@ public class Starter extends JFrame implements GLEventListener {
 	private void renderWater()
 	{	gl = (GL4) GLContext.getCurrentGL();
 
-		long currentTime = System.currentTimeMillis();
-		long elapsedTime = currentTime - lastTime;
-		lastTime = currentTime;
-
-		depthLookup += (float)elapsedTime * .0001f;
-
 		gl.glUseProgram(waterProgram);
 
 		mvLoc = gl.glGetUniformLocation(waterProgram, "mv_matrix");
@@ -409,6 +489,8 @@ public class Starter extends JFrame implements GLEventListener {
 
 		mMat.translation(waterPos.x(), waterPos.y(), waterPos.z());
 
+		vMat = camera.getView();
+
 		mvMat.identity();
 		mvMat.mul(vMat);
 		mvMat.mul(mMat);
@@ -416,28 +498,30 @@ public class Starter extends JFrame implements GLEventListener {
 		invTrMat.transpose(invTrMat);
 
 		mainLight.installLights(waterProgram, vMat, defaultMaterial);
-
+		if(controlMobileLight){
+			mobileLight.installLights(waterProgram, vMat, defaultMaterial);
+		}
 
 		gl.glUniformMatrix4fv(mvLoc, 1, false, mvMat.get(vals));
 		gl.glUniformMatrix4fv(projLoc, 1, false, pMat.get(vals));
 		gl.glUniformMatrix4fv(nLoc, 1, false, invTrMat.get(vals));
 
 		if (camera.getLoc().y() > waterPos.y())
-			gl.glUniform1i(aboveLoc, 0);
-		else
 			gl.glUniform1i(aboveLoc, 1);
-
+		else {
+			gl.glUniform1i(aboveLoc, 0);
+		}
 		gl.glUniform1f(dOffsetLoc, depthLookup);
 
 		int[] vbo = water.getVBO();
 
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
 		gl.glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
 		gl.glEnableVertexAttribArray(0);
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
 		gl.glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0);
 		gl.glEnableVertexAttribArray(1);
-		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
+		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[3]);
 		gl.glVertexAttribPointer(2, 3, GL_FLOAT, false, 0, 0);
 		gl.glEnableVertexAttribArray(2);
 
@@ -500,8 +584,8 @@ public class Starter extends JFrame implements GLEventListener {
 		skyboxTexture = ShaderTools.loadCubeMap("cubeMap");
 
 		squareMoonTexture = ShaderTools.loadTexture("\\textures\\squareMoonMap.jpg");
-		squareMoonHeight = ShaderTools.loadTexture("\\textures\\squareMoonBump.jpg");
-		squareMoonNormalMap = ShaderTools.loadTexture("\\textures\\squareMoonNormal.jpg");
+		squareMoonHeight = ShaderTools.loadTexture("\\textures\\heightmap.png");
+		squareMoonNormalMap = ShaderTools.loadTexture("\\textures\\terrainBump.png");
 
 		b.set(
 				0.5f, 0.0f, 0.0f, 0.0f,
@@ -552,23 +636,23 @@ public class Starter extends JFrame implements GLEventListener {
 		ImportedObject pineLeaves = new ImportedObject("\\OBJ_files\\PineTree1_Leaves.obj");
 		ImportedObject terrain = new ImportedObject("\\OBJ_files\\flat_plane.obj");
 
-		addNewSceneObject(terrain, new Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 50.0f, groundTexture, defaultMaterial);
+		addNewSceneObject(terrain, new Vector4f(0.0f, -4.0f, 0.0f, 1.0f), 50.0f, groundTexture, defaultMaterial);
 
-		addNewSceneObject(pine, new Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.5f, woodTexture, defaultMaterial);
+		addNewSceneObject(pine, new Vector4f(-2.0f, 0.5f, 8.0f, 1.0f), 0.5f, woodTexture, defaultMaterial);
 		sceneObjects.get(sceneObjects.size() - 1).applyMapping(0);
-		addNewSceneObject(pineLeaves, new Vector4f(0.0f, 0.0f, 0.0f, 1.0f), 0.5f, greenTexture, darkGrassMaterial);
+		addNewSceneObject(pineLeaves, new Vector4f(-2.0f, 0.5f, 8.0f, 1.0f), 0.5f, greenTexture, darkGrassMaterial);
 
-		addNewSceneObject(pine, new Vector4f(-3.0f, 0.0f, 1.0f, 1.0f), 0.7f, woodTexture, defaultMaterial);
+		addNewSceneObject(pine, new Vector4f(-3.0f, 0.6f, 6.0f, 1.0f), 0.7f, woodTexture, defaultMaterial);
 		sceneObjects.get(sceneObjects.size() - 1).applyMapping(0);
-		addNewSceneObject(pineLeaves, new Vector4f(-3.0f, 0.0f, 1.0f, 1.0f), 0.7f, greenTexture, darkGrassMaterial);
+		addNewSceneObject(pineLeaves, new Vector4f(-3.0f, 0.6f, 6.0f, 1.0f), 0.7f, greenTexture, darkGrassMaterial);
 
-		addNewSceneObject(pine, new Vector4f(5.0f, 0.0f, -3.0f, 1.0f), 0.65f, woodTexture, defaultMaterial);
+		addNewSceneObject(pine, new Vector4f(4.0f, 0.4f, 6.0f, 1.0f), 0.65f, woodTexture, defaultMaterial);
 		sceneObjects.get(sceneObjects.size() - 1).applyMapping(0);
-		addNewSceneObject(pineLeaves, new Vector4f(5.0f, 0.0f, -3.0f, 1.0f), 0.65f, greenTexture, darkGrassMaterial);
+		addNewSceneObject(pineLeaves, new Vector4f(4.0f, 0.4f, 6.0f, 1.0f), 0.65f, greenTexture, darkGrassMaterial);
 
-		addNewSceneObject(pine, new Vector4f(1.0f, 0.0f, 5.0f, 1.0f), 0.6f, woodTexture, defaultMaterial);
+		addNewSceneObject(pine, new Vector4f(1.0f, 0.0f, 7.0f, 1.0f), 0.6f, woodTexture, defaultMaterial);
 		sceneObjects.get(sceneObjects.size() - 1).applyMapping(0);
-		addNewSceneObject(pineLeaves, new Vector4f(1.0f, 0.0f, 5.0f, 1.0f), 0.6f, greenTexture, darkGrassMaterial);
+		addNewSceneObject(pineLeaves, new Vector4f(1.0f, 0.0f, 7.0f, 1.0f), 0.6f, greenTexture, darkGrassMaterial);
 
 
 
