@@ -83,7 +83,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	private Light mainLight;
 
 	private int redTexture, greenTexture, blueTexture, skyboxTexture,
-		woodTexture, groundTexture, squareMoonTexture, squareMoonHeight, squareMoonNormalMap, noiseTexture;
+		woodTexture, groundTexture, terrainHeightTexture, terrainNormalTexture, noiseTexture;
 
 	private boolean drawAxes = false;
 	private Camera camera;
@@ -96,7 +96,7 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 	private SceneObject terrainObject;
 
 	public Starter() {
-		setTitle("CSC 155 - a2");
+		setTitle("CSC 155 - a4");
 		setSize(800, 800);
 		camera = new Camera(0.0f, 3.0f, 10.0f);
 
@@ -328,9 +328,9 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		//gl.glActiveTexture(GL_TEXTURE0);
 		//gl.glBindTexture(GL_TEXTURE_2D, squareMoonTexture);
 		gl.glActiveTexture(GL_TEXTURE1);
-		gl.glBindTexture(GL_TEXTURE_2D, squareMoonHeight);
+		gl.glBindTexture(GL_TEXTURE_2D, terrainHeightTexture);
 		gl.glActiveTexture(GL_TEXTURE2);
-		gl.glBindTexture(GL_TEXTURE_2D, squareMoonNormalMap);
+		gl.glBindTexture(GL_TEXTURE_2D, terrainNormalTexture);
 
 		gl.glClear(GL_DEPTH_BUFFER_BIT);
 		gl.glEnable(GL_DEPTH_TEST);
@@ -651,9 +651,8 @@ public class Starter extends JFrame implements GLEventListener, MouseWheelListen
 		blueTexture = ShaderTools.loadTexture("\\textures\\blue.jpg");
 		skyboxTexture = ShaderTools.loadCubeMap("cubeMap");
 
-		squareMoonTexture = ShaderTools.loadTexture("\\textures\\squareMoonMap.jpg");
-		squareMoonHeight = ShaderTools.loadTexture("\\textures\\heightmap.png");
-		squareMoonNormalMap = ShaderTools.loadTexture("\\textures\\terrainBump.png");
+		terrainHeightTexture = ShaderTools.loadTexture("\\textures\\terrainHeight.png");
+		terrainNormalTexture = ShaderTools.loadTexture("\\textures\\terrainBump.png");
 
 		b.set(
 				0.5f, 0.0f, 0.0f, 0.0f,

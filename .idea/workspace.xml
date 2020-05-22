@@ -1,20 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1f0ac45b-1513-4a63-8cb0-e37a5c2d0247" name="Default Changelist" comment="added floor for water and altered colors when underwater">
+    <list default="true" id="1f0ac45b-1513-4a63-8cb0-e37a5c2d0247" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OBJ_Files/flat_plane.mtl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Shaders/Main/mainfrag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/Shaders/Main/mainfrag.glsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Shaders/Main/mainvert.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/Shaders/Main/mainvert.glsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Shaders/Skybox/skyfrag.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/Shaders/Skybox/skyfrag.glsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Shaders/Water/fragshader.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/Shaders/Water/fragshader.glsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Shaders/Water/vertshader.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/Shaders/Water/vertshader.glsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a3/Light.java" beforeDir="false" afterPath="$PROJECT_DIR$/a3/Light.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a3/MobileLight.java" beforeDir="false" afterPath="$PROJECT_DIR$/a3/MobileLight.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a3/ShaderTools.java" beforeDir="false" afterPath="$PROJECT_DIR$/a3/ShaderTools.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a3/Starter.java" beforeDir="false" afterPath="$PROJECT_DIR$/a3/Starter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a3/Water.java" beforeDir="false" afterPath="$PROJECT_DIR$/a3/Water.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a3/sceneobject/SceneObject.java" beforeDir="false" afterPath="$PROJECT_DIR$/a3/sceneobject/SceneObject.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a4/Starter.java" beforeDir="false" afterPath="$PROJECT_DIR$/a4/Starter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/textures/castleroofNORMAL.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/textures/heightmap.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/textures/lines.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/textures/spstob_1.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/textures/squareMoonBump.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/textures/squareMoonMap.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/textures/squareMoonNormal.jpg" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -24,22 +20,20 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/a3/Starter.java">
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/a4/Starter.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="11713">
-              <caret line="739" column="66" selection-start-line="739" selection-start-column="66" selection-end-line="739" selection-end-column="66" />
+            <state relative-caret-position="1020">
+              <caret line="98" column="33" selection-start-line="98" selection-start-column="33" selection-end-line="98" selection-end-column="33" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#30311#30312#0" expanded="true" />
-                <element signature="e#30338#30339#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/a3/Light.java">
+        <entry file="file://$PROJECT_DIR$/a4/Light.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="221">
               <caret line="19" column="61" selection-start-line="19" selection-start-column="61" selection-end-line="19" selection-end-column="61" />
@@ -47,11 +41,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Shaders/Water/fragshader.glsl">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="435">
-              <caret line="125" column="106" selection-start-line="125" selection-start-column="106" selection-end-line="125" selection-end-column="106" />
+            <state relative-caret-position="714">
+              <caret line="42" column="44" selection-start-line="42" selection-start-column="44" selection-end-line="42" selection-end-column="44" />
             </state>
           </provider>
         </entry>
@@ -75,9 +69,9 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/a3/Water.java">
+        <entry file="file://$PROJECT_DIR$/a4/Water.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-85">
+            <state relative-caret-position="1156">
               <caret line="76" column="49" selection-start-line="76" selection-start-column="49" selection-end-line="76" selection-end-column="49" />
               <folding>
                 <element signature="imports" expanded="true" />
@@ -87,9 +81,9 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/a3/ShaderTools.java">
+        <entry file="file://$PROJECT_DIR$/a4/ShaderTools.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="327">
+            <state relative-caret-position="5202">
               <caret line="322" selection-start-line="322" selection-end-line="322" />
               <folding>
                 <element signature="imports" expanded="true" />
@@ -99,7 +93,7 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/a3/MobileLight.java">
+        <entry file="file://$PROJECT_DIR$/a4/MobileLight.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="238">
               <caret line="26" column="55" selection-start-line="26" selection-start-column="55" selection-end-line="26" selection-end-column="55" />
@@ -110,7 +104,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Shaders/Main/mainfrag.glsl">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="333">
+            <state relative-caret-position="1972">
               <caret line="116" column="93" selection-start-line="116" selection-start-column="21" selection-end-line="116" selection-end-column="93" />
             </state>
           </provider>
@@ -182,6 +176,7 @@
         <option value="$PROJECT_DIR$/a3/Light.java" />
         <option value="$PROJECT_DIR$/a3/MobileLight.java" />
         <option value="$PROJECT_DIR$/Shaders/Water/fragshader.glsl" />
+        <option value="$PROJECT_DIR$/a4/Starter.java" />
       </list>
     </option>
   </component>
@@ -210,30 +205,30 @@
             <path>
               <item name="CSC155-A1" type="b2602c69:ProjectViewProjectNode" />
               <item name="CSC155-A1" type="462c0819:PsiDirectoryNode" />
-              <item name="a3" type="462c0819:PsiDirectoryNode" />
+              <item name="a4" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="CSC155-A1" type="b2602c69:ProjectViewProjectNode" />
               <item name="CSC155-A1" type="462c0819:PsiDirectoryNode" />
-              <item name="a3" type="462c0819:PsiDirectoryNode" />
+              <item name="a4" type="462c0819:PsiDirectoryNode" />
               <item name="actions" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="CSC155-A1" type="b2602c69:ProjectViewProjectNode" />
               <item name="CSC155-A1" type="462c0819:PsiDirectoryNode" />
-              <item name="a3" type="462c0819:PsiDirectoryNode" />
+              <item name="a4" type="462c0819:PsiDirectoryNode" />
               <item name="material" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="CSC155-A1" type="b2602c69:ProjectViewProjectNode" />
               <item name="CSC155-A1" type="462c0819:PsiDirectoryNode" />
-              <item name="a3" type="462c0819:PsiDirectoryNode" />
+              <item name="a4" type="462c0819:PsiDirectoryNode" />
               <item name="models" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="CSC155-A1" type="b2602c69:ProjectViewProjectNode" />
               <item name="CSC155-A1" type="462c0819:PsiDirectoryNode" />
-              <item name="a3" type="462c0819:PsiDirectoryNode" />
+              <item name="a4" type="462c0819:PsiDirectoryNode" />
               <item name="sceneobject" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -286,7 +281,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1588629165599" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1588631988990" />
     <property name="last_opened_file_path" value="C:/Program Files/Java/joml-1.9.24.jar!/" />
     <property name="project.structure.last.edited" value="Modules" />
     <property name="project.structure.proportion" value="0.15" />
@@ -528,13 +523,28 @@
       <option name="project" value="LOCAL" />
       <updated>1588561883817</updated>
     </task>
-    <option name="localTasksCounter" value="27" />
+    <task id="LOCAL-00027" summary="added geometry and blending/transparency, and shadows to water">
+      <created>1588629065714</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1588629065714</updated>
+    </task>
+    <task id="LOCAL-00028" summary="renamed package to a4">
+      <created>1588629210911</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1588629210911</updated>
+    </task>
+    <option name="localTasksCounter" value="29" />
     <servers />
   </component>
   <component name="ToolWindowManager">
     <frame x="77" y="62" width="1591" height="1026" extended-state="0" />
+    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.11691705" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.12867408" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Designer" order="3" />
@@ -542,8 +552,8 @@
       <window_info id="Capture Tool" order="5" />
       <window_info id="Favorites" order="6" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4989059" visible="true" weight="0.31494254" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.32988507" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4989059" weight="0.31494254" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39770114" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -551,7 +561,7 @@
       <window_info anchor="bottom" id="Terminal" order="7" />
       <window_info anchor="bottom" id="Event Log" order="8" sideWeight="0.5010941" side_tool="true" weight="0.30751964" />
       <window_info anchor="bottom" id="Version Control" order="9" weight="0.2188889" />
-      <window_info anchor="bottom" id="Messages" order="10" weight="0.32777777" />
+      <window_info anchor="bottom" id="Messages" order="10" weight="0.3275862" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -624,8 +634,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="added comments, reorganized code a bit" />
-    <MESSAGE value="exit on jframe close" />
     <MESSAGE value="preparing for next part of assignment. created beginning of solar system" />
     <MESSAGE value="separated vbo arrays for each shape" />
     <MESSAGE value="added axis lines" />
@@ -649,7 +657,9 @@
     <MESSAGE value="custom height/normal map and shadows working with tessellation" />
     <MESSAGE value="added mouse wheel control for fog" />
     <MESSAGE value="added floor for water and altered colors when underwater" />
-    <option name="LAST_COMMIT_MESSAGE" value="added floor for water and altered colors when underwater" />
+    <MESSAGE value="added geometry and blending/transparency, and shadows to water" />
+    <MESSAGE value="renamed package to a4" />
+    <option name="LAST_COMMIT_MESSAGE" value="renamed package to a4" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -668,7 +678,7 @@
     <entry file="file://$PROJECT_DIR$/shadowvert.glsl" />
     <entry file="file://$PROJECT_DIR$/axisfrag.glsl" />
     <entry file="file://$PROJECT_DIR$/axisvert.glsl" />
-    <entry file="file://$PROJECT_DIR$/a3/Camera.java">
+    <entry file="file://$PROJECT_DIR$/a4/Camera.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="510">
           <caret line="33" selection-start-line="33" selection-end-line="33" />
@@ -680,7 +690,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/mainvert.glsl" />
     <entry file="file://$PROJECT_DIR$/mainfrag.glsl" />
-    <entry file="file://$PROJECT_DIR$/a3/ImportedObject.java">
+    <entry file="file://$PROJECT_DIR$/a4/ImportedObject.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-51">
           <caret line="41" column="17" selection-start-line="41" selection-start-column="17" selection-end-line="41" selection-end-column="17" />
@@ -707,13 +717,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Shaders/Fog/fogfrag.glsl">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="289">
-          <caret line="17" column="14" selection-start-line="17" selection-start-column="14" selection-end-line="17" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/Shaders/Fog/fogfrag.glsl" />
     <entry file="file://$PROJECT_DIR$/Shaders/Terrain/tessEShader.glsl">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="782">
@@ -735,7 +739,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/a3/actions/ControlFog.java">
+    <entry file="file://$PROJECT_DIR$/a4/actions/ControlFog.java">
       <provider selected="true" editor-type-id="text-editor">
         <state>
           <folding>
@@ -744,7 +748,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/a3/actions/ToggleAxes.java">
+    <entry file="file://$PROJECT_DIR$/a4/actions/ToggleAxes.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="68">
           <caret line="7" column="46" selection-start-line="7" selection-start-column="32" selection-end-line="7" selection-end-column="46" />
@@ -765,28 +769,22 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/a3/material/Material.java">
+    <entry file="file://$PROJECT_DIR$/a4/material/Material.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="170">
           <caret line="10" lean-forward="true" selection-start-line="10" selection-end-line="10" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/a3/material/DarkGrass.java">
+    <entry file="file://$PROJECT_DIR$/a4/material/DarkGrass.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="51">
           <caret line="3" column="4" selection-start-line="3" selection-start-column="4" selection-end-line="11" selection-end-column="43" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/a3/material/YellowMaterial.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="6" column="33" lean-forward="true" selection-start-line="6" selection-start-column="33" selection-end-line="6" selection-end-column="33" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/a3/sceneobject/SceneObject.java">
+    <entry file="file://$PROJECT_DIR$/a4/material/YellowMaterial.java" />
+    <entry file="file://$PROJECT_DIR$/a4/sceneobject/SceneObject.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="187">
           <caret line="65" column="10" selection-start-line="65" selection-start-column="10" selection-end-line="65" selection-end-column="10" />
@@ -817,37 +815,27 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/a3/ShaderTools.java">
+    <entry file="file://$PROJECT_DIR$/a4/Starter.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="327">
-          <caret line="322" selection-start-line="322" selection-end-line="322" />
+        <state relative-caret-position="1020">
+          <caret line="98" column="33" selection-start-line="98" selection-start-column="33" selection-end-line="98" selection-end-column="33" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Shaders/Skybox/skyfrag.glsl">
+    <entry file="file://$PROJECT_DIR$/a4/Light.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="221">
-          <caret line="13" selection-start-line="13" selection-end-line="13" />
+          <caret line="19" column="61" selection-start-line="19" selection-start-column="61" selection-end-line="19" selection-end-column="61" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Shaders/Main/mainvert.glsl">
+    <entry file="file://$PROJECT_DIR$/Shaders/Water/fragshader.glsl">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="11" column="22" selection-start-line="11" selection-start-column="22" selection-end-line="11" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/a3/Water.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-85">
-          <caret line="76" column="49" selection-start-line="76" selection-start-column="49" selection-end-line="76" selection-end-column="49" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+        <state relative-caret-position="714">
+          <caret line="42" column="44" selection-start-line="42" selection-start-column="44" selection-end-line="42" selection-end-column="44" />
         </state>
       </provider>
     </entry>
@@ -858,43 +846,51 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Shaders/Main/mainfrag.glsl">
+    <entry file="file://$PROJECT_DIR$/Shaders/Skybox/skyfrag.glsl">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="333">
-          <caret line="116" column="93" selection-start-line="116" selection-start-column="21" selection-end-line="116" selection-end-column="93" />
+        <state relative-caret-position="221">
+          <caret line="13" selection-start-line="13" selection-end-line="13" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/a3/Starter.java">
+    <entry file="file://$PROJECT_DIR$/a4/Water.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="11713">
-          <caret line="739" column="66" selection-start-line="739" selection-start-column="66" selection-end-line="739" selection-end-column="66" />
+        <state relative-caret-position="1156">
+          <caret line="76" column="49" selection-start-line="76" selection-start-column="49" selection-end-line="76" selection-end-column="49" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#30311#30312#0" expanded="true" />
-            <element signature="e#30338#30339#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/a3/Light.java">
+    <entry file="file://$PROJECT_DIR$/a4/ShaderTools.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="19" column="61" selection-start-line="19" selection-start-column="61" selection-end-line="19" selection-end-column="61" />
+        <state relative-caret-position="5202">
+          <caret line="322" selection-start-line="322" selection-end-line="322" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/a3/MobileLight.java">
+    <entry file="file://$PROJECT_DIR$/a4/MobileLight.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="238">
           <caret line="26" column="55" selection-start-line="26" selection-start-column="55" selection-end-line="26" selection-end-column="55" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Shaders/Water/fragshader.glsl">
+    <entry file="file://$PROJECT_DIR$/Shaders/Main/mainfrag.glsl">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="435">
-          <caret line="125" column="106" selection-start-line="125" selection-start-column="106" selection-end-line="125" selection-end-column="106" />
+        <state relative-caret-position="1972">
+          <caret line="116" column="93" selection-start-line="116" selection-start-column="21" selection-end-line="116" selection-end-column="93" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Shaders/Main/mainvert.glsl">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="187">
+          <caret line="11" column="22" selection-start-line="11" selection-start-column="22" selection-end-line="11" selection-end-column="22" />
         </state>
       </provider>
     </entry>
